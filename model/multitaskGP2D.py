@@ -1,6 +1,7 @@
 import gpytorch
 import torch
 
+# from publishGP.design import LinearMean
 from linearMean import LinearMean
 
 class MultitaskGP2D(gpytorch.models.ExactGP):
