@@ -1,0 +1,28 @@
+                                  
+================================= 
+Global information about the job: 
+================================= 
+  
+Job owner: dvoss(54815)
+Job name:  test
+Node list: ravg1211
+Job start: Tue Jul 16 14:25:45 CEST 2024
+Job end:   Tue Jul 16 14:26:31 CEST 2024
+Work dir:  /raven/u/dvoss/al_pmssmwithgp
+Command:   /raven/u/dvoss/al_pmssmwithgp/model/slurm/single_job.sbatch
+  
+  
+  
+==========================================================================================
+Information on jobsteps (Note: MaxRSS/AveRSS is the maximum/average over all 
+tasks of the per-task memory high-water marks; cf. "man sacct"): 
+==========================================================================================
+  
+JobID            JobName NNodes NTasks  NCPUS       MaxRSS       AveRSS    Elapsed ExitCode
+------------- ---------- ------ ------ ------ ------------ ------------ ---------- --------
+12005236            test      1             4                             00:00:46      1:0
+12005236.0        job.sh      1      1      4      128.59M      128.59M   00:00:42      1:0
+  
+Maximum memory per node: 0.134841 GB (defined as MaxRSS*Ntasks/NNodes)
+CPU utilization: 0.0 %
+  

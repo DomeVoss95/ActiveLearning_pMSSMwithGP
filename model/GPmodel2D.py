@@ -20,38 +20,42 @@ class GPModel:
         self.multitask_gp = None
 
     def load_data(self):
-        all_data = []
-        for subdir in self.subdir_range:
-            file_path = os.path.join(self.base_dir, str(subdir), f"ntuple.6249447.{subdir}.root")
-            try:
-                file = uproot.open(file_path)
-                tree = file[self.tree_name]
-                df = tree.arrays(library="pd")
-                all_data.append(df)
-            except Exception as e:
-                print(f"Failed to open or process {file_path}: {e}")
+        # all_data = []
+        # for subdir in self.subdir_range:
+        #     file_path = os.path.join(self.base_dir, str(subdir), f"ntuple.6249447.{subdir}.root")
+        #     try:
+        #         file = uproot.open(file_path)
+        #         tree = file[self.tree_name]
+        #         df = tree.arrays(library="pd")
+        #         all_data.append(df)
+        #     except Exception as e:
+        #         print(f"Failed to open or process {file_path}: {e}")
 
-        self.final_df = pd.concat(all_data, ignore_index=True)
+        # self.final_df = pd.concat(all_data, ignore_index=True)
+        self.final_df = pd.read_csv('output.csv')
     
     def prepare_data(self):
         M_1 = self.final_df['IN_M_1']
         M_2 = self.final_df['IN_M_2']
         Omega = self.final_df['MO_Omega']
 
+        n_points = 50
+        n_train = 30
+
         mask = (Omega > 0) & (Omega < 1.0)
         M_1_filtered = M_1[mask]
         M_2_filtered = M_2[mask]
         Omega_filtered = Omega[mask]
 
-        M_1_limited = M_1_filtered.iloc[:5000]
-        M_2_limited = M_2_filtered.iloc[:5000]
-        Omega_limited = Omega_filtered.iloc[:5000]
+        M_1_limited = M_1_filtered.iloc[:n_points]
+        M_2_limited = M_2_filtered.iloc[:n_points]
+        Omega_limited = Omega_filtered.iloc[:n_points]
 
-        self.x_train = torch.stack([torch.tensor(M_1_limited.values[:4000], dtype=torch.float32), torch.tensor(M_2_limited.values[:4000], dtype=torch.float32)], dim=1)
-        self.y_train = torch.log(torch.tensor(Omega_limited.values[:4000], dtype=torch.float32) / 0.12)
+        self.x_train = torch.stack([torch.tensor(M_1_limited.values[:n_train], dtype=torch.float32), torch.tensor(M_2_limited.values[:n_train], dtype=torch.float32)], dim=1)
+        self.y_train = torch.log(torch.tensor(Omega_limited.values[:n_train], dtype=torch.float32) / 0.12)
 
-        self.x_valid = torch.stack([torch.tensor(M_1_limited.values[4000:], dtype=torch.float32), torch.tensor(M_2_limited.values[4000:], dtype=torch.float32)], dim=1)
-        self.y_valid = torch.log(torch.tensor(Omega_limited.values[4000:], dtype=torch.float32) / 0.12)
+        self.x_valid = torch.stack([torch.tensor(M_1_limited.values[n_train:], dtype=torch.float32), torch.tensor(M_2_limited.values[n_train:], dtype=torch.float32)], dim=1)
+        self.y_valid = torch.log(torch.tensor(Omega_limited.values[n_train:], dtype=torch.float32) / 0.12)
 
         self.normalize_data()
 
@@ -133,6 +137,23 @@ class GPModel:
         plt.savefig(filename)
         plt.close()
 
+    def highlight_top_entropy_points(self, x_test, entropy, observed_pred, filename="highlight_top_entropy_points.png"):
+        mean = observed_pred.mean.numpy()
+        heatmap, xedges, yedges = np.histogram2d(x_test[:, 0], x_test[:, 1], bins=50, weights=mean, density=True)
+        topk_indices = torch.argsort(entropy, descending=True)[:10]
+        top_10_points = x_test[topk_indices]
+        plt.figure(figsize=(8, 6))
+        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='Mean log(Omega/0.12)')
+        plt.xlabel('M_1_normalized')
+        plt.ylabel('M_2_normalized')
+        plt.title('Gaussian Process Mean Heatmap')
+        plt.scatter(top_10_points[:, 0], top_10_points[:, 1], marker='*', s=200, c='r', label='Top 10 High Entropy Points')
+        plt.contour(xedges[:-1], yedges[:-1], heatmap.T, levels=[0], colors='white', linewidths=2, linestyles='solid')
+        plt.legend()
+        plt.savefig(filename)
+        plt.close()
+
 if __name__ == "__main__":
     base_dir = "/eos/user/d/dvoss/Run3ModelGen/6249447/"
     subdir_range = range(0, 20)
@@ -140,24 +161,26 @@ if __name__ == "__main__":
     
     model.load_data()
     model.prepare_data()
-    model.train_model(iters=2000)
+    model.train_model(iters=20)
     model.plot_losses()
 
+    n_test = 10000
+    
     # Test data
-    x_test = torch.stack([torch.tensor(model.final_df['IN_M_1'].values[5000:20000], dtype=torch.float32), torch.tensor(model.final_df['IN_M_2'].values[2000:10000], dtype=torch.float32)], dim=1)
+    x_test = torch.stack([torch.tensor(model.final_df['IN_M_1'].values[50:n_test], dtype=torch.float32), torch.tensor(model.final_df['IN_M_2'].values[50:n_test], dtype=torch.float32)], dim=1)
     x_test = (x_test - x_test.mean(dim=0)) / x_test.std(dim=0)
     
     observed_pred, entropy = model.evaluate(x_test)
     
     mean = observed_pred.mean.numpy()
-    model.plot_heatmap(x_test, mean, 'Mean log(Omega/0.12)', 'Gaussian Process Mean Heatmap')
+    model.plot_heatmap(x_test, mean, 'Mean log(Omega/0.12)', 'Gaussian Process Mean Heatmap', "mean_heatmap.png")
     
-    z = torch.tensor(mean) - torch.log(torch.tensor(model.final_df['MO_Omega'].values[5000:20000], dtype=torch.float32)/0.12)
-    model.plot_heatmap(x_test, z.numpy(), 'Mean log(Omega/0.12)', 'Gaussian Process Mean Heatmap (Predicted vs True)')
+    z = torch.tensor(mean) - torch.log(torch.tensor(model.final_df['MO_Omega'].values[50:n_test], dtype=torch.float32) / 0.12)
+    model.plot_heatmap(x_test, z.numpy(), 'Mean log(Omega/0.12)', 'Gaussian Process Mean Heatmap (Predicted vs True)', "pred_vs_true_heatmap.png")
     
-    z = torch.log(torch.tensor(model.final_df['MO_Omega'].values[5000:20000], dtype=torch.float32)/0.12)
-    model.plot_heatmap(x_test, z.numpy(), 'log(Omega/0.12)', 'True Function Heatmap')
+    z = torch.log(torch.tensor(model.final_df['MO_Omega'].values[50:n_test], dtype=torch.float32) / 0.12)
+    model.plot_heatmap(x_test, z.numpy(), 'log(Omega/0.12)', 'True Function Heatmap', "true_function_heatmap.png")
     
-    model.plot_entropy(x_test, entropy.numpy())
+    model.plot_entropy(x_test, entropy.numpy(), "entropy_heatmap.png")
     
-    model.highlight_top_entropy_points(x_test, entropy, observed_pred)
+    model.highlight_top_entropy_points(x_test, entropy, observed_pred, "highlight_top_entropy_points.png")
