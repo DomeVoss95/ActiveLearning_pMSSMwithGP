@@ -20,6 +20,7 @@ class GPModel:
         self.multitask_gp = None
 
     def load_data(self):
+        # Uncomment this section if you need to load from root files
         # all_data = []
         # for subdir in self.subdir_range:
         #     file_path = os.path.join(self.base_dir, str(subdir), f"ntuple.6249447.{subdir}.root")
@@ -89,17 +90,19 @@ class GPModel:
 
         with torch.no_grad():
             observed_pred = self.likelihood(self.multitask_gp(x_test))
-            mean = observed_pred.mean.detach().reshape(-1, 1)
+            mean = observed_pred.mean.detach().cpu().numpy().reshape(-1, 1)
             device = "cuda" if torch.cuda.is_available() else "cpu"
             dtype = torch.float32
-            var = observed_pred.variance.detach().reshape(-1, 1)
+            var = observed_pred.variance.detach().cpu().numpy().reshape(-1, 1)
             thr = torch.Tensor([0.])
-            entropy = entropy_local(mean, var, thr, device, dtype)
+            entropy = entropy_local(torch.tensor(mean), torch.tensor(var), thr, device, dtype)
 
         return observed_pred, entropy
 
     def plot_heatmap(self, x_test, z, label, title, filename):
-        heatmap, xedges, yedges = np.histogram2d(x_test[:, 0], x_test[:, 1], bins=50, weights=z, density=True)
+        x_test_np = x_test.cpu().numpy() if torch.is_tensor(x_test) else np.array(x_test)
+        z_np = z.cpu().numpy() if torch.is_tensor(z) else np.array(z)
+        heatmap, xedges, yedges = np.histogram2d(x_test_np[:, 0], x_test_np[:, 1], bins=50, weights=z_np, density=True)
         plt.figure(figsize=(8, 6))
         plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
         plt.colorbar(label=label)
@@ -110,7 +113,9 @@ class GPModel:
         plt.close()
 
     def plot_entropy(self, x_test, entropy, filename="entropy_heatmap.png"):
-        heatmap, xedges, yedges = np.histogram2d(x_test[:, 0], x_test[:, 1], bins=50, weights=entropy, density=True)
+        x_test_np = x_test.cpu().numpy() if torch.is_tensor(x_test) else np.array(x_test)
+        entropy_np = entropy.cpu().numpy() if torch.is_tensor(entropy) else np.array(entropy)
+        heatmap, xedges, yedges = np.histogram2d(x_test_np[:, 0], x_test_np[:, 1], bins=50, weights=entropy_np, density=True)
         plt.figure(figsize=(8, 6))
         plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
         plt.colorbar(label='Entropy')
@@ -121,34 +126,20 @@ class GPModel:
         plt.close()
 
     def highlight_top_entropy_points(self, x_test, entropy, observed_pred, filename="highlight_top_entropy_points.png"):
-        mean = observed_pred.mean.numpy()
-        heatmap, xedges, yedges = np.histogram2d(x_test[:, 0], x_test[:, 1], bins=50, weights=mean, density=True)
+        x_test_np = x_test.cpu().numpy() if torch.is_tensor(x_test) else np.array(x_test)
+        entropy_np = entropy.cpu().numpy() if torch.is_tensor(entropy) else np.array(entropy)
+        mean = observed_pred.mean.cpu().numpy()
+        heatmap, xedges, yedges = np.histogram2d(x_test_np[:, 0], x_test_np[:, 1], bins=50, weights=mean, density=True)
         topk_indices = torch.argsort(entropy, descending=True)[:10]
         top_10_points = x_test[topk_indices]
+        top_10_points_np = top_10_points.cpu().numpy() if torch.is_tensor(top_10_points) else np.array(top_10_points)
         plt.figure(figsize=(8, 6))
         plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
         plt.colorbar(label='Mean log(Omega/0.12)')
         plt.xlabel('M_1_normalized')
         plt.ylabel('M_2_normalized')
         plt.title('Gaussian Process Mean Heatmap')
-        plt.scatter(top_10_points[:, 0], top_10_points[:, 1], marker='*', s=200, c='r', label='Top 10 High Entropy Points')
-        plt.contour(xedges[:-1], yedges[:-1], heatmap.T, levels=[0], colors='white', linewidths=2, linestyles='solid')
-        plt.legend()
-        plt.savefig(filename)
-        plt.close()
-
-    def highlight_top_entropy_points(self, x_test, entropy, observed_pred, filename="highlight_top_entropy_points.png"):
-        mean = observed_pred.mean.numpy()
-        heatmap, xedges, yedges = np.histogram2d(x_test[:, 0], x_test[:, 1], bins=50, weights=mean, density=True)
-        topk_indices = torch.argsort(entropy, descending=True)[:10]
-        top_10_points = x_test[topk_indices]
-        plt.figure(figsize=(8, 6))
-        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
-        plt.colorbar(label='Mean log(Omega/0.12)')
-        plt.xlabel('M_1_normalized')
-        plt.ylabel('M_2_normalized')
-        plt.title('Gaussian Process Mean Heatmap')
-        plt.scatter(top_10_points[:, 0], top_10_points[:, 1], marker='*', s=200, c='r', label='Top 10 High Entropy Points')
+        plt.scatter(top_10_points_np[:, 0], top_10_points_np[:, 1], marker='*', s=200, c='r', label='Top 10 High Entropy Points')
         plt.contour(xedges[:-1], yedges[:-1], heatmap.T, levels=[0], colors='white', linewidths=2, linestyles='solid')
         plt.legend()
         plt.savefig(filename)
@@ -172,15 +163,4 @@ if __name__ == "__main__":
     
     observed_pred, entropy = model.evaluate(x_test)
     
-    mean = observed_pred.mean.numpy()
-    model.plot_heatmap(x_test, mean, 'Mean log(Omega/0.12)', 'Gaussian Process Mean Heatmap', "mean_heatmap.png")
-    
-    z = torch.tensor(mean) - torch.log(torch.tensor(model.final_df['MO_Omega'].values[50:n_test], dtype=torch.float32) / 0.12)
-    model.plot_heatmap(x_test, z.numpy(), 'Mean log(Omega/0.12)', 'Gaussian Process Mean Heatmap (Predicted vs True)', "pred_vs_true_heatmap.png")
-    
-    z = torch.log(torch.tensor(model.final_df['MO_Omega'].values[50:n_test], dtype=torch.float32) / 0.12)
-    model.plot_heatmap(x_test, z.numpy(), 'log(Omega/0.12)', 'True Function Heatmap', "true_function_heatmap.png")
-    
-    model.plot_entropy(x_test, entropy.numpy(), "entropy_heatmap.png")
-    
-    model.highlight_top_entropy_points(x_test, entropy, observed_pred, "highlight_top_entropy_points.png")
+    mean = observed_pred.mean.detach().cpu

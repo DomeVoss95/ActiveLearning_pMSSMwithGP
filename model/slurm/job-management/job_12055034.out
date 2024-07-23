@@ -1,0 +1,40 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: uproot in /raven/u/dvoss/.local/lib/python3.9/site-packages (5.3.10)
+Requirement already satisfied: numpy in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from uproot) (1.20.3)
+Requirement already satisfied: typing-extensions>=4.1.0 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (4.12.2)
+Requirement already satisfied: packaging in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from uproot) (21.0)
+Requirement already satisfied: awkward>=2.4.6 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (2.6.6)
+Requirement already satisfied: fsspec in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (2024.6.1)
+Requirement already satisfied: cramjam>=2.5.0 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (2.8.3)
+Requirement already satisfied: importlib-metadata>=4.13.0 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from awkward>=2.4.6->uproot) (8.0.0)
+Requirement already satisfied: awkward-cpp==35 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from awkward>=2.4.6->uproot) (35)
+Requirement already satisfied: zipp>=0.5 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from importlib-metadata>=4.13.0->awkward>=2.4.6->uproot) (3.6.0)
+Requirement already satisfied: pyparsing>=2.0.2 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from packaging->uproot) (3.0.4)
+                                  
+================================= 
+Global information about the job: 
+================================= 
+  
+Job owner: dvoss(54815)
+Job name:  test
+Node list: ravg1123
+Job start: Fri Jul 19 16:21:32 CEST 2024
+Job end:   Fri Jul 19 16:21:40 CEST 2024
+Work dir:  /raven/u/dvoss/al_pmssmwithgp
+Command:   /raven/u/dvoss/al_pmssmwithgp/model/slurm/single_job.sbatch
+  
+  
+  
+==========================================================================================
+Information on jobsteps (Note: MaxRSS/AveRSS is the maximum/average over all 
+tasks of the per-task memory high-water marks; cf. "man sacct"): 
+==========================================================================================
+  
+JobID            JobName NNodes NTasks  NCPUS       MaxRSS       AveRSS    Elapsed ExitCode
+------------- ---------- ------ ------ ------ ------------ ------------ ---------- --------
+12055034            test      1             4                             00:00:08      1:0
+12055034.0        job.sh      1      1      4        1.20M        1.20M   00:00:02      1:0
+  
+Maximum memory per node: 0.001404 GB (defined as MaxRSS*Ntasks/NNodes)
+CPU utilization: 0.0 %
+  

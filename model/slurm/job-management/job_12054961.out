@@ -1,0 +1,50 @@
+Defaulting to user installation because normal site-packages is not writeable
+Collecting uproot
+  Downloading uproot-5.3.10-py3-none-any.whl (352 kB)
+Collecting typing-extensions>=4.1.0
+  Downloading typing_extensions-4.12.2-py3-none-any.whl (37 kB)
+Requirement already satisfied: packaging in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from uproot) (21.0)
+Requirement already satisfied: numpy in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from uproot) (1.20.3)
+Collecting awkward>=2.4.6
+  Downloading awkward-2.6.6-py3-none-any.whl (812 kB)
+Requirement already satisfied: fsspec in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from uproot) (2021.8.1)
+Collecting cramjam>=2.5.0
+  Downloading cramjam-2.8.3-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.0 MB)
+Collecting importlib-metadata>=4.13.0
+  Downloading importlib_metadata-8.0.0-py3-none-any.whl (24 kB)
+Collecting awkward-cpp==35
+  Downloading awkward_cpp-35-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (692 kB)
+Collecting fsspec
+  Downloading fsspec-2024.6.1-py3-none-any.whl (177 kB)
+Requirement already satisfied: zipp>=0.5 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from importlib-metadata>=4.13.0->awkward>=2.4.6->uproot) (3.6.0)
+Requirement already satisfied: pyparsing>=2.0.2 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from packaging->uproot) (3.0.4)
+Installing collected packages: typing-extensions, importlib-metadata, fsspec, awkward-cpp, cramjam, awkward, uproot
+Successfully installed awkward-2.6.6 awkward-cpp-35 cramjam-2.8.3 fsspec-2024.6.1 importlib-metadata-8.0.0 typing-extensions-4.12.2 uproot-5.3.10
+                                  
+================================= 
+Global information about the job: 
+================================= 
+  
+Job owner: dvoss(54815)
+Job name:  test
+Node list: ravg1123
+Job start: Fri Jul 19 16:08:56 CEST 2024
+Job end:   Fri Jul 19 16:09:39 CEST 2024
+Work dir:  /raven/u/dvoss/al_pmssmwithgp
+Command:   /raven/u/dvoss/al_pmssmwithgp/model/slurm/single_job.sbatch
+  
+  
+  
+==========================================================================================
+Information on jobsteps (Note: MaxRSS/AveRSS is the maximum/average over all 
+tasks of the per-task memory high-water marks; cf. "man sacct"): 
+==========================================================================================
+  
+JobID            JobName NNodes NTasks  NCPUS       MaxRSS       AveRSS    Elapsed ExitCode
+------------- ---------- ------ ------ ------ ------------ ------------ ---------- --------
+12054961            test      1             4                             00:00:43      1:0
+12054961.0        job.sh      1      1      4        1.24M        1.24M   00:00:25      1:0
+  
+Maximum memory per node: 0.006575 GB (defined as MaxRSS*Ntasks/NNodes)
+CPU utilization: 0.0 %
+  
