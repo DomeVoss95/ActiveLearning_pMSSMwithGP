@@ -3,7 +3,7 @@
 #SBATCH -o /raven/u/dvoss/al_pmssmwithgp/model/slurm/job-management/job_%j.out
 #SBATCH -e /raven/u/dvoss/al_pmssmwithgp/model/slurm/job-management/job_%j.err
 # Initial working directory:
-#SBATCH -D /raven/u/dvoss/al_pmssmwithgp
+#SBATCH -D /raven/u/dvoss/al_pmssmwithgp/model
 #
 # For CPU (uncomment)
 # Number of nodes and MPI tasks per node:
@@ -34,7 +34,10 @@ pip install uproot
 
 # Copy the output.csv to the working directory if needed
 # If output.csv is already in the working directory, this step is not needed
-cp /u/dvoss/al_pmssmwithgp/model/output.csv /u/dvoss/al_pmssmwithgp/
+# cp /u/dvoss/al_pmssmwithgp/model/M_2_fixed.csv /u/dvoss/al_pmssmwithgp/
+# cp /u/dvoss/al_pmssmwithgp/model/entropy.py /u/dvoss/al_pmssmwithgp/
+
+# cp /u/dvoss/al_pmssmwithgp/model/output.csv /u/dvoss/al_pmssmwithgp/
 
 # # Load conda environment
 # conda env create -f environment.yaml

@@ -14,7 +14,8 @@ class MultitaskGP(gpytorch.models.ExactGP):
         '''
         super().__init__(x_train, y_train, likelihood)
         self.mean_module = LinearMean(input_size=1)
-        self.covar_module = gpytorch.kernels.RBFKernel()
+        # self.covar_module = gpytorch.kernels.RBFKernel()
+        self.covar_module = gpytorch.kernels.MaternKernel(nu=0.5)
         self.covar_module.lengthscale = 0.5e-2
         self.task_covar_module = gpytorch.kernels.IndexKernel(
             num_tasks=1, # Single task

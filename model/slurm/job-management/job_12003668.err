@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/raven/u/dvoss/al_pmssmwithgp/model/GPmodel2D.py", line 2, in <module>
-    import gpytorch
-ModuleNotFoundError: No module named 'gpytorch'
-srun: error: ravg1135: task 0: Exited with exit code 1
-srun: Terminating StepId=12003668.0
