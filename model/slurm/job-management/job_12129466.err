@@ -1,0 +1,14 @@
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+Traceback (most recent call last):
+  File "/raven/u/dvoss/al_pmssmwithgp/model/GPmodel1D.py", line 312, in <module>
+    gp_pipeline = GPModelPipeline(csv_file='M_2_fixed.csv', output_dir=output_dir)
+  File "/raven/u/dvoss/al_pmssmwithgp/model/GPmodel1D.py", line 204, in __init__
+    self.initialize_model()
+  File "/raven/u/dvoss/al_pmssmwithgp/model/GPmodel1D.py", line 232, in initialize_model
+    self.model = MultitaskGP(self.x_train, self.y_train, self.x_valid, self.y_valid, self.likelihood)
+  File "/raven/u/dvoss/al_pmssmwithgp/model/multitaskGP.py", line 144, in __init__
+    state_dict = OrderedDict([
+NameError: name 'OrderedDict' is not defined
+srun: error: ravg1017: task 0: Exited with exit code 1
+srun: Terminating StepId=12129466.0

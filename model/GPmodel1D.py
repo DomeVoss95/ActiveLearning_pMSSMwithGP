@@ -1,172 +1,3 @@
-# import torch
-# import gpytorch
-# from matplotlib import pyplot as plt
-# from gpytorch.likelihoods import GaussianLikelihood
-# import pandas as pd
-
-# import numpy as np
-# import os
-# import uproot
-
-# final_df = pd.read_csv("M_2_fixed.csv")
-
-
-# M_1 = final_df['IN_M_1']
-# Omega = final_df['MO_Omega']
-
-# # Filter Omega, M_1, and M_2 
-# mask = (Omega > 0) 
-
-# # Apply the mask to filter M_1, M_2, and Omega
-# M_1_filtered = M_1[mask]
-# Omega_filtered = Omega[mask]
-
-# n_points = 50
-# n_train = 30
-# n_test = 100000
-
-# # Limit to only 100 points
-# M_1_limited = M_1_filtered.iloc[:n_points]
-# Omega_limited = Omega_filtered.iloc[:n_points]
-
-# # Convert to train
-# x_train = torch.tensor(M_1_limited.values[:n_train], dtype=torch.float32)
-# y_train = torch.log(torch.tensor(Omega_limited.values[:n_train], dtype=torch.float32)/0.12)
-
-
-# # Convert to valid
-# x_valid = torch.tensor(M_1_limited.values[n_train:], dtype=torch.float32)
-# y_valid = torch.log(torch.tensor(Omega_limited.values[n_train:], dtype=torch.float32)/0.12)
-
-
-# # Normalisierung der Daten auf min = 0 und maximum = 1
-# # Min-Max-Normalisierung für x_train
-# x_train_min = x_train.min(dim=0, keepdim=True).values
-# x_train_max = x_train.max(dim=0, keepdim=True).values
-# x_train = (x_train - x_train_min) / (x_train_max - x_train_min)
-
-# # Min-Max-Normalisierung für x_valid
-# x_valid_min = x_valid.min(dim=0, keepdim=True).values
-# x_valid_max = x_valid.max(dim=0, keepdim=True).values
-# x_valid = (x_valid - x_valid_min) / (x_valid_max - x_valid_min)
-
-
-# from multitaskGP import MultitaskGP
-
-
-# likelihood = GaussianLikelihood()
-# multitask_gp = MultitaskGP(x_train, y_train, x_valid, y_valid, likelihood)
-
-# best_multitask_gp, losses, losses_valid = multitask_gp.do_train_loop(iters=20)
-
-
-# # Erstellen des Plots
-# plt.plot(losses, label='training loss')
-# plt.plot(losses_valid, label='validation loss')
-
-# # Setzen der y-Achse auf logarithmische Skala
-# plt.yscale('log')
-
-# # Hinzufügen der Legende
-# plt.legend()
-
-# # Achsenbeschriftungen und Titel hinzufügen (optional)
-# plt.xlabel('Iterations')
-# plt.ylabel('Loss')
-# plt.title('Training and Validation Loss on Logarithmic Scale')
-
-# # Anzeigen des Plots
-# plt.show()
-
-# x_test = torch.linspace(0, 1, 1000)
-
-# # from PublishGP.utils import entropy_local
-# from entropy import entropy_local 
-
-# def evaluate(multitask_gp, likelihood, x_test):
-#     """Evaluate GP on test sample and calculate corresponding entropies."""
-
-#     multitask_gp.eval()
-#     likelihood.eval()
-
-#     with torch.no_grad():
-#         # Get prediction:
-#         observed_pred = likelihood(multitask_gp(x_test))
-
-#         # Get upper and lower confidence bounds
-#         mean = observed_pred.mean.detach().reshape(-1, 1)
-#         device = "cuda" if torch.cuda.is_available() else "cpu"
-#         dtype = torch.float32
-#         var = observed_pred.variance.detach().reshape(-1, 1)
-#         thr = torch.Tensor([0.]) # Threshold in CDF calculation. Needs to be more sophisticated if params are scaled.
-
-#         entropy = entropy_local(mean, var, thr, device, dtype)
-        
-#     return observed_pred, entropy
-
-# observed_pred, entropy = evaluate(multitask_gp, likelihood, x_test)
-
-# print("Observed prediction: ", observed_pred)
-
-
-# # Convert to train
-# x_true = torch.tensor(M_1.values[:], dtype=torch.float32)
-
-# # Normalisierung der Daten auf min = 0 und maximum = 1
-# # Min-Max-Normalisierung für x_train
-# x_true_min = x_true.min(dim=0, keepdim=True).values
-# x_true_max = x_true.max(dim=0, keepdim=True).values
-# x_true = (x_true - x_true_min) / (x_true_max - x_true_min)
-
-# y_true = torch.log(torch.tensor(Omega.values[:], dtype=torch.float32)/0.12)
-
-
-# def plotGP(new_x = None, save_path=None):
-#     """Plot GP inclusive entropy"""
-
-#     mean = observed_pred.mean.numpy()
-#     lower, upper = observed_pred.confidence_region()
-
-#     # Initialize plot
-#     _, ax = plt.subplots(1, 1, figsize=(10, 6))
-
-    
-#     # Plot predictive means as blue line
-#     ax.plot(x_test.numpy(), mean, 'b', label='Learnt Function')
-#     # Shade between the lower and upper confidence bounds
-#     ax.fill_between(x_test.numpy(), lower.numpy(), upper.numpy(), alpha=0.5, label='Confidence')
-#     # ax.set_ylim([-3, 3])
-#     ax.plot(x_true, y_true, '*', c="r", label='Truth')
-#     # Plot training data as black stars
-#     ax.plot(x_train.numpy(), y_train.numpy(), 'k*', c="b", label='Training Data')
-
-#     # Add new points to be evaluated:
-#     if new_x is not None:
-#         dolabel = True
-#         for xval in new_x:
-#             ax.axvline(x=xval, color='r', linestyle='--', label='new points') if dolabel else ax.axvline(x=xval, color='r', linestyle='--')
-#             dolabel = False
-
-#     ax2 = ax.twinx()
-#     ax2.set_ylabel("entropy")
-#     ax2.plot(x_test, entropy, 'g', label='Entropy')
-
-#     maxE = torch.max(entropy)
-#     maxIndex = torch.argmax(entropy)
-#     maxX = x_test[maxIndex]
-#     ax2.plot(maxX, maxE, 'go', label='Max. E')
-
-#     # add common legend:
-#     lines, labels = ax.get_legend_handles_labels()
-#     lines2, labels2 = ax2.get_legend_handles_labels()
-#     ax2.legend(lines + lines2, labels + labels2)
-
-#     if save_path is not None:
-#         plt.savefig(save_path)
-#         print(f"Plot saved to {save_path}")
-
-# plotGP(save_path='gp_plot.png')
-
 import os
 import torch
 import gpytorch
@@ -180,7 +11,7 @@ from multitaskGP import MultitaskGP
 
 
 class GPModelPipeline:
-    def __init__(self, csv_file, output_dir, n_points=70, n_train=50, n_test=100000):
+    def __init__(self, csv_file, output_dir, n_points=70, n_train=30, n_test=100000):
         self.csv_file = csv_file
         self.output_dir = output_dir
         self.n_points = n_points
@@ -259,6 +90,8 @@ class GPModelPipeline:
 
             self.entropy = entropy_local(mean, var, thr, device, dtype)
 
+            print("Entropy: ", self.entropy)
+
     def plotGP(self, new_x=None, save_path=None):
         mean = self.observed_pred.mean.cpu().numpy()
         lower, upper = self.observed_pred.confidence_region()
@@ -284,19 +117,19 @@ class GPModelPipeline:
                 ax.axvline(x=xval, color='r', linestyle='--', label='new points') if dolabel else ax.axvline(x=xval, color='r', linestyle='--')
                 dolabel = False
 
-        # ax2 = ax.twinx()
-        # ax2.set_ylabel("entropy")
-        # ax2.plot(self.x_test.cpu().numpy(), self.entropy.cpu().numpy(), 'g', label='Entropy')
+        ax2 = ax.twinx()
+        ax2.set_ylabel("entropy")
+        ax2.plot(self.x_test.cpu().numpy(), self.entropy.cpu().numpy(), 'g', label='Entropy')
 
-        # maxE = torch.max(self.entropy)
-        # maxIndex = torch.argmax(self.entropy)
-        # maxX = self.x_test[maxIndex]
-        # ax2.plot(maxX.cpu().numpy(), maxE.cpu().numpy(), 'go', label='Max. E')
+        maxE = torch.max(self.entropy)
+        maxIndex = torch.argmax(self.entropy)
+        maxX = self.x_test[maxIndex]
+        ax2.plot(maxX.cpu().numpy(), maxE.cpu().numpy(), 'go', label='Max. E')
 
         lines, labels = ax.get_legend_handles_labels()
-        # lines2, labels2 = ax2.get_legend_handles_labels()
-        # ax2.legend(lines + lines2, labels + labels2)
-        ax.legend(lines, labels)
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines + lines2, labels + labels2)
+        # ax.legend(lines, labels)
 
         if save_path is not None:
             plt.savefig(save_path)
@@ -308,6 +141,9 @@ class GPModelPipeline:
 output_dir = '/raven/u/dvoss/al_pmssmwithgp/model/plots'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
+
+    # device = "cuda" if torch.cuda.is_available() else "cpu"
+    # print("")
 
 gp_pipeline = GPModelPipeline(csv_file='M_2_fixed.csv', output_dir=output_dir)
 gp_pipeline.train_model(iters=1000)
