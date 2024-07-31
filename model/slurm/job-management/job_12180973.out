@@ -1,0 +1,74 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: uproot in /raven/u/dvoss/.local/lib/python3.9/site-packages (5.3.10)
+Requirement already satisfied: awkward>=2.4.6 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (2.6.6)
+Requirement already satisfied: numpy in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from uproot) (1.20.3)
+Requirement already satisfied: fsspec in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (2024.6.1)
+Requirement already satisfied: typing-extensions>=4.1.0 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (4.12.2)
+Requirement already satisfied: cramjam>=2.5.0 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (2.8.3)
+Requirement already satisfied: packaging in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from uproot) (21.0)
+Requirement already satisfied: awkward-cpp==35 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from awkward>=2.4.6->uproot) (35)
+Requirement already satisfied: importlib-metadata>=4.13.0 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from awkward>=2.4.6->uproot) (8.0.0)
+Requirement already satisfied: zipp>=0.5 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from importlib-metadata>=4.13.0->awkward>=2.4.6->uproot) (3.6.0)
+Requirement already satisfied: pyparsing>=2.0.2 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from packaging->uproot) (3.0.4)
+weights: torch.Size([1, 1])
+X: torch.Size([30, 1])
+X: tensor([[0.5131],
+        [0.8579],
+        [0.5832],
+        [0.1589],
+        [0.0000],
+        [0.9259],
+        [0.2316],
+        [0.9492],
+        [0.5611],
+        [0.7297],
+        [0.8896],
+        [0.7635],
+        [0.1274],
+        [0.6906],
+        [0.9612],
+        [0.5784],
+        [0.8320],
+        [0.1003],
+        [0.7800],
+        [0.6433],
+        [0.9363],
+        [0.0490],
+        [1.0000],
+        [0.5558],
+        [0.4267],
+        [0.5119],
+        [0.7644],
+        [0.6638],
+        [0.7182],
+        [0.1702]], device='cuda:0')
+weights: Parameter containing:
+tensor([[0.1000]], device='cuda:0', requires_grad=True)
+                                  
+================================= 
+Global information about the job: 
+================================= 
+  
+Job owner: dvoss(54815)
+Job name:  test
+Node list: ravg1198
+Job start: Wed Jul 31 15:18:52 CEST 2024
+Job end:   Wed Jul 31 15:19:56 CEST 2024
+Work dir:  /raven/u/dvoss/al_pmssmwithgp/model
+Command:   /raven/u/dvoss/al_pmssmwithgp/model/slurm/single_job.sbatch
+  
+  
+  
+==========================================================================================
+Information on jobsteps (Note: MaxRSS/AveRSS is the maximum/average over all 
+tasks of the per-task memory high-water marks; cf. "man sacct"): 
+==========================================================================================
+  
+JobID            JobName NNodes NTasks  NCPUS       MaxRSS       AveRSS    Elapsed ExitCode
+------------- ---------- ------ ------ ------ ------------ ------------ ---------- --------
+12180973            test      1             4                             00:01:04      1:0
+12180973.0        job.sh      1      1      4      591.55M      591.55M   00:00:51      1:0
+  
+Maximum memory per node: 0.620286 GB (defined as MaxRSS*Ntasks/NNodes)
+CPU utilization: 1.6 %
+  

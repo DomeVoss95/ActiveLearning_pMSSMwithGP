@@ -1,3 +1,4 @@
+import uproot
 import os
 import torch
 import gpytorch
@@ -8,10 +9,10 @@ import numpy as np
 from entropy import entropy_local  # Ensure this is the correct import path for your entropy_local function
 from multitaskGP import MultitaskGP
 
-
 class GPModelPipeline:
-    def __init__(self, csv_file, output_dir, n_points=70, n_train=30, n_test=100000):
+    def __init__(self, csv_file, root_file_path, output_dir, n_points=70, n_train=30, n_test=100000):
         self.csv_file = csv_file
+        self.root_file_path = root_file_path
         self.output_dir = output_dir
         self.n_points = n_points
         self.n_train = n_train
@@ -36,29 +37,52 @@ class GPModelPipeline:
         self.initialize_model()
 
     def load_data(self):
+        # Open the ROOT file
+        file = uproot.open(self.root_file_path)
+        
+        tree_name = "susy"
+        tree = file[tree_name]
+        
+        # Convert tree to pandas DataFrame
+        al_df = tree.arrays(library="pd")
+        M_1_al = al_df['IN_M_1']
+        Omega_al = al_df['MO_Omega']
+        
         final_df = pd.read_csv(self.csv_file)
         M_1 = final_df['IN_M_1']
         Omega = final_df['MO_Omega']
-
+        
         mask = (Omega > 0)
         M_1_filtered = M_1[mask]
         Omega_filtered = Omega[mask]
-
+        
         M_1_limited = M_1_filtered.iloc[:self.n_points]
         Omega_limited = Omega_filtered.iloc[:self.n_points]
-
-        self.x_train = torch.tensor(M_1_limited.values[:self.n_train], dtype=torch.float32).to(self.device)
-        self.y_train = torch.log(torch.tensor(Omega_limited.values[:self.n_train], dtype=torch.float32) / 0.12).to(self.device)
+        
+        # Convert al data to tensors and concatenate with limited data
+        M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
+        Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
+        
+        x_train_data = torch.cat((torch.tensor(M_1_limited.values[:self.n_train], dtype=torch.float32).to(self.device), M_1_al_tensor))
+        y_train_data = torch.cat((torch.log(torch.tensor(Omega_limited.values[:self.n_train], dtype=torch.float32).to(self.device) / 0.12), torch.log(Omega_al_tensor / 0.12)))
+        
+        self.x_train = x_train_data
+        self.y_train = y_train_data
         self.x_valid = torch.tensor(M_1_limited.values[self.n_train:], dtype=torch.float32).to(self.device)
         self.y_valid = torch.log(torch.tensor(Omega_limited.values[self.n_train:], dtype=torch.float32) / 0.12).to(self.device)
+        
+        self.x_train, self.data_min, self.data_max = self._normalize(self.x_train)
+        self.x_valid = self._normalize(self.x_valid, self.data_min, self.data_max)[0]
 
-        self.x_train = self._normalize(self.x_train)
-        self.x_valid = self._normalize(self.x_valid)
+    def _normalize(self, data, data_min=None, data_max=None):
+        if data_min is None:
+            data_min = data.min(dim=0, keepdim=True).values
+        if data_max is None:
+            data_max = data.max(dim=0, keepdim=True).values
+        return (data - data_min) / (data_max - data_min), data_min, data_max
 
-    def _normalize(self, data):
-        data_min = data.min(dim=0, keepdim=True).values
-        data_max = data.max(dim=0, keepdim=True).values
-        return (data - data_min) / (data_max - data_min)
+    def _unnormalize(self, data, data_min, data_max):
+        return data * (data_max - data_min) + data_min
 
     def initialize_model(self):
         self.model = MultitaskGP(self.x_train, self.y_train, self.x_valid, self.y_valid, self.likelihood).to(self.device)
@@ -114,7 +138,7 @@ class GPModelPipeline:
 
         if new_x is not None:
             dolabel = True
-            for xval in new_x:
+            for xval in new_x.cpu().numpy():  # Move xval to CPU before using it in axvline
                 ax.axvline(x=xval, color='r', linestyle='--', label='new points') if dolabel else ax.axvline(x=xval, color='r', linestyle='--')
                 dolabel = False
 
@@ -214,10 +238,13 @@ class GPModelPipeline:
 
             points = set(selector(N=N, gp_mean=mean - thr, gp_covar=covar))
             new_x = self.x_test[list(points)]
+
+            # Unnormalize new_x
+            new_x_unnormalized = self._unnormalize(new_x, self.data_min, self.data_max)
         
         print("points:", points)
-        print("Corresponding xs:", new_x)
-        return new_x
+        print("Corresponding xs:", new_x_unnormalized)
+        return new_x 
 
 
 # Usage
@@ -225,7 +252,7 @@ output_dir = '/raven/u/dvoss/al_pmssmwithgp/model/plots'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-gp_pipeline = GPModelPipeline(csv_file='M_2_fixed.csv', output_dir=output_dir)
+gp_pipeline = GPModelPipeline(csv_file='M_2_fixed.csv', root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/scan/ntuple.0.0.root', output_dir=output_dir)
 gp_pipeline.train_model(iters=1000)
 gp_pipeline.plot_losses()
 gp_pipeline.evaluate_model()
