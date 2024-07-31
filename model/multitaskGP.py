@@ -18,7 +18,7 @@ class MultitaskGP(gpytorch.models.ExactGP):
         # Setting up the covariance module with lengthscale constraints
         self.covar_module = gpytorch.kernels.RBFKernel(nu=0.5)
         self.covar_module.raw_lengthscale.requires_grad_(False)
-        self.covar_module.register_constraint("raw_lengthscale", gpytorch.constraints.Interval(0.01, 10.0))
+        self.covar_module.register_constraint("raw_lengthscale", gpytorch.constraints.Interval(1e-4, 10.0))
         self.covar_module.raw_lengthscale.requires_grad_(True)
         
         # Setting initial lengthscale value within the new constraints
@@ -33,7 +33,7 @@ class MultitaskGP(gpytorch.models.ExactGP):
 
         # Adjusting the noise constraint
         self.likelihood.noise_covar.raw_noise.requires_grad_(False)
-        self.likelihood.noise_covar.register_constraint("raw_noise", gpytorch.constraints.Interval(1e-3, 1.0))
+        self.likelihood.noise_covar.register_constraint("raw_noise", gpytorch.constraints.Interval(1e-3, 1))
         self.likelihood.noise_covar.raw_noise.requires_grad_(True)
 
         # Adjusting the raw variance constraint

@@ -1,0 +1,32 @@
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Traceback (most recent call last):
+  File "/raven/u/dvoss/al_pmssmwithgp/model/GPmodel1Dtest.py", line 233, in <module>
+    gp_pipeline.plotGP(new_x=new_points, save_path=os.path.join(output_dir, 'gp_plot.png'))
+  File "/raven/u/dvoss/al_pmssmwithgp/model/GPmodel1Dtest.py", line 118, in plotGP
+    ax.axvline(x=xval, color='r', linestyle='--', label='new points') if dolabel else ax.axvline(x=xval, color='r', linestyle='--')
+  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/matplotlib/axes/_axes.py", line 791, in axvline
+    self.add_line(l)
+  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/matplotlib/axes/_base.py", line 2101, in add_line
+    self._update_line_limits(line)
+  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/matplotlib/axes/_base.py", line 2123, in _update_line_limits
+    path = line.get_path()
+  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/matplotlib/lines.py", line 1022, in get_path
+    self.recache()
+  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/matplotlib/lines.py", line 663, in recache
+    x = _to_unmasked_float_array(xconv).ravel()
+  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/matplotlib/cbook/__init__.py", line 1333, in _to_unmasked_float_array
+    return np.asarray(x, float)
+  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/numpy/core/_asarray.py", line 102, in asarray
+    return array(a, dtype, copy=False, order=order)
+  File "/mpcdf/soft/SLE_15/packages/skylake/pytorch/gpu-cuda-11.6/anaconda_3_2021.11-2021.11/1.11.0/lib/python3.9/site-packages/torch/_tensor.py", line 734, in __array__
+    return self.numpy().astype(dtype, copy=False)
+TypeError: can't convert cuda:0 device type tensor to numpy. Use Tensor.cpu() to copy the tensor to host memory first.
+srun: error: ravg1115: task 0: Exited with exit code 1
+srun: Terminating StepId=12166197.0
