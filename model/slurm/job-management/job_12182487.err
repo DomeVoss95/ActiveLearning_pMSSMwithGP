@@ -1,8 +1,0 @@
-Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
-  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
-Traceback (most recent call last):
-  File "/raven/u/dvoss/al_pmssmwithgp/model/GPmodel1Dtest.py", line 245, in <module>
-    if not os.path.exists(output_dir):
-NameError: name 'os' is not defined
-srun: error: ravg1070: task 0: Exited with exit code 1
-srun: Terminating StepId=12182487.0

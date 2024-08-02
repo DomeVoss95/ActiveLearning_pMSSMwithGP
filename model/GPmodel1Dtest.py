@@ -6,11 +6,12 @@ from matplotlib import pyplot as plt
 from gpytorch.likelihoods import GaussianLikelihood
 import pandas as pd
 import numpy as np
-from entropy import entropy_local  # Ensure this is the correct import path for your entropy_local function
+from entropy import entropy_local  
+from create_config import create_config
 from multitaskGP import MultitaskGP
 
 class GPModelPipeline:
-    def __init__(self, csv_file, root_file_path, output_dir, n_points=70, n_train=30, n_test=100000):
+    def __init__(self, csv_file, root_file_path, output_dir, n_points=70, n_train=50, n_test=100000):
         self.csv_file = csv_file
         self.root_file_path = root_file_path
         self.output_dir = output_dir
@@ -52,27 +53,63 @@ class GPModelPipeline:
         M_1 = final_df['IN_M_1']
         Omega = final_df['MO_Omega']
         
-        mask = (Omega > 0)
+        mask = mask = (Omega > 0)
         M_1_filtered = M_1[mask]
         Omega_filtered = Omega[mask]
+
+        # mask2 = ()
         
         M_1_limited = M_1_filtered.iloc[:self.n_points]
         Omega_limited = Omega_filtered.iloc[:self.n_points]
+
+        # Create DataFrame from limited data
+        limited_df = pd.DataFrame({'IN_M_1': M_1_limited, 'MO_Omega': Omega_limited})
         
-        # Convert al data to tensors and concatenate with limited data
+        # Drop rows where IN_M_1 is between 0 and 50
+        limited_df = limited_df.drop(limited_df[(limited_df['IN_M_1'] > 0) & (limited_df['IN_M_1'] < 50)].index)
+        
+        # Convert to tensors
+        x_train_data = torch.tensor(limited_df['IN_M_1'].values[:self.n_train], dtype=torch.float32).to(self.device)
+        y_train_data = torch.log(torch.tensor(limited_df['MO_Omega'].values[:self.n_train], dtype=torch.float32).to(self.device) / 0.12)
+        
+        # Convert al data to tensors and concatenate with filtered limited data
         M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
         Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
         
-        x_train_data = torch.cat((torch.tensor(M_1_limited.values[:self.n_train], dtype=torch.float32).to(self.device), M_1_al_tensor))
-        y_train_data = torch.cat((torch.log(torch.tensor(Omega_limited.values[:self.n_train], dtype=torch.float32).to(self.device) / 0.12), torch.log(Omega_al_tensor / 0.12)))
+        self.x_train = torch.cat((x_train_data, M_1_al_tensor))
+        self.y_train = torch.cat((y_train_data, torch.log(Omega_al_tensor / 0.12)))
+
+        print("Training points: ", self.x_train)
         
-        self.x_train = x_train_data
-        self.y_train = y_train_data
-        self.x_valid = torch.tensor(M_1_limited.values[self.n_train:], dtype=torch.float32).to(self.device)
-        self.y_valid = torch.log(torch.tensor(Omega_limited.values[self.n_train:], dtype=torch.float32) / 0.12).to(self.device)
+        self.x_valid = torch.tensor(limited_df['IN_M_1'].values[self.n_train:], dtype=torch.float32).to(self.device)
+        self.y_valid = torch.log(torch.tensor(limited_df['MO_Omega'].values[self.n_train:], dtype=torch.float32) / 0.12).to(self.device)
         
         self.x_train, self.data_min, self.data_max = self._normalize(self.x_train)
         self.x_valid = self._normalize(self.x_valid, self.data_min, self.data_max)[0]
+
+
+            
+        # # Convert al data to tensors and concatenate with limited data
+        # M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
+        # Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
+        
+        # # # Without active learning points
+        # self.x_train = torch.tensor(M_1_limited.values[:self.n_train], dtype=torch.float32).to(self.device)
+        # self.y_train = torch.log(torch.tensor(Omega_limited.values[:self.n_train], dtype=torch.float32).to(self.device) / 0.12)
+
+        # print("Training points: ", self.x_train)
+        
+        # # With active learning points
+        # # x_train_data = torch.cat((torch.tensor(M_1_limited.values[:self.n_train], dtype=torch.float32).to(self.device), M_1_al_tensor))
+        # # y_train_data = torch.cat((torch.log(torch.tensor(Omega_limited.values[:self.n_train], dtype=torch.float32).to(self.device) / 0.12), torch.log(Omega_al_tensor / 0.12)))    
+        # # self.x_train = x_train_data
+        # # self.y_train = y_train_data
+
+        # self.x_valid = torch.tensor(M_1_limited.values[self.n_train:], dtype=torch.float32).to(self.device)
+        # self.y_valid = torch.log(torch.tensor(Omega_limited.values[self.n_train:], dtype=torch.float32) / 0.12).to(self.device)
+        
+        # self.x_train, self.data_min, self.data_max = self._normalize(self.x_train)
+        # self.x_valid = self._normalize(self.x_valid, self.data_min, self.data_max)[0]
 
     def _normalize(self, data, data_min=None, data_max=None):
         if data_min is None:
@@ -127,6 +164,7 @@ class GPModelPipeline:
         ax.plot(self.x_test.cpu().numpy(), mean, 'b', label='Learnt Function')
         ax.fill_between(self.x_test.cpu().numpy(), lower, upper, alpha=0.5, label='Confidence')
         
+        # Plot true data points
         x_true = torch.tensor(pd.read_csv(self.csv_file)['IN_M_1'].values[:], dtype=torch.float32).to(self.device)
         x_true_min = x_true.min(dim=0, keepdim=True).values
         x_true_max = x_true.max(dim=0, keepdim=True).values
@@ -141,6 +179,19 @@ class GPModelPipeline:
             for xval in new_x.cpu().numpy():  # Move xval to CPU before using it in axvline
                 ax.axvline(x=xval, color='r', linestyle='--', label='new points') if dolabel else ax.axvline(x=xval, color='r', linestyle='--')
                 dolabel = False
+
+        # Extract and normalize al_df data points
+        al_df = uproot.open(self.root_file_path)["susy"].arrays(library="pd")
+        M_1_al = al_df['IN_M_1']
+        Omega_al = al_df['MO_Omega']
+
+        M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
+        M_1_al_normalized = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0]
+        Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
+        Omega_al_normalized = torch.log(Omega_al_tensor / 0.12)
+
+        # Plot al_df data points in green
+        ax.plot(M_1_al_normalized.cpu().numpy(), Omega_al_normalized.cpu().numpy(), '*', c="g", label='al_df Data')
 
         ax2 = ax.twinx()
         ax2.set_ylabel("entropy")
@@ -160,6 +211,8 @@ class GPModelPipeline:
             print(f"Plot saved to {save_path}")
         else:
             plt.show()
+
+
 
     def best_not_yet_chosen(self, score, previous_indices):
         candidates = torch.sort(score, descending=True)[1].to(self.device)
@@ -244,7 +297,7 @@ class GPModelPipeline:
         
         print("points:", points)
         print("Corresponding xs:", new_x_unnormalized)
-        return new_x 
+        return new_x, new_x_unnormalized 
 
 
 # Usage
@@ -256,5 +309,6 @@ gp_pipeline = GPModelPipeline(csv_file='M_2_fixed.csv', root_file_path='/u/dvoss
 gp_pipeline.train_model(iters=1000)
 gp_pipeline.plot_losses()
 gp_pipeline.evaluate_model()
-new_points = gp_pipeline.select_new_points(N=4)
+new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
+create_config(new_points=new_points_unnormalized, output_file ='new_config.yaml')
 gp_pipeline.plotGP(new_x=new_points, save_path=os.path.join(output_dir, 'gp_plot.png'))
