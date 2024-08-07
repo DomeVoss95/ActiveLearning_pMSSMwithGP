@@ -126,8 +126,8 @@ class MultitaskGP(gpytorch.models.ExactGP):
                     loss_valid = -mll(observed_pred_valid, self.y_valid.view(-1))
                     losses_valid.append(loss_valid.item())
 
-                if i % 100 == 0:
-                    print(
-                        "Iter %d / %d - Loss (Train): %.3f - Loss (Val): %.3f" % (i + 1, iters, loss.detach().item(), loss_valid.detach().item())
-                    )
+                # if i % 100 == 0:
+                #     print(
+                #         "Iter %d / %d - Loss (Train): %.3f - Loss (Val): %.3f" % (i + 1, iters, loss.detach().item(), loss_valid.detach().item())
+                #     )
         return best_model, losses_train, losses_valid

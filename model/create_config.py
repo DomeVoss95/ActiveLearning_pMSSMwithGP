@@ -7,7 +7,7 @@ class InlineListDumper(yaml.SafeDumper):
         return super(InlineListDumper, self).increase_indent(flow, False)
 
     def represent_list(self, data):
-        if isinstance(data, list) and all(isinstance(i, int) for i in data):
+        if isinstance(data, list) and (all(isinstance(i, int) for i in data) or all(isinstance(i, float) for i in data)):
             return self.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=True)
         return self.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=False)
 
@@ -41,9 +41,10 @@ def create_config(new_points, output_file='output.yaml'):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # Convert new_points to integers and append to the M_1 list
-    new_points_int = new_points.to(torch.int).tolist()
-    parameters["M_1"].extend(new_points_int)
+    # Convert new_points to floats and round to two decimal places, then append to the M_1 list
+    new_points_float = new_points.tolist()
+    new_points_rounded = [round(point, 2) for point in new_points_float]
+    parameters["M_1"].extend(new_points_rounded)
 
     # Calculate the new length of M_1
     new_length = len(parameters["M_1"])
@@ -122,3 +123,4 @@ def create_config(new_points, output_file='output.yaml'):
 # new_points = torch.tensor([-1981.6007, -1854.4359, 1718.0997, -801.3525, 92.7748, -1047.7344, 609.3817, -1921.9922, 1658.4913, 271.6005])
 
 # create_config(new_points)
+

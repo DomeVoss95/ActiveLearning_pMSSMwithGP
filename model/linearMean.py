@@ -17,11 +17,11 @@ class LinearMean(gpytorch.means.Mean):
             self.bias = None
     
     def forward(self, x):
-        print("weights:", self.weights.shape)
-        print("X:", x.shape)
+        # print("weights:", self.weights.shape)
+        # print("X:", x.shape)
         res = x.matmul(self.weights).squeeze(-1) # Making it a 2D Tensor
-        print("X:", x)
-        print("weights:", self.weights)
+        # print("X:", x)
+        # print("weights:", self.weights)
         if self.bias is not None:
             res = res + self.bias
         return res

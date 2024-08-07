@@ -1,7 +1,9 @@
 import uproot
+import argparse
 import os
 import torch
 import gpytorch
+import pickle
 from matplotlib import pyplot as plt
 from gpytorch.likelihoods import GaussianLikelihood
 import pandas as pd
@@ -10,13 +12,19 @@ from entropy import entropy_local
 from create_config import create_config
 from multitaskGP import MultitaskGP
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='GP Model Pipeline')
+    parser.add_argument('--iteration', type=int, required=True, help='Iteration number')
+    parser.add_argument('--output_dir', type=str, required=True, help='Output directory')
+    return parser.parse_args()
+
 class GPModelPipeline:
-    def __init__(self, csv_file, root_file_path, output_dir, n_points=70, n_train=50, n_test=100000):
+    def __init__(self, csv_file, root_file_path, output_dir, initial_train_points=3, additional_points_per_iter=3, n_test=100000):
         self.csv_file = csv_file
         self.root_file_path = root_file_path
         self.output_dir = output_dir
-        self.n_points = n_points
-        self.n_train = n_train
+        self.initial_train_points = initial_train_points
+        self.additional_points_per_iter = additional_points_per_iter
         self.n_test = n_test
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -34,10 +42,36 @@ class GPModelPipeline:
         self.entropy = None
         self.x_test = torch.linspace(0, 1, 1000).to(self.device)
         
-        self.load_data()
+        self.load_initial_data()
         self.initialize_model()
 
-    def load_data(self):
+    def load_initial_data(self):
+        final_df = pd.read_csv(self.csv_file)
+        M_1 = final_df['IN_M_1']
+        Omega = final_df['MO_Omega']
+        
+        mask = Omega > 0
+        M_1_filtered = M_1[mask]
+        Omega_filtered = Omega[mask]
+        
+        limited_df = pd.DataFrame({'IN_M_1': M_1_filtered, 'MO_Omega': Omega_filtered})
+        
+        # Drop rows where IN_M_1 is between 0 and 50
+        limited_df = limited_df.drop(limited_df[(limited_df['IN_M_1'] > 0) & (limited_df['IN_M_1'] < 50)].index)
+        
+        # Convert to tensors
+        self.x_train = torch.tensor(limited_df['IN_M_1'].values[:self.initial_train_points], dtype=torch.float32).to(self.device)
+        self.y_train = torch.log(torch.tensor(limited_df['MO_Omega'].values[:self.initial_train_points], dtype=torch.float32).to(self.device) / 0.12)
+        
+        self.x_valid = torch.tensor(limited_df['IN_M_1'].values[self.initial_train_points:], dtype=torch.float32).to(self.device)
+        self.y_valid = torch.log(torch.tensor(limited_df['MO_Omega'].values[self.initial_train_points:], dtype=torch.float32).to(self.device) / 0.12)
+        
+        self.x_train, self.data_min, self.data_max = self._normalize(self.x_train)
+        self.x_valid = self._normalize(self.x_valid, self.data_min, self.data_max)[0]
+
+        print("Initial Training points: ", self.x_train, self.x_train.shape)
+
+    def load_additional_data(self):
         # Open the ROOT file
         file = uproot.open(self.root_file_path)
         
@@ -49,67 +83,18 @@ class GPModelPipeline:
         M_1_al = al_df['IN_M_1']
         Omega_al = al_df['MO_Omega']
         
-        final_df = pd.read_csv(self.csv_file)
-        M_1 = final_df['IN_M_1']
-        Omega = final_df['MO_Omega']
-        
-        mask = mask = (Omega > 0)
-        M_1_filtered = M_1[mask]
-        Omega_filtered = Omega[mask]
-
-        # mask2 = ()
-        
-        M_1_limited = M_1_filtered.iloc[:self.n_points]
-        Omega_limited = Omega_filtered.iloc[:self.n_points]
-
-        # Create DataFrame from limited data
-        limited_df = pd.DataFrame({'IN_M_1': M_1_limited, 'MO_Omega': Omega_limited})
-        
-        # Drop rows where IN_M_1 is between 0 and 50
-        limited_df = limited_df.drop(limited_df[(limited_df['IN_M_1'] > 0) & (limited_df['IN_M_1'] < 50)].index)
-        
-        # Convert to tensors
-        x_train_data = torch.tensor(limited_df['IN_M_1'].values[:self.n_train], dtype=torch.float32).to(self.device)
-        y_train_data = torch.log(torch.tensor(limited_df['MO_Omega'].values[:self.n_train], dtype=torch.float32).to(self.device) / 0.12)
-        
-        # Convert al data to tensors and concatenate with filtered limited data
+        # Convert al data to tensors and concatenate with existing training data
         M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
         Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
         
-        self.x_train = torch.cat((x_train_data, M_1_al_tensor))
-        self.y_train = torch.cat((y_train_data, torch.log(Omega_al_tensor / 0.12)))
-
-        print("Training points: ", self.x_train)
+        additional_x_train = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter]
+        additional_y_train = torch.log(Omega_al_tensor / 0.12)[:self.additional_points_per_iter]
         
-        self.x_valid = torch.tensor(limited_df['IN_M_1'].values[self.n_train:], dtype=torch.float32).to(self.device)
-        self.y_valid = torch.log(torch.tensor(limited_df['MO_Omega'].values[self.n_train:], dtype=torch.float32) / 0.12).to(self.device)
+        self.x_train = torch.cat((self.x_train, additional_x_train))
+        self.y_train = torch.cat((self.y_train, additional_y_train))
         
-        self.x_train, self.data_min, self.data_max = self._normalize(self.x_train)
-        self.x_valid = self._normalize(self.x_valid, self.data_min, self.data_max)[0]
+        print("Training points after adding: ", self.x_train, self.x_train.shape)
 
-
-            
-        # # Convert al data to tensors and concatenate with limited data
-        # M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
-        # Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
-        
-        # # # Without active learning points
-        # self.x_train = torch.tensor(M_1_limited.values[:self.n_train], dtype=torch.float32).to(self.device)
-        # self.y_train = torch.log(torch.tensor(Omega_limited.values[:self.n_train], dtype=torch.float32).to(self.device) / 0.12)
-
-        # print("Training points: ", self.x_train)
-        
-        # # With active learning points
-        # # x_train_data = torch.cat((torch.tensor(M_1_limited.values[:self.n_train], dtype=torch.float32).to(self.device), M_1_al_tensor))
-        # # y_train_data = torch.cat((torch.log(torch.tensor(Omega_limited.values[:self.n_train], dtype=torch.float32).to(self.device) / 0.12), torch.log(Omega_al_tensor / 0.12)))    
-        # # self.x_train = x_train_data
-        # # self.y_train = y_train_data
-
-        # self.x_valid = torch.tensor(M_1_limited.values[self.n_train:], dtype=torch.float32).to(self.device)
-        # self.y_valid = torch.log(torch.tensor(Omega_limited.values[self.n_train:], dtype=torch.float32) / 0.12).to(self.device)
-        
-        # self.x_train, self.data_min, self.data_max = self._normalize(self.x_train)
-        # self.x_valid = self._normalize(self.x_valid, self.data_min, self.data_max)[0]
 
     def _normalize(self, data, data_min=None, data_max=None):
         if data_min is None:
@@ -152,7 +137,7 @@ class GPModelPipeline:
 
             self.entropy = entropy_local(mean, var, thr, self.device, torch.float32)
 
-            print("Entropy: ", self.entropy)
+            # print("Entropy: ", self.entropy)
 
     def plotGP(self, new_x=None, save_path=None):
         mean = self.observed_pred.mean.cpu().numpy()
@@ -211,8 +196,6 @@ class GPModelPipeline:
             print(f"Plot saved to {save_path}")
         else:
             plt.show()
-
-
 
     def best_not_yet_chosen(self, score, previous_indices):
         candidates = torch.sort(score, descending=True)[1].to(self.device)
@@ -299,16 +282,45 @@ class GPModelPipeline:
         print("Corresponding xs:", new_x_unnormalized)
         return new_x, new_x_unnormalized 
 
+    def save_training_data(self, filepath):
+        with open(filepath, 'wb') as f:
+            pickle.dump((self.x_train, self.y_train, self.data_min, self.data_max), f)
+    
+    def load_training_data(self, filepath):
+        with open(filepath, 'rb') as f:
+            self.x_train, self.y_train, self.data_min, self.data_max = pickle.load(f)
+
+
 
 # Usage
-output_dir = '/raven/u/dvoss/al_pmssmwithgp/model/plots'
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
-
-gp_pipeline = GPModelPipeline(csv_file='M_2_fixed.csv', root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/scan/ntuple.0.0.root', output_dir=output_dir)
-gp_pipeline.train_model(iters=1000)
-gp_pipeline.plot_losses()
-gp_pipeline.evaluate_model()
-new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
-create_config(new_points=new_points_unnormalized, output_file ='new_config.yaml')
-gp_pipeline.plotGP(new_x=new_points, save_path=os.path.join(output_dir, 'gp_plot.png'))
+if __name__ == "__main__":
+    args = parse_args()
+    
+    previous_iter = args.iteration - 1
+    previous_output_dir = f'/raven/u/dvoss/al_pmssmwithgp/model/plots/Iter{previous_iter}'
+    training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
+    
+    if args.iteration == 1:
+        gp_pipeline = GPModelPipeline(
+            csv_file='M_2_fixed.csv',
+            root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/scans/scan_{args.iteration}/ntuple.0.0.root',
+            output_dir=args.output_dir
+        )
+    else:
+        gp_pipeline = GPModelPipeline(
+            csv_file='M_2_fixed.csv',
+            root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/scans/scan_{args.iteration}/ntuple.0.0.root',
+            output_dir=args.output_dir
+        )
+        if os.path.exists(training_data_path):
+            gp_pipeline.load_training_data(training_data_path)
+        gp_pipeline.load_additional_data()
+        
+    gp_pipeline.train_model(iters=1000)
+    gp_pipeline.plot_losses()
+    gp_pipeline.evaluate_model()
+    new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=3)
+    gp_pipeline.plotGP(new_x=new_points, save_path=os.path.join(args.output_dir, 'gp_plot.png'))
+    create_config(new_points=new_points_unnormalized, output_file ='new_config.yaml')
+    
+    gp_pipeline.save_training_data(os.path.join(args.output_dir, 'training_data.pkl'))

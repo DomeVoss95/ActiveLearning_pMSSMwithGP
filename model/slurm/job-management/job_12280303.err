@@ -1,0 +1,19 @@
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+Traceback (most recent call last):
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel1Dtest.py", line 4, in <module>
+    import torch
+  File "/mpcdf/soft/SLE_15/packages/skylake/pytorch/gpu-cuda-11.6/anaconda_3_2021.11-2021.11/1.11.0/lib/python3.9/site-packages/torch/__init__.py", line 216, in <module>
+    raise ImportError(textwrap.dedent('''
+ImportError: Failed to load PyTorch C extensions:
+    It appears that PyTorch has loaded the `torch/_C` folder
+    of the PyTorch repository rather than the C extensions which
+    are expected in the `torch._C` namespace. This can occur when
+    using the `install` workflow. e.g.
+        $ python setup.py install && python -c "import torch"
+
+    This error can generally be solved using the `develop` workflow
+        $ python setup.py develop && python -c "import torch"  # This should succeed
+    or by running Python from a different directory.
+srun: error: ravg1132: task 0: Exited with exit code 1
+srun: Terminating StepId=12280303.0

@@ -30,6 +30,9 @@ module load cudnn/8.8
 module load pytorch/gpu-cuda-11.6/2.0.0
 module load gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
 pip install uproot
+pip install argparse
+pip install pyslha
+pip install structlog
 
 
 # Copy the output.csv to the working directory if needed
