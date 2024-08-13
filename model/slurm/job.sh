@@ -51,7 +51,7 @@ for i in $(seq 1 ${ITERATIONS}); do
     fi
 
     # Wait for the expected ROOT file to be created
-    ROOT_FILE_PATH="/u/dvoss/al_pmssmwithgp/Run3ModelGen/scans/scan_${i}/ntuple.0.0.root"
+    ROOT_FILE_PATH="/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_${i}/ntuple.0.0.root"
     wait_for_file ${ROOT_FILE_PATH}
 
     echo "Completed iteration ${i}"

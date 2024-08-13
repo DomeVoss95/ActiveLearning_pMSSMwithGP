@@ -1,0 +1,182 @@
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 2.64285e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 4.68314e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.000359423 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 2.64285e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0224256 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.000380882 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0136905 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0149017 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0131978 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 2.84358e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0245353 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0240263 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0186538 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0236981 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 5.00712e-05 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0141471 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 4.44031e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.001239 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 2.64285e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.00251085 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0035197 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 3.07881e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0257575 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0131978 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0243795 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.00140168 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0170438 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0242687 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0110895 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.000184763 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.00166568 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.00131979 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0240921 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0205899 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0254801 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0239602 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 2.64285e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 6.45958e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 8.18716e-05 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0238289 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.000221541 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.000627618 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 4.30056e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 8.38684e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0237852 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 2.64285e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 2.94082e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.00180114 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.000359423 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0255526 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0131978 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 6.69833e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0215708 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0239602 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0242023 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 9.92461e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.000453588 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 4.74044e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0157836 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.0234164 GeV),

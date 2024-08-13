@@ -1,0 +1,8 @@
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+Traceback (most recent call last):
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel1Dtest.py", line 309, in <module>
+    gp_pipeline = GPModelPipeline(
+TypeError: __init__() missing 1 required positional argument: 'root_file_path'
+srun: error: ravg1062: task 0: Exited with exit code 1
+srun: Terminating StepId=12331680.0

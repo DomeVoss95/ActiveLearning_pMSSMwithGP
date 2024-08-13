@@ -19,11 +19,12 @@ def parse_args():
     return parser.parse_args()
 
 class GPModelPipeline:
-    def __init__(self, csv_file, root_file_path, output_dir, initial_train_points=3, additional_points_per_iter=3, n_test=100000):
+    def __init__(self, csv_file, root_file_path=None, output_dir=None, initial_train_points=4, valid_points=250, additional_points_per_iter=3, n_test=100000):
         self.csv_file = csv_file
         self.root_file_path = root_file_path
         self.output_dir = output_dir
         self.initial_train_points = initial_train_points
+        self.valid_points = valid_points
         self.additional_points_per_iter = additional_points_per_iter
         self.n_test = n_test
         
@@ -57,14 +58,15 @@ class GPModelPipeline:
         limited_df = pd.DataFrame({'IN_M_1': M_1_filtered, 'MO_Omega': Omega_filtered})
         
         # Drop rows where IN_M_1 is between 0 and 50
-        limited_df = limited_df.drop(limited_df[(limited_df['IN_M_1'] > 0) & (limited_df['IN_M_1'] < 50)].index)
+        # limited_df = limited_df.drop(limited_df[(limited_df['IN_M_1'] > 0) & (limited_df['IN_M_1'] < 50)].index)
+
         
         # Convert to tensors
         self.x_train = torch.tensor(limited_df['IN_M_1'].values[:self.initial_train_points], dtype=torch.float32).to(self.device)
         self.y_train = torch.log(torch.tensor(limited_df['MO_Omega'].values[:self.initial_train_points], dtype=torch.float32).to(self.device) / 0.12)
         
-        self.x_valid = torch.tensor(limited_df['IN_M_1'].values[self.initial_train_points:], dtype=torch.float32).to(self.device)
-        self.y_valid = torch.log(torch.tensor(limited_df['MO_Omega'].values[self.initial_train_points:], dtype=torch.float32).to(self.device) / 0.12)
+        self.x_valid = torch.tensor(limited_df['IN_M_1'].values[self.valid_points:], dtype=torch.float32).to(self.device)
+        self.y_valid = torch.log(torch.tensor(limited_df['MO_Omega'].values[self.valid_points:], dtype=torch.float32).to(self.device) / 0.12)
         
         self.x_train, self.data_min, self.data_max = self._normalize(self.x_train)
         self.x_valid = self._normalize(self.x_valid, self.data_min, self.data_max)[0]
@@ -90,13 +92,13 @@ class GPModelPipeline:
         additional_x_train = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter]
         additional_y_train = torch.log(Omega_al_tensor / 0.12)[:self.additional_points_per_iter]
         
+        # Append the new points to the existing training data
         self.x_train = torch.cat((self.x_train, additional_x_train))
         self.y_train = torch.cat((self.y_train, additional_y_train))
         
         print("Training points after adding: ", self.x_train, self.x_train.shape)
 
-
-    def _normalize(self, data, data_min=None, data_max=None):
+    def _normalize(self, data, data_min=-2000, data_max=2000):
         if data_min is None:
             data_min = data.min(dim=0, keepdim=True).values
         if data_max is None:
@@ -110,9 +112,10 @@ class GPModelPipeline:
         self.model = MultitaskGP(self.x_train, self.y_train, self.x_valid, self.y_valid, self.likelihood).to(self.device)
 
     def train_model(self, iters=20):
+        print("These training_points are used in the GP", self.x_train)
         self.best_model, self.losses, self.losses_valid = self.model.do_train_loop(iters=iters)
         # Save the state dictionary of the best model
-        torch.save(self.best_model.state_dict(), os.path.join(self.output_dir, 'best_multitask_gp.pth'))
+        # torch.save(self.best_model.state_dict(), os.path.join(self.output_dir, 'best_multitask_gp.pth'))
 
     def plot_losses(self):
         plt.plot(self.losses, label='training loss')
@@ -139,7 +142,14 @@ class GPModelPipeline:
 
             # print("Entropy: ", self.entropy)
 
-    def plotGP(self, new_x=None, save_path=None):
+    def plotGP(self, new_x=None, save_path=None, iteration=None):
+        """
+        Plot the GP model's predictions, confidence interval, and various data points.
+        
+        :param new_x: New points to be highlighted on the plot (if any).
+        :param save_path: Path to save the plot as an image file.
+        :param iteration: The current iteration number to be displayed in the plot title.
+        """
         mean = self.observed_pred.mean.cpu().numpy()
         lower, upper = self.observed_pred.confidence_region()
         lower = lower.cpu().numpy()
@@ -165,22 +175,29 @@ class GPModelPipeline:
                 ax.axvline(x=xval, color='r', linestyle='--', label='new points') if dolabel else ax.axvline(x=xval, color='r', linestyle='--')
                 dolabel = False
 
-        # Extract and normalize al_df data points
-        al_df = uproot.open(self.root_file_path)["susy"].arrays(library="pd")
-        M_1_al = al_df['IN_M_1']
-        Omega_al = al_df['MO_Omega']
+        # Check if root_file_path is provided before loading and plotting al_df data
+        if self.root_file_path is not None:
+            # Extract and normalize al_df data points
+            al_df = uproot.open(self.root_file_path)["susy"].arrays(library="pd")
+            M_1_al = al_df['IN_M_1']
+            Omega_al = al_df['MO_Omega']
 
-        M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
-        M_1_al_normalized = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0]
-        Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
-        Omega_al_normalized = torch.log(Omega_al_tensor / 0.12)
+            M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
+            M_1_al_normalized = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0]
+            Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
+            Omega_al_normalized = torch.log(Omega_al_tensor / 0.12)
 
-        # Plot al_df data points in green
-        ax.plot(M_1_al_normalized.cpu().numpy(), Omega_al_normalized.cpu().numpy(), '*', c="g", label='al_df Data')
+            # Plot al_df data points in green
+            ax.plot(M_1_al_normalized.cpu().numpy(), Omega_al_normalized.cpu().numpy(), '*', c="g", label='al_df Data')
+        else:
+            print("No root_file_path provided; skipping ROOT file data plotting.")
 
         ax2 = ax.twinx()
-        ax2.set_ylabel("entropy")
+        ax2.set_ylabel("Entropy")
         ax2.plot(self.x_test.cpu().numpy(), self.entropy.cpu().numpy(), 'g', label='Entropy')
+
+        # Set the lower limit of the y-axis to 0.0 without specifying an upper limit
+        ax2.set_ylim(bottom=0.0)
 
         maxE = torch.max(self.entropy)
         maxIndex = torch.argmax(self.entropy)
@@ -191,11 +208,17 @@ class GPModelPipeline:
         lines2, labels2 = ax2.get_legend_handles_labels()
         ax2.legend(lines + lines2, labels + labels2)
 
+        # Add the iteration number to the plot title
+        if iteration is not None:
+            ax.set_title(f"GP Model Prediction - Iteration {iteration}")
+
         if save_path is not None:
             plt.savefig(save_path)
             print(f"Plot saved to {save_path}")
         else:
             plt.show()
+
+
 
     def best_not_yet_chosen(self, score, previous_indices):
         candidates = torch.sort(score, descending=True)[1].to(self.device)
@@ -262,25 +285,43 @@ class GPModelPipeline:
         return sampler
 
     def select_new_points(self, N=4):
+        # Initialize the selector using a combination of a smoothed batch entropy score function and a Gibbs sampling choice function.
         selector = self.iterative_batch_selector(
-            score_function=self.smoothed_batch_entropy(blur=0.15),
-            choice_function=self.gibbs_sample(beta=50)
+            score_function=self.smoothed_batch_entropy(blur=0.15),  # Score function with a small blur applied to smooth entropy calculation
+            choice_function=self.gibbs_sample(beta=50)  # Choice function using Gibbs sampling with a specified beta
         )
 
         with torch.no_grad(), gpytorch.settings.fast_pred_var(False):
+            # Detach the mean and covariance of the observed predictions from the computational graph
+            # and move them to the appropriate device (CPU or GPU).
             mean = self.observed_pred.mean.detach().to(self.device)
             covar = self.observed_pred.covariance_matrix.detach().to(self.device)
-            thr = torch.Tensor([0.]).to(self.device)
+            thr = torch.Tensor([0.]).to(self.device)  # Threshold tensor (can be adjusted if needed)
 
-            points = set(selector(N=N, gp_mean=mean - thr, gp_covar=covar))
-            new_x = self.x_test[list(points)]
+            # Filter the candidate points to only those between 0.1 and 0.9
+            valid_indices = (self.x_test >= 0.1) & (self.x_test <= 0.9)  # Create a mask for values in the desired range
+            x_test_filtered = self.x_test[valid_indices]  # Apply the mask to filter x_test
+            mean_filtered = mean[valid_indices]  # Apply the mask to filter the mean of predictions
+            covar_filtered = covar[valid_indices][:, valid_indices]  # Apply the mask to filter the covariance matrix
 
-            # Unnormalize new_x
+            # Use the selector to choose a set of points based on the filtered mean and covariance matrix.
+            points = set(selector(N=N, gp_mean=mean_filtered - thr, gp_covar=covar_filtered))  # Subtract threshold from mean for selection
+            new_x = x_test_filtered[list(points)]  # Select new x values based on the chosen points' indices#
+
+            # # Use the selector to choose a set of points based on the  mean and covariance matrix.
+            # points = set(selector(N=N, gp_mean=mean - thr, gp_covar=covar))  # Subtract threshold from mean for selection
+            # new_x = self.x_test[list(points)]  # Select new x values based on the chosen points' indices
+
+            # Unnormalize the selected points to return them to their original scale.
             new_x_unnormalized = self._unnormalize(new_x, self.data_min, self.data_max)
+
+        # Debugging and informational prints to check the selected points and their corresponding values.
+        print("Selected points (indices):", points)  # Indices of the selected points
+        print("Selected new x values (normalized):", new_x)  # The normalized new x values chosen by the selector
+        print("Corresponding new x values (unnormalized):", new_x_unnormalized)  # The unnormalized values of the selected points
         
-        print("points:", points)
-        print("Corresponding xs:", new_x_unnormalized)
-        return new_x, new_x_unnormalized 
+        return new_x, new_x_unnormalized  # Return both the normalized and unnormalized selected points
+
 
     def save_training_data(self, filepath):
         with open(filepath, 'wb') as f:
@@ -289,7 +330,6 @@ class GPModelPipeline:
     def load_training_data(self, filepath):
         with open(filepath, 'rb') as f:
             self.x_train, self.y_train, self.data_min, self.data_max = pickle.load(f)
-
 
 
 # Usage
@@ -301,26 +341,30 @@ if __name__ == "__main__":
     training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
     
     if args.iteration == 1:
+        # First iteration, initialize with initial data
         gp_pipeline = GPModelPipeline(
             csv_file='M_2_fixed.csv',
-            root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/scans/scan_{args.iteration}/ntuple.0.0.root',
+            # root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{args.iteration}/ntuple.0.0.root',
             output_dir=args.output_dir
         )
     else:
+        # Load previous training data and add new data from this iteration
         gp_pipeline = GPModelPipeline(
             csv_file='M_2_fixed.csv',
-            root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/scans/scan_{args.iteration}/ntuple.0.0.root',
+            root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{previous_iter}/ntuple.0.0.root',
             output_dir=args.output_dir
         )
         if os.path.exists(training_data_path):
             gp_pipeline.load_training_data(training_data_path)
         gp_pipeline.load_additional_data()
-        
+
+    gp_pipeline.initialize_model()
     gp_pipeline.train_model(iters=1000)
     gp_pipeline.plot_losses()
     gp_pipeline.evaluate_model()
     new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=3)
-    gp_pipeline.plotGP(new_x=new_points, save_path=os.path.join(args.output_dir, 'gp_plot.png'))
+    gp_pipeline.plotGP(new_x=new_points, save_path=os.path.join(args.output_dir, 'gp_plot.png'), iteration=args.iteration)
     create_config(new_points=new_points_unnormalized, output_file ='new_config.yaml')
     
     gp_pipeline.save_training_data(os.path.join(args.output_dir, 'training_data.pkl'))
+

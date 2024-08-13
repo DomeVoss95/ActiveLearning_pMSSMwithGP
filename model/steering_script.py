@@ -11,7 +11,7 @@ pixi_working_dir = "/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen"
 run3modelgen_parent_dir = "/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/"
 
 # Iterations
-iterations = 10
+iterations = 15
 
 def wait_for_file(file_path, timeout=300):
     """Wait for a file to be created, with a timeout."""
@@ -21,7 +21,7 @@ def wait_for_file(file_path, timeout=300):
             raise TimeoutError(f"Timed out waiting for {file_path} to be created.")
         time.sleep(5)  # Wait for 5 seconds before checking again
 
-for i in range(0, iterations + 1):
+for i in range(1, iterations + 1):
     print(f"Starting iteration {i}")
 
     # Step 1: Train GP Model and get new points

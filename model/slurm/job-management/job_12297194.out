@@ -1,0 +1,976 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: uproot in /raven/u/dvoss/.local/lib/python3.9/site-packages (5.3.10)
+Requirement already satisfied: cramjam>=2.5.0 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (2.8.3)
+Requirement already satisfied: packaging in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from uproot) (21.0)
+Requirement already satisfied: typing-extensions>=4.1.0 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (4.12.2)
+Requirement already satisfied: fsspec in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (2024.6.1)
+Requirement already satisfied: awkward>=2.4.6 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (2.6.6)
+Requirement already satisfied: numpy in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from uproot) (1.20.3)
+Requirement already satisfied: awkward-cpp==35 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from awkward>=2.4.6->uproot) (35)
+Requirement already satisfied: importlib-metadata>=4.13.0 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from awkward>=2.4.6->uproot) (8.0.0)
+Requirement already satisfied: zipp>=0.5 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from importlib-metadata>=4.13.0->awkward>=2.4.6->uproot) (3.6.0)
+Requirement already satisfied: pyparsing>=2.0.2 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from packaging->uproot) (3.0.4)
+Defaulting to user installation because normal site-packages is not writeable
+Collecting argparse
+  Using cached argparse-1.4.0-py2.py3-none-any.whl (23 kB)
+Installing collected packages: argparse
+Successfully installed argparse-1.4.0
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pyslha in /raven/u/dvoss/.local/lib/python3.9/site-packages (3.2.6)
+Requirement already satisfied: tex2pix>=0.1.5 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from pyslha) (0.3.1)
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: structlog in /raven/u/dvoss/.local/lib/python3.9/site-packages (24.4.0)
+Starting iteration 1
+Initial Training points:  tensor([0.0000, 1.0000, 0.2034], device='cuda:0') torch.Size([3])
+These training_points are used in the GP tensor([0.0000, 1.0000, 0.2034], device='cuda:0')
+points: {842, 244, 999}
+new xs normalized:  tensor([0.8428, 0.2442, 1.0000], device='cuda:0')
+Corresponding xs: tensor([1197.0349,  380.6280, 1411.3759], device='cuda:0')
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/Iter1/gp_plot.png
+YAML file has been created: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml
+Note: detected 144 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+Note: NumExpr detected 144 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+NumExpr defaulting to 8 threads.
+
+  ___              ____ __  __          _       _   ___            
+ | _ \ _  _  _ _  |__ /|  \/  | ___  __| | ___ | | / __| ___  _ _  
+ |   /| || || ' \  |_ \| |\/| |/ _ \/ _` |/ -_)| || (_ |/ -_)| ' \ 
+ |_|_\ \_,_||_||_||___/|_|  |_|\___/\__,_|\___||_| \___|\___||_||_|
+                                                                   
+
+2024-08-09 12:53:52 [info     ] Initialised ModelGenerator with: [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 	config_file = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 	scan_dir = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1 [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 	rawfilen = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/raw.slha [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 	seed = 123                    [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 	points = {}                   [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 	prior = fixed                 [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 	num_models = 3                [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 	isGMSB = False                [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 	parameters =                  [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		tanb: [60, 60, 60]           [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		M_1: [1197.03, 380.63, 1411.38] [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		M_2: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		M_3: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		AT: [4000, 4000, 4000]       [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		Ab: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		Atau: [2000, 2000, 2000]     [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		mu: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		mA: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		meL: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		mtauL: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		meR: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		mtauR: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		mqL1: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		mqL3: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		muR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		mtR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		mdR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		mbR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 	steps =                       [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		{'name': 'prep_input', 'output_dir': 'input', 'prefix': 'IN'} [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		{'name': 'SPheno', 'input_dir': 'input', 'output_dir': 'SPheno', 'log_dir': 'SPheno_log', 'prefix': 'SP'} [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		{'name': 'softsusy', 'input_dir': 'input', 'output_dir': 'softsusy', 'prefix': 'SS'} [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		{'name': 'micromegas', 'input_dir': 'SPheno', 'output_dir': 'micromegas', 'prefix': 'MO'} [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		{'name': 'superiso', 'input_dir': 'SPheno', 'output_dir': 'superiso', 'prefix': 'SI'} [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		{'name': 'gm2calc', 'input_dir': 'SPheno', 'output_dir': 'gm2calc', 'prefix': 'GM2'} [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] 		{'name': 'evade', 'input_dir': 'SPheno', 'output_dir': 'evade', 'prefix': 'EV'} [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] Starting Model Generation...   [Run3ModelGen.modelgen]
+2024-08-09 12:53:52 [info     ] Setting up output directories for scan [Run3ModelGen.modelgen]
+2024-08-09 12:53:53 [info     ] Generating Model: 0.slha (1/3) [Run3ModelGen.modelgen]
+2024-08-09 12:53:53 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:53:53 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:53:53 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:53:53 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:53:54 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:53:54 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:53:54 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:53:54 [info     ] Generating Model: 1.slha (2/3) [Run3ModelGen.modelgen]
+2024-08-09 12:53:54 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:53:54 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:53:55 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:53:55 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:53:55 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:53:55 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:53:55 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:53:55 [info     ] Generating Model: 2.slha (3/3) [Run3ModelGen.modelgen]
+2024-08-09 12:53:55 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:53:55 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:53:55 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:53:55 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:53:56 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:53:56 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:53:56 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:53:56 [info     ] Finished generating models! Stats for successful generations (successful/attempted): [Run3ModelGen.modelgen]
+2024-08-09 12:53:56 [info     ] 	prep_input: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 12:53:56 [info     ] 	SPheno: 3/3.                  [Run3ModelGen.modelgen]
+2024-08-09 12:53:56 [info     ] 	softsusy: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 12:53:56 [info     ] 	micromegas: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 12:53:56 [info     ] 	superiso: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 12:53:56 [info     ] 	gm2calc: 3/3.                 [Run3ModelGen.modelgen]
+2024-08-09 12:53:56 [info     ] 	evade: 0/3.                   [Run3ModelGen.modelgen]
+2024-08-09 12:53:56 [info     ] Will make NTuple for: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1, with 3 models [Run3ModelGen.ntupling]
+2024-08-09 12:53:56 [info     ] 	Filling values for model: 0   [Run3ModelGen.ntupling]
+2024-08-09 12:53:56 [info     ] Saving NTuple in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/ntuple.0.0.root ... [Run3ModelGen.ntupling]
+Completed iteration 1
+Starting iteration 2
+Initial Training points:  tensor([0.0000, 1.0000, 0.2034], device='cuda:0') torch.Size([3])
+Training points after adding:  tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499], device='cuda:0') torch.Size([6])
+These training_points are used in the GP tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499], device='cuda:0')
+points: {624, 984, 999}
+new xs normalized:  tensor([0.6246, 0.9850, 1.0000], device='cuda:0')
+Corresponding xs: tensor([ 899.4150, 1390.8975, 1411.3759], device='cuda:0')
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/Iter2/gp_plot.png
+YAML file has been created: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml
+Note: detected 144 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+Note: NumExpr detected 144 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+NumExpr defaulting to 8 threads.
+
+  ___              ____ __  __          _       _   ___            
+ | _ \ _  _  _ _  |__ /|  \/  | ___  __| | ___ | | / __| ___  _ _  
+ |   /| || || ' \  |_ \| |\/| |/ _ \/ _` |/ -_)| || (_ |/ -_)| ' \ 
+ |_|_\ \_,_||_||_||___/|_|  |_|\___/\__,_|\___||_| \___|\___||_||_|
+                                                                   
+
+2024-08-09 12:54:37 [info     ] Initialised ModelGenerator with: [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 	config_file = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 	scan_dir = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_2 [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 	rawfilen = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/raw.slha [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 	seed = 123                    [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 	points = {}                   [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 	prior = fixed                 [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 	num_models = 3                [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 	isGMSB = False                [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 	parameters =                  [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		tanb: [60, 60, 60]           [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		M_1: [899.41, 1390.9, 1411.38] [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		M_2: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		M_3: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		AT: [4000, 4000, 4000]       [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		Ab: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		Atau: [2000, 2000, 2000]     [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		mu: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		mA: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		meL: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		mtauL: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		meR: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		mtauR: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		mqL1: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		mqL3: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		muR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		mtR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		mdR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		mbR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 	steps =                       [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		{'name': 'prep_input', 'output_dir': 'input', 'prefix': 'IN'} [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		{'name': 'SPheno', 'input_dir': 'input', 'output_dir': 'SPheno', 'log_dir': 'SPheno_log', 'prefix': 'SP'} [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		{'name': 'softsusy', 'input_dir': 'input', 'output_dir': 'softsusy', 'prefix': 'SS'} [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		{'name': 'micromegas', 'input_dir': 'SPheno', 'output_dir': 'micromegas', 'prefix': 'MO'} [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		{'name': 'superiso', 'input_dir': 'SPheno', 'output_dir': 'superiso', 'prefix': 'SI'} [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		{'name': 'gm2calc', 'input_dir': 'SPheno', 'output_dir': 'gm2calc', 'prefix': 'GM2'} [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 		{'name': 'evade', 'input_dir': 'SPheno', 'output_dir': 'evade', 'prefix': 'EV'} [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] Starting Model Generation...   [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] Setting up output directories for scan [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] Generating Model: 0.slha (1/3) [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:54:37 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:54:38 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:54:38 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:54:38 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:54:38 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:54:38 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:54:38 [info     ] Generating Model: 1.slha (2/3) [Run3ModelGen.modelgen]
+2024-08-09 12:54:38 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:54:38 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:54:38 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:54:39 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:54:39 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:54:39 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:54:39 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:54:39 [info     ] Generating Model: 2.slha (3/3) [Run3ModelGen.modelgen]
+2024-08-09 12:54:39 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:54:39 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:54:39 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:54:39 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:54:40 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:54:40 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:54:40 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:54:40 [info     ] Finished generating models! Stats for successful generations (successful/attempted): [Run3ModelGen.modelgen]
+2024-08-09 12:54:40 [info     ] 	prep_input: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 12:54:40 [info     ] 	SPheno: 3/3.                  [Run3ModelGen.modelgen]
+2024-08-09 12:54:40 [info     ] 	softsusy: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 12:54:40 [info     ] 	micromegas: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 12:54:40 [info     ] 	superiso: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 12:54:40 [info     ] 	gm2calc: 3/3.                 [Run3ModelGen.modelgen]
+2024-08-09 12:54:40 [info     ] 	evade: 0/3.                   [Run3ModelGen.modelgen]
+2024-08-09 12:54:40 [info     ] Will make NTuple for: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_2, with 3 models [Run3ModelGen.ntupling]
+2024-08-09 12:54:40 [info     ] 	Filling values for model: 0   [Run3ModelGen.ntupling]
+2024-08-09 12:54:40 [info     ] Saving NTuple in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_2/ntuple.0.0.root ... [Run3ModelGen.ntupling]
+Completed iteration 2
+Starting iteration 3
+Initial Training points:  tensor([0.0000, 1.0000, 0.2034], device='cuda:0') torch.Size([3])
+Training points after adding:  tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890], device='cuda:0') torch.Size([9])
+These training_points are used in the GP tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890], device='cuda:0')
+points: {487, 246, 999}
+new xs normalized:  tensor([0.4875, 0.2462, 1.0000], device='cuda:0')
+Corresponding xs: tensor([ 712.3786,  383.3584, 1411.3759], device='cuda:0')
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/Iter3/gp_plot.png
+YAML file has been created: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml
+Note: detected 144 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+Note: NumExpr detected 144 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+NumExpr defaulting to 8 threads.
+
+  ___              ____ __  __          _       _   ___            
+ | _ \ _  _  _ _  |__ /|  \/  | ___  __| | ___ | | / __| ___  _ _  
+ |   /| || || ' \  |_ \| |\/| |/ _ \/ _` |/ -_)| || (_ |/ -_)| ' \ 
+ |_|_\ \_,_||_||_||___/|_|  |_|\___/\__,_|\___||_| \___|\___||_||_|
+                                                                   
+
+2024-08-09 12:55:19 [info     ] Initialised ModelGenerator with: [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	config_file = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	scan_dir = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_3 [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	rawfilen = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/raw.slha [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	seed = 123                    [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	points = {}                   [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	prior = fixed                 [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	num_models = 3                [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	isGMSB = False                [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	parameters =                  [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		tanb: [60, 60, 60]           [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		M_1: [712.38, 383.36, 1411.38] [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		M_2: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		M_3: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		AT: [4000, 4000, 4000]       [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		Ab: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		Atau: [2000, 2000, 2000]     [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		mu: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		mA: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		meL: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		mtauL: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		meR: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		mtauR: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		mqL1: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		mqL3: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		muR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		mtR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		mdR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		mbR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	steps =                       [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		{'name': 'prep_input', 'output_dir': 'input', 'prefix': 'IN'} [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		{'name': 'SPheno', 'input_dir': 'input', 'output_dir': 'SPheno', 'log_dir': 'SPheno_log', 'prefix': 'SP'} [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		{'name': 'softsusy', 'input_dir': 'input', 'output_dir': 'softsusy', 'prefix': 'SS'} [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		{'name': 'micromegas', 'input_dir': 'SPheno', 'output_dir': 'micromegas', 'prefix': 'MO'} [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		{'name': 'superiso', 'input_dir': 'SPheno', 'output_dir': 'superiso', 'prefix': 'SI'} [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		{'name': 'gm2calc', 'input_dir': 'SPheno', 'output_dir': 'gm2calc', 'prefix': 'GM2'} [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 		{'name': 'evade', 'input_dir': 'SPheno', 'output_dir': 'evade', 'prefix': 'EV'} [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] Starting Model Generation...   [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] Setting up output directories for scan [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] Generating Model: 0.slha (1/3) [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:55:19 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] Generating Model: 1.slha (2/3) [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] Generating Model: 2.slha (3/3) [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:55:20 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] Finished generating models! Stats for successful generations (successful/attempted): [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] 	prep_input: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] 	SPheno: 3/3.                  [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] 	softsusy: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] 	micromegas: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] 	superiso: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] 	gm2calc: 3/3.                 [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] 	evade: 0/3.                   [Run3ModelGen.modelgen]
+2024-08-09 12:55:21 [info     ] Will make NTuple for: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_3, with 3 models [Run3ModelGen.ntupling]
+2024-08-09 12:55:21 [info     ] 	Filling values for model: 0   [Run3ModelGen.ntupling]
+2024-08-09 12:55:21 [info     ] Saving NTuple in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_3/ntuple.0.0.root ... [Run3ModelGen.ntupling]
+Completed iteration 3
+Starting iteration 4
+Initial Training points:  tensor([0.0000, 1.0000, 0.2034], device='cuda:0') torch.Size([3])
+Training points after adding:  tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209], device='cuda:0') torch.Size([12])
+These training_points are used in the GP tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209], device='cuda:0')
+points: {0}
+new xs normalized:  tensor([0.], device='cuda:0')
+Corresponding xs: tensor([47.5121], device='cuda:0')
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/Iter4/gp_plot.png
+YAML file has been created: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml
+Note: detected 144 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+Note: NumExpr detected 144 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+NumExpr defaulting to 8 threads.
+
+  ___              ____ __  __          _       _   ___            
+ | _ \ _  _  _ _  |__ /|  \/  | ___  __| | ___ | | / __| ___  _ _  
+ |   /| || || ' \  |_ \| |\/| |/ _ \/ _` |/ -_)| || (_ |/ -_)| ' \ 
+ |_|_\ \_,_||_||_||___/|_|  |_|\___/\__,_|\___||_| \___|\___||_||_|
+                                                                   
+
+2024-08-09 12:56:01 [info     ] Initialised ModelGenerator with: [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	config_file = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	scan_dir = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_4 [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	rawfilen = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/raw.slha [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	seed = 123                    [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	points = {}                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	prior = fixed                 [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	num_models = 1                [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	isGMSB = False                [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	parameters =                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		tanb: [60]                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		M_1: [47.51]                 [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		M_2: [2000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		M_3: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		AT: [4000]                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		Ab: [2000]                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		Atau: [2000]                 [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		mu: [2000]                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		mA: [2000]                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		meL: [2000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		mtauL: [2000]                [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		meR: [2000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		mtauR: [2000]                [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		mqL1: [4000]                 [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		mqL3: [4000]                 [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		muR: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		mtR: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		mdR: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		mbR: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	steps =                       [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		{'name': 'prep_input', 'output_dir': 'input', 'prefix': 'IN'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		{'name': 'SPheno', 'input_dir': 'input', 'output_dir': 'SPheno', 'log_dir': 'SPheno_log', 'prefix': 'SP'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		{'name': 'softsusy', 'input_dir': 'input', 'output_dir': 'softsusy', 'prefix': 'SS'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		{'name': 'micromegas', 'input_dir': 'SPheno', 'output_dir': 'micromegas', 'prefix': 'MO'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		{'name': 'superiso', 'input_dir': 'SPheno', 'output_dir': 'superiso', 'prefix': 'SI'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		{'name': 'gm2calc', 'input_dir': 'SPheno', 'output_dir': 'gm2calc', 'prefix': 'GM2'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 		{'name': 'evade', 'input_dir': 'SPheno', 'output_dir': 'evade', 'prefix': 'EV'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] Starting Model Generation...   [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] Setting up output directories for scan [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] Generating Model: 0.slha (1/1) [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:56:01 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:56:02 [info     ] Finished generating models! Stats for successful generations (successful/attempted): [Run3ModelGen.modelgen]
+2024-08-09 12:56:02 [info     ] 	prep_input: 1/1.              [Run3ModelGen.modelgen]
+2024-08-09 12:56:02 [info     ] 	SPheno: 1/1.                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:02 [info     ] 	softsusy: 1/1.                [Run3ModelGen.modelgen]
+2024-08-09 12:56:02 [info     ] 	micromegas: 1/1.              [Run3ModelGen.modelgen]
+2024-08-09 12:56:02 [info     ] 	superiso: 1/1.                [Run3ModelGen.modelgen]
+2024-08-09 12:56:02 [info     ] 	gm2calc: 1/1.                 [Run3ModelGen.modelgen]
+2024-08-09 12:56:02 [info     ] 	evade: 0/1.                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:02 [info     ] Will make NTuple for: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_4, with 1 models [Run3ModelGen.ntupling]
+2024-08-09 12:56:02 [info     ] 	Filling values for model: 0   [Run3ModelGen.ntupling]
+2024-08-09 12:56:02 [info     ] Saving NTuple in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_4/ntuple.0.0.root ... [Run3ModelGen.ntupling]
+Completed iteration 4
+Starting iteration 5
+Initial Training points:  tensor([0.0000, 1.0000, 0.2034], device='cuda:0') torch.Size([3])
+Training points after adding:  tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209, -1.0209, -0.4507, -0.6902],
+       device='cuda:0') torch.Size([15])
+These training_points are used in the GP tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209, -1.0209, -0.4507, -0.6902],
+       device='cuda:0')
+points: {0}
+new xs normalized:  tensor([0.], device='cuda:0')
+Corresponding xs: tensor([47.5121], device='cuda:0')
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/Iter5/gp_plot.png
+YAML file has been created: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml
+Note: detected 144 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+Note: NumExpr detected 144 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+NumExpr defaulting to 8 threads.
+
+  ___              ____ __  __          _       _   ___            
+ | _ \ _  _  _ _  |__ /|  \/  | ___  __| | ___ | | / __| ___  _ _  
+ |   /| || || ' \  |_ \| |\/| |/ _ \/ _` |/ -_)| || (_ |/ -_)| ' \ 
+ |_|_\ \_,_||_||_||___/|_|  |_|\___/\__,_|\___||_| \___|\___||_||_|
+                                                                   
+
+2024-08-09 12:56:41 [info     ] Initialised ModelGenerator with: [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	config_file = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	scan_dir = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_5 [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	rawfilen = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/raw.slha [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	seed = 123                    [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	points = {}                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	prior = fixed                 [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	num_models = 1                [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	isGMSB = False                [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	parameters =                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		tanb: [60]                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		M_1: [47.51]                 [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		M_2: [2000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		M_3: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		AT: [4000]                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		Ab: [2000]                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		Atau: [2000]                 [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		mu: [2000]                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		mA: [2000]                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		meL: [2000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		mtauL: [2000]                [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		meR: [2000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		mtauR: [2000]                [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		mqL1: [4000]                 [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		mqL3: [4000]                 [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		muR: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		mtR: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		mdR: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		mbR: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	steps =                       [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		{'name': 'prep_input', 'output_dir': 'input', 'prefix': 'IN'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		{'name': 'SPheno', 'input_dir': 'input', 'output_dir': 'SPheno', 'log_dir': 'SPheno_log', 'prefix': 'SP'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		{'name': 'softsusy', 'input_dir': 'input', 'output_dir': 'softsusy', 'prefix': 'SS'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		{'name': 'micromegas', 'input_dir': 'SPheno', 'output_dir': 'micromegas', 'prefix': 'MO'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		{'name': 'superiso', 'input_dir': 'SPheno', 'output_dir': 'superiso', 'prefix': 'SI'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		{'name': 'gm2calc', 'input_dir': 'SPheno', 'output_dir': 'gm2calc', 'prefix': 'GM2'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 		{'name': 'evade', 'input_dir': 'SPheno', 'output_dir': 'evade', 'prefix': 'EV'} [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] Starting Model Generation...   [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] Setting up output directories for scan [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] Generating Model: 0.slha (1/1) [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:56:41 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:56:42 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:56:42 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:56:42 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:56:42 [info     ] Finished generating models! Stats for successful generations (successful/attempted): [Run3ModelGen.modelgen]
+2024-08-09 12:56:42 [info     ] 	prep_input: 1/1.              [Run3ModelGen.modelgen]
+2024-08-09 12:56:42 [info     ] 	SPheno: 1/1.                  [Run3ModelGen.modelgen]
+2024-08-09 12:56:42 [info     ] 	softsusy: 1/1.                [Run3ModelGen.modelgen]
+2024-08-09 12:56:42 [info     ] 	micromegas: 1/1.              [Run3ModelGen.modelgen]
+2024-08-09 12:56:42 [info     ] 	superiso: 1/1.                [Run3ModelGen.modelgen]
+2024-08-09 12:56:42 [info     ] 	gm2calc: 1/1.                 [Run3ModelGen.modelgen]
+2024-08-09 12:56:42 [info     ] 	evade: 0/1.                   [Run3ModelGen.modelgen]
+2024-08-09 12:56:42 [info     ] Will make NTuple for: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_5, with 1 models [Run3ModelGen.ntupling]
+2024-08-09 12:56:42 [info     ] 	Filling values for model: 0   [Run3ModelGen.ntupling]
+2024-08-09 12:56:42 [info     ] Saving NTuple in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_5/ntuple.0.0.root ... [Run3ModelGen.ntupling]
+Completed iteration 5
+Starting iteration 6
+Initial Training points:  tensor([0.0000, 1.0000, 0.2034], device='cuda:0') torch.Size([3])
+Training points after adding:  tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209, -1.0209, -0.4507, -0.6902, -0.6212,
+        -0.8586, -1.0209], device='cuda:0') torch.Size([18])
+These training_points are used in the GP tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209, -1.0209, -0.4507, -0.6902, -0.6212,
+        -0.8586, -1.0209], device='cuda:0')
+points: {0}
+new xs normalized:  tensor([0.], device='cuda:0')
+Corresponding xs: tensor([47.5121], device='cuda:0')
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/Iter6/gp_plot.png
+YAML file has been created: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml
+Note: detected 144 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+Note: NumExpr detected 144 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+NumExpr defaulting to 8 threads.
+
+  ___              ____ __  __          _       _   ___            
+ | _ \ _  _  _ _  |__ /|  \/  | ___  __| | ___ | | / __| ___  _ _  
+ |   /| || || ' \  |_ \| |\/| |/ _ \/ _` |/ -_)| || (_ |/ -_)| ' \ 
+ |_|_\ \_,_||_||_||___/|_|  |_|\___/\__,_|\___||_| \___|\___||_||_|
+                                                                   
+
+2024-08-09 12:57:21 [info     ] Initialised ModelGenerator with: [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 	config_file = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 	scan_dir = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_6 [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 	rawfilen = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/raw.slha [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 	seed = 123                    [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 	points = {}                   [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 	prior = fixed                 [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 	num_models = 1                [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 	isGMSB = False                [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 	parameters =                  [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		tanb: [60]                   [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		M_1: [47.51]                 [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		M_2: [2000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		M_3: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		AT: [4000]                   [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		Ab: [2000]                   [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		Atau: [2000]                 [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		mu: [2000]                   [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		mA: [2000]                   [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		meL: [2000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		mtauL: [2000]                [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		meR: [2000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		mtauR: [2000]                [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		mqL1: [4000]                 [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		mqL3: [4000]                 [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		muR: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		mtR: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		mdR: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		mbR: [4000]                  [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 	steps =                       [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		{'name': 'prep_input', 'output_dir': 'input', 'prefix': 'IN'} [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		{'name': 'SPheno', 'input_dir': 'input', 'output_dir': 'SPheno', 'log_dir': 'SPheno_log', 'prefix': 'SP'} [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		{'name': 'softsusy', 'input_dir': 'input', 'output_dir': 'softsusy', 'prefix': 'SS'} [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		{'name': 'micromegas', 'input_dir': 'SPheno', 'output_dir': 'micromegas', 'prefix': 'MO'} [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		{'name': 'superiso', 'input_dir': 'SPheno', 'output_dir': 'superiso', 'prefix': 'SI'} [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		{'name': 'gm2calc', 'input_dir': 'SPheno', 'output_dir': 'gm2calc', 'prefix': 'GM2'} [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 		{'name': 'evade', 'input_dir': 'SPheno', 'output_dir': 'evade', 'prefix': 'EV'} [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] Starting Model Generation...   [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] Setting up output directories for scan [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] Generating Model: 0.slha (1/1) [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:57:21 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] Finished generating models! Stats for successful generations (successful/attempted): [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] 	prep_input: 1/1.              [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] 	SPheno: 1/1.                  [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] 	softsusy: 1/1.                [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] 	micromegas: 1/1.              [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] 	superiso: 1/1.                [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] 	gm2calc: 1/1.                 [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] 	evade: 0/1.                   [Run3ModelGen.modelgen]
+2024-08-09 12:57:22 [info     ] Will make NTuple for: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_6, with 1 models [Run3ModelGen.ntupling]
+2024-08-09 12:57:22 [info     ] 	Filling values for model: 0   [Run3ModelGen.ntupling]
+2024-08-09 12:57:22 [info     ] Saving NTuple in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_6/ntuple.0.0.root ... [Run3ModelGen.ntupling]
+Completed iteration 6
+Starting iteration 7
+Initial Training points:  tensor([0.0000, 1.0000, 0.2034], device='cuda:0') torch.Size([3])
+Training points after adding:  tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209, -1.0209, -0.4507, -0.6902, -0.6212,
+        -0.8586, -1.0209, -0.6212, -1.0209,  0.2168], device='cuda:0') torch.Size([21])
+These training_points are used in the GP tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209, -1.0209, -0.4507, -0.6902, -0.6212,
+        -0.8586, -1.0209, -0.6212, -1.0209,  0.2168], device='cuda:0')
+points: {927, 700, 999}
+new xs normalized:  tensor([0.9279, 0.7007, 1.0000], device='cuda:0')
+Corresponding xs: tensor([1313.0793, 1003.1724, 1411.3759], device='cuda:0')
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/Iter7/gp_plot.png
+YAML file has been created: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml
+Note: detected 144 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+Note: NumExpr detected 144 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+NumExpr defaulting to 8 threads.
+
+  ___              ____ __  __          _       _   ___            
+ | _ \ _  _  _ _  |__ /|  \/  | ___  __| | ___ | | / __| ___  _ _  
+ |   /| || || ' \  |_ \| |\/| |/ _ \/ _` |/ -_)| || (_ |/ -_)| ' \ 
+ |_|_\ \_,_||_||_||___/|_|  |_|\___/\__,_|\___||_| \___|\___||_||_|
+                                                                   
+
+2024-08-09 12:58:01 [info     ] Initialised ModelGenerator with: [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 	config_file = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 	scan_dir = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_7 [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 	rawfilen = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/raw.slha [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 	seed = 123                    [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 	points = {}                   [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 	prior = fixed                 [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 	num_models = 3                [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 	isGMSB = False                [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 	parameters =                  [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		tanb: [60, 60, 60]           [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		M_1: [1313.08, 1003.17, 1411.38] [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		M_2: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		M_3: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		AT: [4000, 4000, 4000]       [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		Ab: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		Atau: [2000, 2000, 2000]     [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		mu: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		mA: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		meL: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		mtauL: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		meR: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		mtauR: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		mqL1: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		mqL3: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		muR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		mtR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		mdR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		mbR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 	steps =                       [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		{'name': 'prep_input', 'output_dir': 'input', 'prefix': 'IN'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		{'name': 'SPheno', 'input_dir': 'input', 'output_dir': 'SPheno', 'log_dir': 'SPheno_log', 'prefix': 'SP'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		{'name': 'softsusy', 'input_dir': 'input', 'output_dir': 'softsusy', 'prefix': 'SS'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		{'name': 'micromegas', 'input_dir': 'SPheno', 'output_dir': 'micromegas', 'prefix': 'MO'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		{'name': 'superiso', 'input_dir': 'SPheno', 'output_dir': 'superiso', 'prefix': 'SI'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		{'name': 'gm2calc', 'input_dir': 'SPheno', 'output_dir': 'gm2calc', 'prefix': 'GM2'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 		{'name': 'evade', 'input_dir': 'SPheno', 'output_dir': 'evade', 'prefix': 'EV'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] Starting Model Generation...   [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] Setting up output directories for scan [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] Generating Model: 0.slha (1/3) [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:58:01 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:58:02 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:58:02 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:58:02 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:58:02 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:58:02 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:58:02 [info     ] Generating Model: 1.slha (2/3) [Run3ModelGen.modelgen]
+2024-08-09 12:58:02 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:58:02 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:58:02 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:58:02 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:58:03 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:58:03 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:58:03 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:58:03 [info     ] Generating Model: 2.slha (3/3) [Run3ModelGen.modelgen]
+2024-08-09 12:58:03 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:58:03 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:58:03 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:58:03 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:58:03 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:58:04 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:58:04 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:58:04 [info     ] Finished generating models! Stats for successful generations (successful/attempted): [Run3ModelGen.modelgen]
+2024-08-09 12:58:04 [info     ] 	prep_input: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 12:58:04 [info     ] 	SPheno: 3/3.                  [Run3ModelGen.modelgen]
+2024-08-09 12:58:04 [info     ] 	softsusy: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 12:58:04 [info     ] 	micromegas: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 12:58:04 [info     ] 	superiso: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 12:58:04 [info     ] 	gm2calc: 3/3.                 [Run3ModelGen.modelgen]
+2024-08-09 12:58:04 [info     ] 	evade: 0/3.                   [Run3ModelGen.modelgen]
+2024-08-09 12:58:04 [info     ] Will make NTuple for: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_7, with 3 models [Run3ModelGen.ntupling]
+2024-08-09 12:58:04 [info     ] 	Filling values for model: 0   [Run3ModelGen.ntupling]
+2024-08-09 12:58:04 [info     ] Saving NTuple in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_7/ntuple.0.0.root ... [Run3ModelGen.ntupling]
+Completed iteration 7
+Starting iteration 8
+Initial Training points:  tensor([0.0000, 1.0000, 0.2034], device='cuda:0') torch.Size([3])
+Training points after adding:  tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209, -1.0209, -0.4507, -0.6902, -0.6212,
+        -0.8586, -1.0209, -0.6212, -1.0209,  0.2168, -0.3412, -1.0209, -0.9154],
+       device='cuda:0') torch.Size([24])
+These training_points are used in the GP tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209, -1.0209, -0.4507, -0.6902, -0.6212,
+        -0.8586, -1.0209, -0.6212, -1.0209,  0.2168, -0.3412, -1.0209, -0.9154],
+       device='cuda:0')
+points: {618, 427, 999}
+new xs normalized:  tensor([0.6186, 0.4274, 1.0000], device='cuda:0')
+Corresponding xs: tensor([ 891.2236,  630.4648, 1411.3759], device='cuda:0')
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/Iter8/gp_plot.png
+YAML file has been created: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml
+Note: detected 144 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+Note: NumExpr detected 144 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+NumExpr defaulting to 8 threads.
+
+  ___              ____ __  __          _       _   ___            
+ | _ \ _  _  _ _  |__ /|  \/  | ___  __| | ___ | | / __| ___  _ _  
+ |   /| || || ' \  |_ \| |\/| |/ _ \/ _` |/ -_)| || (_ |/ -_)| ' \ 
+ |_|_\ \_,_||_||_||___/|_|  |_|\___/\__,_|\___||_| \___|\___||_||_|
+                                                                   
+
+2024-08-09 12:58:43 [info     ] Initialised ModelGenerator with: [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	config_file = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	scan_dir = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_8 [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	rawfilen = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/raw.slha [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	seed = 123                    [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	points = {}                   [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	prior = fixed                 [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	num_models = 3                [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	isGMSB = False                [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	parameters =                  [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		tanb: [60, 60, 60]           [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		M_1: [891.22, 630.46, 1411.38] [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		M_2: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		M_3: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		AT: [4000, 4000, 4000]       [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		Ab: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		Atau: [2000, 2000, 2000]     [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		mu: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		mA: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		meL: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		mtauL: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		meR: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		mtauR: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		mqL1: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		mqL3: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		muR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		mtR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		mdR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		mbR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	steps =                       [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		{'name': 'prep_input', 'output_dir': 'input', 'prefix': 'IN'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		{'name': 'SPheno', 'input_dir': 'input', 'output_dir': 'SPheno', 'log_dir': 'SPheno_log', 'prefix': 'SP'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		{'name': 'softsusy', 'input_dir': 'input', 'output_dir': 'softsusy', 'prefix': 'SS'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		{'name': 'micromegas', 'input_dir': 'SPheno', 'output_dir': 'micromegas', 'prefix': 'MO'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		{'name': 'superiso', 'input_dir': 'SPheno', 'output_dir': 'superiso', 'prefix': 'SI'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		{'name': 'gm2calc', 'input_dir': 'SPheno', 'output_dir': 'gm2calc', 'prefix': 'GM2'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 		{'name': 'evade', 'input_dir': 'SPheno', 'output_dir': 'evade', 'prefix': 'EV'} [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] Starting Model Generation...   [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] Setting up output directories for scan [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] Generating Model: 0.slha (1/3) [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:58:43 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] Generating Model: 1.slha (2/3) [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] Generating Model: 2.slha (3/3) [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:58:44 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] Finished generating models! Stats for successful generations (successful/attempted): [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] 	prep_input: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] 	SPheno: 3/3.                  [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] 	softsusy: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] 	micromegas: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] 	superiso: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] 	gm2calc: 3/3.                 [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] 	evade: 0/3.                   [Run3ModelGen.modelgen]
+2024-08-09 12:58:45 [info     ] Will make NTuple for: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_8, with 3 models [Run3ModelGen.ntupling]
+2024-08-09 12:58:45 [info     ] 	Filling values for model: 0   [Run3ModelGen.ntupling]
+2024-08-09 12:58:45 [info     ] Saving NTuple in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_8/ntuple.0.0.root ... [Run3ModelGen.ntupling]
+Completed iteration 8
+Starting iteration 9
+Initial Training points:  tensor([0.0000, 1.0000, 0.2034], device='cuda:0') torch.Size([3])
+Training points after adding:  tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209, -1.0209, -0.4507, -0.6902, -0.6212,
+        -0.8586, -1.0209, -0.6212, -1.0209,  0.2168, -0.3412, -1.0209, -0.9154,
+        -0.2113, -1.0209, -0.6942], device='cuda:0') torch.Size([27])
+These training_points are used in the GP tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209, -1.0209, -0.4507, -0.6902, -0.6212,
+        -0.8586, -1.0209, -0.6212, -1.0209,  0.2168, -0.3412, -1.0209, -0.9154,
+        -0.2113, -1.0209, -0.6942], device='cuda:0')
+points: {248, 543, 999}
+new xs normalized:  tensor([0.2482, 0.5435, 1.0000], device='cuda:0')
+Corresponding xs: tensor([ 386.0889,  788.8314, 1411.3759], device='cuda:0')
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/Iter9/gp_plot.png
+YAML file has been created: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml
+Note: detected 144 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+Note: NumExpr detected 144 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+NumExpr defaulting to 8 threads.
+
+  ___              ____ __  __          _       _   ___            
+ | _ \ _  _  _ _  |__ /|  \/  | ___  __| | ___ | | / __| ___  _ _  
+ |   /| || || ' \  |_ \| |\/| |/ _ \/ _` |/ -_)| || (_ |/ -_)| ' \ 
+ |_|_\ \_,_||_||_||___/|_|  |_|\___/\__,_|\___||_| \___|\___||_||_|
+                                                                   
+
+2024-08-09 12:59:25 [info     ] Initialised ModelGenerator with: [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	config_file = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	scan_dir = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_9 [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	rawfilen = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/raw.slha [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	seed = 123                    [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	points = {}                   [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	prior = fixed                 [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	num_models = 3                [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	isGMSB = False                [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	parameters =                  [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		tanb: [60, 60, 60]           [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		M_1: [386.09, 788.83, 1411.38] [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		M_2: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		M_3: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		AT: [4000, 4000, 4000]       [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		Ab: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		Atau: [2000, 2000, 2000]     [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		mu: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		mA: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		meL: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		mtauL: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		meR: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		mtauR: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		mqL1: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		mqL3: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		muR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		mtR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		mdR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		mbR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	steps =                       [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		{'name': 'prep_input', 'output_dir': 'input', 'prefix': 'IN'} [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		{'name': 'SPheno', 'input_dir': 'input', 'output_dir': 'SPheno', 'log_dir': 'SPheno_log', 'prefix': 'SP'} [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		{'name': 'softsusy', 'input_dir': 'input', 'output_dir': 'softsusy', 'prefix': 'SS'} [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		{'name': 'micromegas', 'input_dir': 'SPheno', 'output_dir': 'micromegas', 'prefix': 'MO'} [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		{'name': 'superiso', 'input_dir': 'SPheno', 'output_dir': 'superiso', 'prefix': 'SI'} [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		{'name': 'gm2calc', 'input_dir': 'SPheno', 'output_dir': 'gm2calc', 'prefix': 'GM2'} [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 		{'name': 'evade', 'input_dir': 'SPheno', 'output_dir': 'evade', 'prefix': 'EV'} [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] Starting Model Generation...   [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] Setting up output directories for scan [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] Generating Model: 0.slha (1/3) [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] Generating Model: 1.slha (2/3) [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:59:25 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:59:26 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:59:26 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:59:26 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:59:26 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:59:26 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:59:26 [info     ] Generating Model: 2.slha (3/3) [Run3ModelGen.modelgen]
+2024-08-09 12:59:26 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 12:59:26 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 12:59:26 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 12:59:26 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 12:59:27 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 12:59:27 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 12:59:27 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 12:59:27 [info     ] Finished generating models! Stats for successful generations (successful/attempted): [Run3ModelGen.modelgen]
+2024-08-09 12:59:27 [info     ] 	prep_input: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 12:59:27 [info     ] 	SPheno: 3/3.                  [Run3ModelGen.modelgen]
+2024-08-09 12:59:27 [info     ] 	softsusy: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 12:59:27 [info     ] 	micromegas: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 12:59:27 [info     ] 	superiso: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 12:59:27 [info     ] 	gm2calc: 3/3.                 [Run3ModelGen.modelgen]
+2024-08-09 12:59:27 [info     ] 	evade: 0/3.                   [Run3ModelGen.modelgen]
+2024-08-09 12:59:27 [info     ] Will make NTuple for: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_9, with 3 models [Run3ModelGen.ntupling]
+2024-08-09 12:59:27 [info     ] 	Filling values for model: 0   [Run3ModelGen.ntupling]
+2024-08-09 12:59:27 [info     ] Saving NTuple in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_9/ntuple.0.0.root ... [Run3ModelGen.ntupling]
+Completed iteration 9
+Starting iteration 10
+Initial Training points:  tensor([0.0000, 1.0000, 0.2034], device='cuda:0') torch.Size([3])
+Training points after adding:  tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209, -1.0209, -0.4507, -0.6902, -0.6212,
+        -0.8586, -1.0209, -0.6212, -1.0209,  0.2168, -0.3412, -1.0209, -0.9154,
+        -0.2113, -1.0209, -0.6942, -0.7815, -1.0209,  0.9959], device='cuda:0') torch.Size([30])
+These training_points are used in the GP tensor([ 0.0000,  1.0000,  0.2034, -1.0209,  0.1011,  0.8499, -1.0209,  0.3264,
+        -0.8890, -1.0047, -0.7937, -1.0209, -1.0209, -0.4507, -0.6902, -0.6212,
+        -0.8586, -1.0209, -0.6212, -1.0209,  0.2168, -0.3412, -1.0209, -0.9154,
+        -0.2113, -1.0209, -0.6942, -0.7815, -1.0209,  0.9959], device='cuda:0')
+points: {113, 802, 715}
+new xs normalized:  tensor([0.1131, 0.8028, 0.7157], device='cuda:0')
+Corresponding xs: tensor([ 201.7830, 1142.4258, 1023.6508], device='cuda:0')
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/Iter10/gp_plot.png
+YAML file has been created: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml
+Note: detected 144 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+Note: NumExpr detected 144 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+NumExpr defaulting to 8 threads.
+
+  ___              ____ __  __          _       _   ___            
+ | _ \ _  _  _ _  |__ /|  \/  | ___  __| | ___ | | / __| ___  _ _  
+ |   /| || || ' \  |_ \| |\/| |/ _ \/ _` |/ -_)| || (_ |/ -_)| ' \ 
+ |_|_\ \_,_||_||_||___/|_|  |_|\___/\__,_|\___||_| \___|\___||_||_|
+                                                                   
+
+2024-08-09 13:00:06 [info     ] Initialised ModelGenerator with: [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	config_file = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	scan_dir = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_10 [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	rawfilen = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/raw.slha [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	seed = 123                    [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	points = {}                   [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	prior = fixed                 [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	num_models = 3                [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	isGMSB = False                [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	parameters =                  [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		tanb: [60, 60, 60]           [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		M_1: [201.78, 1142.43, 1023.65] [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		M_2: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		M_3: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		AT: [4000, 4000, 4000]       [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		Ab: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		Atau: [2000, 2000, 2000]     [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		mu: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		mA: [2000, 2000, 2000]       [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		meL: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		mtauL: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		meR: [2000, 2000, 2000]      [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		mtauR: [2000, 2000, 2000]    [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		mqL1: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		mqL3: [4000, 4000, 4000]     [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		muR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		mtR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		mdR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		mbR: [4000, 4000, 4000]      [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	steps =                       [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		{'name': 'prep_input', 'output_dir': 'input', 'prefix': 'IN'} [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		{'name': 'SPheno', 'input_dir': 'input', 'output_dir': 'SPheno', 'log_dir': 'SPheno_log', 'prefix': 'SP'} [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		{'name': 'softsusy', 'input_dir': 'input', 'output_dir': 'softsusy', 'prefix': 'SS'} [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		{'name': 'micromegas', 'input_dir': 'SPheno', 'output_dir': 'micromegas', 'prefix': 'MO'} [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		{'name': 'superiso', 'input_dir': 'SPheno', 'output_dir': 'superiso', 'prefix': 'SI'} [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		{'name': 'gm2calc', 'input_dir': 'SPheno', 'output_dir': 'gm2calc', 'prefix': 'GM2'} [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 		{'name': 'evade', 'input_dir': 'SPheno', 'output_dir': 'evade', 'prefix': 'EV'} [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] Starting Model Generation...   [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] Setting up output directories for scan [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] Generating Model: 0.slha (1/3) [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 13:00:06 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] Generating Model: 1.slha (2/3) [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] Generating Model: 2.slha (3/3) [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2024-08-09 13:00:07 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] Finished generating models! Stats for successful generations (successful/attempted): [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] 	prep_input: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] 	SPheno: 3/3.                  [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] 	softsusy: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] 	micromegas: 3/3.              [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] 	superiso: 3/3.                [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] 	gm2calc: 3/3.                 [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] 	evade: 0/3.                   [Run3ModelGen.modelgen]
+2024-08-09 13:00:08 [info     ] Will make NTuple for: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_10, with 3 models [Run3ModelGen.ntupling]
+2024-08-09 13:00:08 [info     ] 	Filling values for model: 0   [Run3ModelGen.ntupling]
+2024-08-09 13:00:08 [info     ] Saving NTuple in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_10/ntuple.0.0.root ... [Run3ModelGen.ntupling]
+Completed iteration 10
+All iterations completed.
+                                  
+================================= 
+Global information about the job: 
+================================= 
+  
+Job owner: dvoss(54815)
+Job name:  test
+Node list: ravg1202
+Job start: Fri Aug  9 12:52:09 CEST 2024
+Job end:   Fri Aug  9 13:00:14 CEST 2024
+Work dir:  /raven/u/dvoss/al_pmssmwithgp/model
+Command:   /raven/u/dvoss/al_pmssmwithgp/model/slurm/single_job.sbatch
+  
+  
+  
+==========================================================================================
+Information on jobsteps (Note: MaxRSS/AveRSS is the maximum/average over all 
+tasks of the per-task memory high-water marks; cf. "man sacct"): 
+==========================================================================================
+  
+JobID            JobName NNodes NTasks  NCPUS       MaxRSS       AveRSS    Elapsed ExitCode
+------------- ---------- ------ ------ ------ ------------ ------------ ---------- --------
+12297194            test      1             4                             00:08:05      0:0
+12297194.0        job.sh      1      1      4     2384.36M     2384.36M   00:07:44      0:0
+  
+Maximum memory per node: 2.500180 GB (defined as MaxRSS*Ntasks/NNodes)
+CPU utilization: 15.5 %
+  
