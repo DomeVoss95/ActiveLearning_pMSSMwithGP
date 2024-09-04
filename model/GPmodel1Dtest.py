@@ -57,10 +57,9 @@ class GPModelPipeline:
         
         limited_df = pd.DataFrame({'IN_M_1': M_1_filtered, 'MO_Omega': Omega_filtered})
         
-        # Drop rows where IN_M_1 is between 0 and 50
-        # limited_df = limited_df.drop(limited_df[(limited_df['IN_M_1'] > 0) & (limited_df['IN_M_1'] < 50)].index)
+        # Drop rows where IN_M_1 is between 0 and 50, because chance of outliers is high
+        limited_df = limited_df.drop(limited_df[(limited_df['IN_M_1'] > 0) & (limited_df['IN_M_1'] < 50)].index)
 
-        
         # Convert to tensors
         self.x_train = torch.tensor(limited_df['IN_M_1'].values[:self.initial_train_points], dtype=torch.float32).to(self.device)
         self.y_train = torch.log(torch.tensor(limited_df['MO_Omega'].values[:self.initial_train_points], dtype=torch.float32).to(self.device) / 0.12)
@@ -95,7 +94,17 @@ class GPModelPipeline:
         # Append the new points to the existing training data
         self.x_train = torch.cat((self.x_train, additional_x_train))
         self.y_train = torch.cat((self.y_train, additional_y_train))
-        
+
+        # Convert the concatenated x_train and y_train to a set of tuples to remove duplicates
+        combined_set = {(float(x), float(y)) for x, y in zip(self.x_train, self.y_train)}
+
+        # Convert the set back to two tensors
+        self.x_train, self.y_train = zip(*combined_set)
+        self.x_train = torch.tensor(self.x_train, dtype=torch.float32).to(self.device)
+        self.y_train = torch.tensor(self.y_train, dtype=torch.float32).to(self.device)
+
+        #print("Unique training points: ", self.x_train, self.x_train.shape)
+
         print("Training points after adding: ", self.x_train, self.x_train.shape)
 
     def _normalize(self, data, data_min=-2000, data_max=2000):
@@ -114,6 +123,8 @@ class GPModelPipeline:
     def train_model(self, iters=20):
         print("These training_points are used in the GP", self.x_train)
         self.best_model, self.losses, self.losses_valid = self.model.do_train_loop(iters=iters)
+        # Print the hyperparameters of the best model
+        print("best model parameters: ", self.best_model.state_dict())
         # Save the state dictionary of the best model
         # torch.save(self.best_model.state_dict(), os.path.join(self.output_dir, 'best_multitask_gp.pth'))
 
@@ -138,8 +149,9 @@ class GPModelPipeline:
             var = self.observed_pred.variance.detach().reshape(-1, 1).to(self.device)
             thr = torch.Tensor([0.]).to(self.device)
 
-            self.entropy = entropy_local(mean, var, thr, self.device, torch.float32)
+            #print(f"Point: {self.x_test} - Variance: {var} ")
 
+            # self.entropy = entropy_local(mean, var, thr, self.device, torch.float32)
             # print("Entropy: ", self.entropy)
 
     def plotGP(self, new_x=None, save_path=None, iteration=None):
@@ -154,9 +166,13 @@ class GPModelPipeline:
         lower, upper = self.observed_pred.confidence_region()
         lower = lower.cpu().numpy()
         upper = upper.cpu().numpy()
+        var = self.observed_pred.variance.cpu().numpy()
+
+        # print("Confindence difference: ", upper - lower)
 
         _, ax = plt.subplots(1, 1, figsize=(10, 6))
         ax.plot(self.x_test.cpu().numpy(), mean, 'b', label='Learnt Function')
+        ax.plot(self.x_test.cpu().numpy(), var, 'o', label='Variance')
         ax.fill_between(self.x_test.cpu().numpy(), lower, upper, alpha=0.5, label='Confidence')
         
         # Plot true data points
@@ -194,15 +210,29 @@ class GPModelPipeline:
 
         ax2 = ax.twinx()
         ax2.set_ylabel("Entropy")
-        ax2.plot(self.x_test.cpu().numpy(), self.entropy.cpu().numpy(), 'g', label='Entropy')
+        # Make sure to use the filtered x_test when plotting entropy
+        x_test_to_plot = self.x_test if self.entropy.shape[0] == self.x_test.shape[0] else self.x_test[self.valid_indices]
+
+        # Now use x_test_to_plot for plotting entropy
+        ax2.plot(x_test_to_plot.cpu().numpy(), self.entropy.cpu().numpy(), 'g', label='Entropy')
+        # ax2.plot(self.x_test.cpu().numpy(), self.entropy.cpu().numpy(), 'g', label='Entropy')
 
         # Set the lower limit of the y-axis to 0.0 without specifying an upper limit
         ax2.set_ylim(bottom=0.0)
 
         maxE = torch.max(self.entropy)
         maxIndex = torch.argmax(self.entropy)
-        maxX = self.x_test[maxIndex]
+        maxX = x_test_to_plot[maxIndex] # self.x_test[maxIndex] #maybe use x_test_to plot here to make sure that its maxE is at peak of entropy
         ax2.plot(maxX.cpu().numpy(), maxE.cpu().numpy(), 'go', label='Max. E')
+
+        # # Plot smoothed batch entropy
+        # smoothed_batch_entropy = self.smoothed_batch_entropy(blur=0.15)
+        # batch_entropy_values = smoothed_batch_entropy(mean=self.observed_pred.mean, cov=self.observed_pred.covariance_matrix)
+
+        # print("Batch_entropy values: ", smoothed_batch_entropy)
+        
+        #ax2.plot(self.x_test.cpu().numpy(), batch_entropy_values.cpu().detach().numpy(), 'm', linestyle='--', label='Smoothed Batch Entropy')
+
 
         lines, labels = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
@@ -238,6 +268,8 @@ class GPModelPipeline:
             return greedy_batch_sel
         
         score = score_function(gp_mean[:, None], torch.diag(gp_covar)[:, None, None]).to(self.device)
+        #print("Smoothed_batch_entropy: ", score)
+        self.entropy = score
         first_index = torch.argmax(score).to(self.device)
         indices = [int(first_index)]
 
@@ -299,18 +331,18 @@ class GPModelPipeline:
             thr = torch.Tensor([0.]).to(self.device)  # Threshold tensor (can be adjusted if needed)
 
             # Filter the candidate points to only those between 0.1 and 0.9
-            valid_indices = (self.x_test >= 0.1) & (self.x_test <= 0.9)  # Create a mask for values in the desired range
-            x_test_filtered = self.x_test[valid_indices]  # Apply the mask to filter x_test
-            mean_filtered = mean[valid_indices]  # Apply the mask to filter the mean of predictions
-            covar_filtered = covar[valid_indices][:, valid_indices]  # Apply the mask to filter the covariance matrix
+            self.valid_indices = ((self.x_test < 0.50) | (self.x_test > 0.515)) #self.x_test >= 0.01) # & 
+            x_test_filtered = self.x_test[self.valid_indices]  
+            mean_filtered = mean[self.valid_indices]  
+            covar_filtered = covar[self.valid_indices][:, self.valid_indices]  
 
             # Use the selector to choose a set of points based on the filtered mean and covariance matrix.
-            points = set(selector(N=N, gp_mean=mean_filtered - thr, gp_covar=covar_filtered))  # Subtract threshold from mean for selection
-            new_x = x_test_filtered[list(points)]  # Select new x values based on the chosen points' indices#
+            points = set(selector(N=N, gp_mean=mean_filtered - thr, gp_covar=covar_filtered))  
+            new_x = x_test_filtered[list(points)]  
 
             # # Use the selector to choose a set of points based on the  mean and covariance matrix.
-            # points = set(selector(N=N, gp_mean=mean - thr, gp_covar=covar))  # Subtract threshold from mean for selection
-            # new_x = self.x_test[list(points)]  # Select new x values based on the chosen points' indices
+            # points = set(selector(N=N, gp_mean=mean - thr, gp_covar=covar))  
+            # new_x = self.x_test[list(points)]
 
             # Unnormalize the selected points to return them to their original scale.
             new_x_unnormalized = self._unnormalize(new_x, self.data_min, self.data_max)

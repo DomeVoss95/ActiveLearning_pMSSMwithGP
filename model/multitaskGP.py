@@ -1,24 +1,29 @@
 import gpytorch
 import torch
+import numpy as np
 from collections import OrderedDict
 from linearMean import LinearMean
 
 class MultitaskGP(gpytorch.models.ExactGP):
     '''MultitaskGP inherits from ExactGP'''
 
-    def __init__(self, x_train, y_train, x_valid, y_valid, likelihood):
+    def __init__(self, x_train, y_train, x_valid, y_valid, likelihood, seed=42):
         '''Initialize new MultitaskGP:
             x_train: stacked SimpleAnalysis and reco queries for (mzp, mdh, mdm, gx)
             y_train: stacked SimpleAnalysis and reco queries for target values
             likelihood (gpytorch.likelihoods): Gaussian Likelihood with white noise
+            seed: random seed for reproducibility
         '''
+        # Set the seed for reproducibility
+        self.set_seed(seed)
+
         super().__init__(x_train, y_train, likelihood)
         self.mean_module = LinearMean(input_size=1)
         
         # Setting up the covariance module with lengthscale constraints
-        self.covar_module = gpytorch.kernels.RBFKernel(nu=0.5)
+        self.covar_module = gpytorch.kernels.RBFKernel(nu=1.5)
         self.covar_module.raw_lengthscale.requires_grad_(False)
-        self.covar_module.register_constraint("raw_lengthscale", gpytorch.constraints.Interval(1e-4, 10.0))
+        self.covar_module.register_constraint("raw_lengthscale", gpytorch.constraints.Interval(1e-4, 1.0)) # (1e-4, 1.0) 1e-1
         self.covar_module.raw_lengthscale.requires_grad_(True)
         
         # Setting initial lengthscale value within the new constraints
@@ -33,37 +38,29 @@ class MultitaskGP(gpytorch.models.ExactGP):
 
         # Adjusting the noise constraint
         self.likelihood.noise_covar.raw_noise.requires_grad_(False)
-        self.likelihood.noise_covar.register_constraint("raw_noise", gpytorch.constraints.Interval(1e-3, 1))
+        self.likelihood.noise_covar.register_constraint("raw_noise", gpytorch.constraints.Interval(1e-3, 1e-2))
         self.likelihood.noise_covar.raw_noise.requires_grad_(True)
 
         # Adjusting the raw variance constraint
         self.task_covar_module.raw_var.requires_grad_(False)
-        self.task_covar_module.register_constraint("raw_var", gpytorch.constraints.Interval(0, 0.01))
+        self.task_covar_module.register_constraint("raw_var", gpytorch.constraints.Interval(0,1e-1))
         self.task_covar_module.raw_var.requires_grad_(True)
-
-
-        # # Setting initial values from the state dict
-        # state_dict = OrderedDict([
-        #     ('likelihood.noise_covar.raw_noise', torch.tensor([1e-2])),  # Setting within new constraints
-        #     ('mean_module.weights', torch.tensor([[0.2606]])),
-        #     ('mean_module.bias', torch.tensor([1.9845])),
-        #     ('covar_module.raw_lengthscale', torch.tensor([0.1]).unsqueeze(0)),  # Setting within new constraints and correct shape
-        #     ('task_covar_module.covar_factor', torch.tensor([[0.7073]])),
-        #     ('task_covar_module.raw_var', torch.tensor([0.1])),
-        #     ('task_covar_module.IndexKernelPrior.a', torch.tensor([0.])),
-        #     ('task_covar_module.IndexKernelPrior.b', torch.tensor([1.])),
-        #     ('task_covar_module.IndexKernelPrior.sigma', torch.tensor([0.0100])),
-        #     ('task_covar_module.IndexKernelPrior.tails.loc', torch.tensor([0.])),
-        #     ('task_covar_module.IndexKernelPrior.tails.scale', torch.tensor([0.0100]))
-        # ])
-        
-        # self.load_state_dict(state_dict)
 
         self.x_train = x_train
         self.y_train = y_train
         self.x_valid = x_valid
         self.y_valid = y_valid
         self.likelihood = likelihood
+
+    def set_seed(self, seed):
+        '''Set the seed for reproducibility'''
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
 
     def forward(self, x):
         '''Evaluate the posterior GP:
@@ -91,6 +88,9 @@ class MultitaskGP(gpytorch.models.ExactGP):
         # Initial loss
         mll = gpytorch.mlls.ExactMarginalLogLikelihood(self.likelihood, self)
         best_loss = 1e10
+
+        # Initialize best_model with the current state of the model
+        best_model = self
 
         # Training loop
         with gpytorch.settings.cg_tolerance(1e-6), gpytorch.settings.max_preconditioner_size(10), gpytorch.settings.max_root_decomposition_size(7000):
