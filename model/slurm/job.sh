@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# python /raven/u/dvoss/al_pmssmwithgp/model/GPmodel1Dtest.py # adapt
+# python /raven/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py # adapt
 
 ## Set the paths and variables
-GP_MODEL_SCRIPT="/u/dvoss/al_pmssmwithgp/model/GPmodel1Dtest.py"
+GP_MODEL_SCRIPT="/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py"
 GEN_MODELS_SCRIPT="/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scripts/genModels.py"
 SETUP_SCRIPT="/u/dvoss/al_pmssmwithgp/Run3ModelGen/build/setup.sh"
 PIX_WORKING_DIR="/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen"

@@ -4,6 +4,7 @@ import os
 import torch
 import gpytorch
 import pickle
+import seaborn as sns
 from matplotlib import pyplot as plt
 from gpytorch.likelihoods import GaussianLikelihood
 import pandas as pd
@@ -145,8 +146,11 @@ class GPModelPipeline:
 
         with torch.no_grad(), gpytorch.settings.fast_pred_var(False):
             self.observed_pred = self.likelihood(self.model(self.x_test))
+            print("Likelihood", self.observed_pred)
             mean = self.observed_pred.mean.detach().reshape(-1, 1).to(self.device)
+            print("Mean: ", mean)
             var = self.observed_pred.variance.detach().reshape(-1, 1).to(self.device)
+            print("Variance: ", var)
             thr = torch.Tensor([0.]).to(self.device)
 
             #print(f"Point: {self.x_test} - Variance: {var} ")
@@ -172,8 +176,11 @@ class GPModelPipeline:
 
         _, ax = plt.subplots(1, 1, figsize=(10, 6))
         ax.plot(self.x_test.cpu().numpy(), mean, 'b', label='Learnt Function')
-        ax.plot(self.x_test.cpu().numpy(), var, 'o', label='Variance')
+        ax.plot(self.x_test.cpu().numpy(), var, label='Variance')
         ax.fill_between(self.x_test.cpu().numpy(), lower, upper, alpha=0.5, label='Confidence')
+
+        ax.set_xlabel("M_1")
+        ax.set_ylabel("log(Omega/0.12)")
         
         # Plot true data points
         x_true = torch.tensor(pd.read_csv(self.csv_file)['IN_M_1'].values[:], dtype=torch.float32).to(self.device)
@@ -248,6 +255,94 @@ class GPModelPipeline:
         else:
             plt.show()
 
+    # def plotGP(self, new_x=None, save_path=None, iteration=None):
+    #     """
+    #     Plot the GP model's predictions, confidence interval, and various data points,
+    #     along with a heatmap of the covariance matrix.
+        
+    #     :param new_x: New points to be highlighted on the plot (if any).
+    #     :param save_path: Path to save the plot as an image file.
+    #     :param iteration: The current iteration number to be displayed in the plot title.
+    #     """
+    #     mean = self.observed_pred.mean.cpu().numpy()
+    #     lower, upper = self.observed_pred.confidence_region()
+    #     lower = lower.cpu().numpy()
+    #     upper = upper.cpu().numpy()
+    #     var = self.observed_pred.variance.cpu().numpy()
+    #     covar = self.observed_pred.covariance_matrix.detach().cpu().numpy()
+
+    #     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 12))  # Create two subplots
+
+    #     # First plot (GP Model Prediction)
+    #     ax1.plot(self.x_test.cpu().numpy(), mean, 'b', label='Learnt Function')
+    #     ax1.plot(self.x_test.cpu().numpy(), var, label='Variance')
+    #     ax1.fill_between(self.x_test.cpu().numpy(), lower, upper, alpha=0.5, label='Confidence')
+    #     ax1.set_xlabel("M_1")
+    #     ax1.set_ylabel("log(Omega/0.12)")
+
+    #     # Plot true data points
+    #     x_true = torch.tensor(pd.read_csv(self.csv_file)['IN_M_1'].values[:], dtype=torch.float32).to(self.device)
+    #     x_true_min = x_true.min(dim=0, keepdim=True).values
+    #     x_true_max = x_true.max(dim=0, keepdim=True).values
+    #     x_true = (x_true - x_true_min) / (x_true_max - x_true_min)
+    #     y_true = torch.log(torch.tensor(pd.read_csv(self.csv_file)['MO_Omega'].values[:], dtype=torch.float32) / 0.12).to(self.device)
+        
+    #     ax1.plot(x_true.cpu().numpy(), y_true.cpu().numpy(), '*', c="r", label='Truth')
+    #     ax1.plot(self.x_train.cpu().numpy(), self.y_train.cpu().numpy(), 'k*', label='Training Data')
+
+    #     if new_x is not None:
+    #         dolabel = True
+    #         for xval in new_x.cpu().numpy():
+    #             ax1.axvline(x=xval, color='r', linestyle='--', label='new points') if dolabel else ax1.axvline(x=xval, color='r', linestyle='--')
+    #             dolabel = False
+
+    #     # Plot al_df data points if root_file_path is provided
+    #     if self.root_file_path is not None:
+    #         al_df = uproot.open(self.root_file_path)["susy"].arrays(library="pd")
+    #         M_1_al = al_df['IN_M_1']
+    #         Omega_al = al_df['MO_Omega']
+
+    #         M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
+    #         M_1_al_normalized = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0]
+    #         Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
+    #         Omega_al_normalized = torch.log(Omega_al_tensor / 0.12)
+
+    #         ax1.plot(M_1_al_normalized.cpu().numpy(), Omega_al_normalized.cpu().numpy(), '*', c="g", label='al_df Data')
+    #     else:
+    #         print("No root_file_path provided; skipping ROOT file data plotting.")
+
+    #     ax3 = ax1.twinx()
+    #     ax3.set_ylabel("Entropy")
+    #     x_test_to_plot = self.x_test if self.entropy.shape[0] == self.x_test.shape[0] else self.x_test[self.valid_indices]
+    #     ax3.plot(x_test_to_plot.cpu().numpy(), self.entropy.cpu().numpy(), 'g', label='Entropy')
+    #     ax3.set_ylim(bottom=0.0)
+
+    #     maxE = torch.max(self.entropy)
+    #     maxIndex = torch.argmax(self.entropy)
+    #     maxX = x_test_to_plot[maxIndex]
+    #     ax3.plot(maxX.cpu().numpy(), maxE.cpu().numpy(), 'go', label='Max. E')
+
+    #     lines, labels = ax1.get_legend_handles_labels()
+    #     lines2, labels2 = ax3.get_legend_handles_labels()
+    #     ax3.legend(lines + lines2, labels + labels2)
+
+    #     # Add iteration number to the plot title
+    #     if iteration is not None:
+    #         ax1.set_title(f"GP Model Prediction - Iteration {iteration}")
+
+    #     # Second plot (Covariance Heatmap)
+    #     sns.heatmap(covar, cmap='coolwarm', ax=ax2)
+    #     ax2.set_title('Covariance Matrix Heatmap')
+    #     ax2.set_xlabel('Index')
+    #     ax2.set_ylabel('Index')
+
+    #     # Save or show the plot
+    #     if save_path is not None:
+    #         plt.savefig(save_path)
+    #         print(f"Plot saved to {save_path}")
+    #     else:
+    #         plt.show()
+
 
 
     def best_not_yet_chosen(self, score, previous_indices):
@@ -261,6 +356,10 @@ class GPModelPipeline:
                                  gp_mean=None, 
                                  gp_covar=None, 
                                  N=None):
+        '''Chooses the next points iterativley. The point with maximum entropy is always chosen first, 
+            then the next indices are selected with the choice function - gibbs_sampling or best_not_yet_chosen
+            The covariance matrix and the mean vector are updated iterativly, based on the already chosen points
+        '''
 
         if gp_mean is None:
             def greedy_batch_sel(gp_mean, gp_covar, N):
@@ -276,8 +375,8 @@ class GPModelPipeline:
         num_pts = len(gp_mean)
 
         for i in range(N-1):
-            center_cov = torch.stack([gp_covar[indices, :][:, indices]] * num_pts).to(self.device)
-            side_cov = gp_covar[:, None, indices].to(self.device)
+            center_cov = torch.stack([gp_covar[indices, :][:, indices]] * num_pts).to(self.device) # Covariance between selected points
+            side_cov = gp_covar[:, None, indices].to(self.device) # Coveriance between already selected and remaining points
             bottom_cov = gp_covar[:, indices, None].to(self.device)
             end_cov = torch.diag(gp_covar)[:, None, None].to(self.device)
 
@@ -285,14 +384,25 @@ class GPModelPipeline:
                 torch.cat([center_cov, side_cov], axis=1),
                 torch.cat([bottom_cov, end_cov], axis=1),
             ], axis=2).to(self.device)
-            
-            center_mean = torch.stack([gp_mean[indices]] * num_pts).to(self.device)
-            new_mean = gp_mean[:, None].to(self.device)
 
+            # print("Cov_batch Shape: ", cov_batch.shape)
+            # print("center_cov Shape: ", center_cov.shape)
+            # print("side_cov Shape: ", side_cov.shape)
+            # print("bottom_cov Shape: ", bottom_cov.shape)
+            # print("end_cov Shape: ", end_cov.shape)
+            
+            center_mean = torch.stack([gp_mean[indices]] * num_pts).to(self.device) # Mean between selected points
+            new_mean = gp_mean[:, None].to(self.device)
             mean_batch = torch.cat([center_mean, new_mean], axis=1).to(self.device)
+
+            # print("Mean_batch Shape: ", mean_batch.shape)
+            # print("center_mean Shape: ", center_mean.shape)
+            # print("new_mean Shape: ", new_mean.shape)
+
             score = score_function(mean_batch, cov_batch).to(self.device)
             next_index = choice_function(score, indices)
             indices.append(int(next_index))
+
 
         return indices
 
@@ -301,6 +411,8 @@ class GPModelPipeline:
         n = mean.shape[-1]
         d = torch.diag_embed(1. / mean).to(device)
         x = d @ cov @ d.to(device)
+        # print("Cov Shape: ", cov.shape)
+        # print("X Shape: ", x.shape)
         I = torch.eye(n)[None, :, :].to(device)
         return (torch.logdet(x + I) - torch.logdet(x + 2 * I) + n * np.log(2)) / np.log(2)
 
@@ -308,11 +420,19 @@ class GPModelPipeline:
         return lambda mean, cov: self.approximate_batch_entropy(mean + blur * torch.sign(mean).to(self.device), cov)
 
     def gibbs_sample(self, beta):
+        '''Chooses next point based on probability that a random value is smaller than the cumulative sum 
+            of the probabilites. These are calculated with the smoothed batch entropy
+            - if beta is high: deterministic selection with only highest entropies
+            - if beta is low: more random selection with each point having a similar probility
+        '''
         def sampler(score, indices=None):
             probs = torch.exp(beta * (score - torch.max(score))).to(self.device)
             probs /= torch.sum(probs).to(self.device)
+            # print("probs:", probs)
             cums = torch.cumsum(probs, dim=0).to(self.device)
+            # print("cumsum: ", cums)
             rand = torch.rand(size=(1,)).to(self.device)[0]
+            # print("rand: ", rand)
             return torch.sum(cums < rand).to(self.device)    
         return sampler
 
@@ -320,7 +440,8 @@ class GPModelPipeline:
         # Initialize the selector using a combination of a smoothed batch entropy score function and a Gibbs sampling choice function.
         selector = self.iterative_batch_selector(
             score_function=self.smoothed_batch_entropy(blur=0.15),  # Score function with a small blur applied to smooth entropy calculation
-            choice_function=self.gibbs_sample(beta=50)  # Choice function using Gibbs sampling with a specified beta
+            choice_function=self.gibbs_sample(beta=100)  # Choice function using Gibbs sampling with a specified beta
+            # choice_function=self.best_not_yet_chosen
         )
 
         with torch.no_grad(), gpytorch.settings.fast_pred_var(False):
@@ -330,11 +451,15 @@ class GPModelPipeline:
             covar = self.observed_pred.covariance_matrix.detach().to(self.device)
             thr = torch.Tensor([0.]).to(self.device)  # Threshold tensor (can be adjusted if needed)
 
-            # Filter the candidate points to only those between 0.1 and 0.9
-            self.valid_indices = ((self.x_test < 0.50) | (self.x_test > 0.515)) #self.x_test >= 0.01) # & 
+            # Filter the points in the middle out: there cannot be new points selected
+            self.valid_indices = ((self.x_test < 0.50) | (self.x_test > 0.515)) 
             x_test_filtered = self.x_test[self.valid_indices]  
             mean_filtered = mean[self.valid_indices]  
             covar_filtered = covar[self.valid_indices][:, self.valid_indices]  
+
+            # Check x_test for NaNs
+            print("NaN in x_test_filtered:", torch.isnan(x_test_filtered).any())
+
 
             # Use the selector to choose a set of points based on the filtered mean and covariance matrix.
             points = set(selector(N=N, gp_mean=mean_filtered - thr, gp_covar=covar_filtered))  

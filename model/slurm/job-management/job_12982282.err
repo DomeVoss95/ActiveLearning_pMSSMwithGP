@@ -1,0 +1,27 @@
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 3.12719e-05 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.000421446 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.000156497 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/distributions/multivariate_normal.py:259: NumericalWarning: Negative variance values detected. This is likely due to numerical instabilities. Rounding negative variances up to 1e-06.
+  warnings.warn(
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.00336581 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.000627618 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 7.04093e-05 GeV),
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: got SIGCONT
+slurmstepd: error: *** STEP 12982282.0 ON ravg1017 CANCELLED AT 2024-09-24T14:11:29 ***
+slurmstepd: error: *** JOB 12982282 ON ravg1017 CANCELLED AT 2024-09-24T14:11:29 ***
+srun: forcing job termination

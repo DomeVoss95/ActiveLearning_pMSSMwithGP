@@ -1,0 +1,18 @@
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Traceback (most recent call last):
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 460, in <module>
+    gp_pipeline.load_additional_data()
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 105, in load_additional_data
+    combined_set = {(float(x.item()), float(y.item())) for x, y in zip(self.x_train, self.y_train)}
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 105, in <setcomp>
+    combined_set = {(float(x.item()), float(y.item())) for x, y in zip(self.x_train, self.y_train)}
+ValueError: only one element tensors can be converted to Python scalars
+srun: error: ravg1111: task 0: Exited with exit code 1
+srun: Terminating StepId=12996129.0

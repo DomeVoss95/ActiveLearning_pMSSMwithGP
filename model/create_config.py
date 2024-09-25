@@ -15,7 +15,7 @@ def create_config(new_points, output_file='output.yaml'):
     parameters = {
         "tanb": [60],
         "M_1": [],
-        "M_2": [2000],
+        "M_2": [], # Change for 1D
         "M_3": [4000],
         "AT": [4000],
         "Ab": [2000],
@@ -41,17 +41,35 @@ def create_config(new_points, output_file='output.yaml'):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # Convert new_points to floats and round to two decimal places, then append to the M_1 list
+    # Convert new_points to floats and round to two decimal places
     new_points_float = new_points.tolist()
-    new_points_rounded = [round(point, 2) for point in new_points_float]
-    parameters["M_1"].extend(new_points_rounded)
+    new_points_rounded = [[round(point, 2) for point in points] for points in new_points_float]
+
+    # new_points_rounded is a list of lists: [[M_1_values], [M_2_values]]
+    # Now we need to extract corresponding M_1 and M_2 values
+
+    # Unzip new_points_rounded into separate M_1 and M_2 lists
+    M_1_values = [point[0] for point in new_points_rounded]  # First column
+    M_2_values = [point[1] for point in new_points_rounded]  # Second column
+
+    # Append the rounded values to parameters
+    parameters["M_1"].extend(M_1_values)
+    parameters["M_2"].extend(M_2_values)
+
+
+    # # Convert new_points to floats and round to two decimal places, then append to the M_1 list
+    # new_points_float = new_points.tolist()
+    # new_points_rounded = [[round(point, 2) for point in points] for points in new_points_float]
+    # # new_points_rounded = [round(point, 2) for point in new_points_float]
+    # parameters["M_1"].extend(new_points_rounded[0]) # Change for 1D
+    # parameters["M_2"].extend(new_points_rounded[1]) # Change for 1D
 
     # Calculate the new length of M_1
     new_length = len(parameters["M_1"])
 
     # Extend other lists to match the new length
     for key, value in parameters.items():
-        if key != "M_1":
+        if key != "M_1" or "M_2":
             parameters[key].extend([value[-1]] * (new_length - len(value)))
 
     # Define the complete dictionary with additional keys

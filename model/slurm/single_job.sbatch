@@ -34,6 +34,7 @@ pip install argparse
 pip install pyslha
 pip install structlog
 pip install imageio[ffmpeg] Pillow
+pip install seaborn
 
 
 # Copy the output.csv to the working directory if needed
