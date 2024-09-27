@@ -36,18 +36,6 @@ pip install structlog
 pip install imageio[ffmpeg] Pillow
 pip install seaborn
 
-
-# Copy the output.csv to the working directory if needed
-# If output.csv is already in the working directory, this step is not needed
-# cp /u/dvoss/al_pmssmwithgp/model/M_2_fixed.csv /u/dvoss/al_pmssmwithgp/
-# cp /u/dvoss/al_pmssmwithgp/model/entropy.py /u/dvoss/al_pmssmwithgp/
-
-# cp /u/dvoss/al_pmssmwithgp/model/output.csv /u/dvoss/al_pmssmwithgp/
-
-# # Load conda environment
-# conda env create -f environment.yaml
-# conda activate ALenv
-
 # Start run
 srun /raven/u/dvoss/al_pmssmwithgp/model/slurm/job.sh
-# srun -n 1 -p interactive --time=00:30:00 --mem=2G ./EXECUTABLE
+

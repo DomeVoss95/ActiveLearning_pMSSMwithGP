@@ -20,7 +20,7 @@ def parse_args():
     return parser.parse_args()
 
 class GPModelPipeline:
-    def __init__(self, csv_file, root_file_path=None, output_dir=None, initial_train_points=4, valid_points=250, additional_points_per_iter=3, n_test=100000):
+    def __init__(self, csv_file, root_file_path=None, output_dir=None, initial_train_points=10, valid_points=250, additional_points_per_iter=3, n_test=100000):
         self.csv_file = csv_file
         self.root_file_path = root_file_path
         self.output_dir = output_dir
@@ -42,9 +42,12 @@ class GPModelPipeline:
         self.y_valid = None
         self.observed_pred = None
         self.entropy = None
-        self.x_test = torch.stack([torch.linspace(0, 1, 1000), torch.linspace(0, 1, 1000)], dim=1).to(self.device)
 
-        
+        x1_test = torch.linspace(0, 1, 100)
+        x2_test = torch.linspace(0, 1, 100)
+        x1_grid, x2_grid = torch.meshgrid(x1_test, x2_test)
+        self.x_test = torch.stack([x1_grid.flatten(), x2_grid.flatten()], dim=1).to(self.device)
+
         self.load_initial_data()
         self.initialize_model()
 
@@ -94,12 +97,21 @@ class GPModelPipeline:
         M_2_al_tensor = torch.tensor(M_2_al.values, dtype=torch.float32).to(self.device)
         Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
         
-        additional_x_train = torch.stack([self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter], self._normalize(M_2_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter]])
+        # Normalize M_1 and M_2
+        M_1_al_normalized = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter]
+        M_2_al_normalized = self._normalize(M_2_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter]
+
+        # Concatenate M_1 and M_2 into a single tensor of shape [N, 2]
+        additional_x_train = torch.cat([M_1_al_normalized.unsqueeze(1), M_2_al_normalized.unsqueeze(1)], dim=1)
+
+        # additional_x_train = torch.stack([self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter], self._normalize(M_2_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter]])
         additional_y_train = torch.log(Omega_al_tensor / 0.12)[:self.additional_points_per_iter]
 
         # Debugging: Print shapes of both tensors before concatenating
         print(f"self.x_train shape: {self.x_train.shape}")  # Expecting [N, 2]
         print(f"additional_x_train shape: {additional_x_train.shape}")  # Should also be [M, 2]
+
+        print(f"additional_x_train: {additional_x_train}")
 
         # Ensure the additional_x_train has the same number of columns as self.x_train
         if additional_x_train.shape[1] != self.x_train.shape[1]:
@@ -294,8 +306,33 @@ class GPModelPipeline:
 
         plt.figure(figsize=(8, 6))
         plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='log(Omega/0.12)')
         plt.xlabel('M_1_normalized')
         plt.ylabel('M_2_normalized')
+
+        # Scatterplot of the training points
+        plt.scatter(self.x_train[:, 0].cpu().numpy(), self.x_train[:,1].cpu().numpy(), marker='*', s=200, c='b', label='training_points')
+
+        # Scatter plot of additional data (al_df) if root_file_path is provided
+        if self.root_file_path is not None:
+            # Extract and normalize al_df data points
+            al_df = uproot.open(self.root_file_path)["susy"].arrays(library="pd")
+            M_1_al = al_df['IN_M_1']
+            M_2_al = al_df['IN_M_2']  # Assuming M_2_al should be plotted in 2D
+            Omega_al = al_df['MO_Omega']
+
+            # Normalize the al_df points
+            M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
+            M_2_al_tensor = torch.tensor(M_2_al.values, dtype=torch.float32).to(self.device)
+            M_1_al_normalized = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0]
+            M_2_al_normalized = self._normalize(M_2_al_tensor, self.data_min, self.data_max)[0]
+
+            # Scatter plot for the additional points (M_1_al and M_2_al)
+            plt.scatter(M_1_al_normalized.cpu().numpy(), M_2_al_normalized.cpu().numpy(), 
+                        c='g', marker='*', label='al_df Data')
+
+        else:
+            print("No root_file_path provided; skipping ROOT file data plotting.")
 
         # Add the iteration number to the plot title
         if iteration is not None:
@@ -464,14 +501,14 @@ if __name__ == "__main__":
     if args.iteration == 1:
         # First iteration, initialize with initial data
         gp_pipeline = GPModelPipeline(
-            csv_file='M_1andM_2.csv',
+            csv_file='output.csv',
             # root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{args.iteration}/ntuple.0.0.root',
             output_dir=args.output_dir
         )
     else:
         # Load previous training data and add new data from this iteration
         gp_pipeline = GPModelPipeline(
-            csv_file='M_1andM_2.csv',
+            csv_file='output.csv',
             root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{previous_iter}/ntuple.0.0.root',
             output_dir=args.output_dir
         )
@@ -480,7 +517,7 @@ if __name__ == "__main__":
         gp_pipeline.load_additional_data()
 
     gp_pipeline.initialize_model()
-    gp_pipeline.train_model(iters=1000)
+    gp_pipeline.train_model(iters=750)
     gp_pipeline.plot_losses()
     gp_pipeline.evaluate_model()
     new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=3)

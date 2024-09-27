@@ -45,6 +45,9 @@ def create_config(new_points, output_file='output.yaml'):
     new_points_float = new_points.tolist()
     new_points_rounded = [[round(point, 2) for point in points] for points in new_points_float]
 
+    # Print to verify the structure
+    print(f"new_points_rounded: {new_points_rounded}")
+
     # new_points_rounded is a list of lists: [[M_1_values], [M_2_values]]
     # Now we need to extract corresponding M_1 and M_2 values
 
@@ -55,6 +58,10 @@ def create_config(new_points, output_file='output.yaml'):
     # Append the rounded values to parameters
     parameters["M_1"].extend(M_1_values)
     parameters["M_2"].extend(M_2_values)
+
+    # Ensure the new points are correctly structured before converting them to tensors
+    print(f"M_1 values: {M_1_values}")
+    print(f"M_2 values: {M_2_values}")
 
 
     # # Convert new_points to floats and round to two decimal places, then append to the M_1 list
