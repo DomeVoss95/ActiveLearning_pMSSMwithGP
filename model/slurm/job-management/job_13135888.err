@@ -9,10 +9,10 @@ should be replaced with
 X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
   res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
 Traceback (most recent call last):
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 847, in <module>
-    gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, 'diff_plot.png'), iteration=args.iteration)
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 393, in plotDifference
-    closest_indices = self.find_closest_2d(self, x_test_np, M_1_filtered, M_2_filtered)
-TypeError: find_closest_2d() takes 4 positional arguments but 5 were given
-srun: error: ravg1095: task 0: Exited with exit code 1
-srun: Terminating StepId=13091821.0
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 868, in <module>
+    gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.2, tolerance=0.1, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM2_plot.png'), iteration=args.iteration)
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 598, in plotSlice1D
+    mean_filtered = mean[indices, 1 - slice_dim]
+IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+srun: error: ravg1093: task 0: Exited with exit code 1
+srun: Terminating StepId=13135888.0

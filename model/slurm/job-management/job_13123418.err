@@ -9,10 +9,12 @@ should be replaced with
 X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
   res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
 Traceback (most recent call last):
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 847, in <module>
-    gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, 'diff_plot.png'), iteration=args.iteration)
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 393, in plotDifference
-    closest_indices = self.find_closest_2d(self, x_test_np, M_1_filtered, M_2_filtered)
-TypeError: find_closest_2d() takes 4 positional arguments but 5 were given
-srun: error: ravg1095: task 0: Exited with exit code 1
-srun: Terminating StepId=13091821.0
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 867, in <module>
+    gp_pipeline.plotSlice1D(new_x=new_points, save_path=os.path.join(args.output_dir, '1Dslice_plot.png'), iteration=args.iteration)
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 652, in plotSlice1D
+    ax1.axvline(x=new_x_np, color='r', linestyle='--', label='New Points')
+  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/matplotlib/axes/_axes.py", line 787, in axvline
+    scalex = (xx < xmin) or (xx > xmax)
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+srun: error: ravg1149: task 0: Exited with exit code 1
+srun: Terminating StepId=13123418.0

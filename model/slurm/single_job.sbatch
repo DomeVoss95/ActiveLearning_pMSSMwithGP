@@ -35,6 +35,8 @@ pip install pyslha
 pip install structlog
 pip install imageio[ffmpeg] Pillow
 pip install seaborn
+pip install scipy.stats
+pip install scipy.interpolate 
 
 # Start run
 srun /raven/u/dvoss/al_pmssmwithgp/model/slurm/job.sh

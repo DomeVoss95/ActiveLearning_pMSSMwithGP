@@ -9,10 +9,8 @@ should be replaced with
 X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
   res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
 Traceback (most recent call last):
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 847, in <module>
-    gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, 'diff_plot.png'), iteration=args.iteration)
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 393, in plotDifference
-    closest_indices = self.find_closest_2d(self, x_test_np, M_1_filtered, M_2_filtered)
-TypeError: find_closest_2d() takes 4 positional arguments but 5 were given
-srun: error: ravg1095: task 0: Exited with exit code 1
-srun: Terminating StepId=13091821.0
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 861, in <module>
+    gp_pipeline.plotSlice1D(ew_x=new_points, save_path=os.path.join(args.output_dir, '1Dslice_plot.png'), iteration=args.iteration)
+TypeError: plotSlice1D() got an unexpected keyword argument 'ew_x'
+srun: error: ravg1158: task 0: Exited with exit code 1
+srun: Terminating StepId=13117663.0
