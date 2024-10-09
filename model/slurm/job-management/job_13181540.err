@@ -13,10 +13,14 @@ should be replaced with
 X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
   res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
 Traceback (most recent call last):
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 890, in <module>
-    gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, 'diff_plot.png'), iteration=args.iteration)
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 398, in plotDifference
-    lower = lower.cpu().numpy()
-RuntimeError: Can't call numpy() on Tensor that requires grad. Use tensor.detach().numpy() instead.
-srun: error: ravg1189: task 0: Exited with exit code 1
-srun: Terminating StepId=13172571.0
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 881, in <module>
+    gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.2, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM2_plot.png'), iteration=args.iteration)
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 638, in plotSlice1D
+    xy = np.vstack([x_true, y_true])
+  File "<__array_function__ internals>", line 180, in vstack
+  File "/u/dvoss/.local/lib/python3.9/site-packages/numpy/core/shape_base.py", line 282, in vstack
+    return _nx.concatenate(arrs, 0)
+  File "<__array_function__ internals>", line 180, in concatenate
+ValueError: all the input array dimensions for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 0 and the array at index 1 has size 9998
+srun: error: ravg1042: task 0: Exited with exit code 1
+srun: Terminating StepId=13181540.0

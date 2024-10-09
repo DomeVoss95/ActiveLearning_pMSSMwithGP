@@ -13,10 +13,13 @@ should be replaced with
 X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
   res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
 Traceback (most recent call last):
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 890, in <module>
-    gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, 'diff_plot.png'), iteration=args.iteration)
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 398, in plotDifference
-    lower = lower.cpu().numpy()
-RuntimeError: Can't call numpy() on Tensor that requires grad. Use tensor.detach().numpy() instead.
-srun: error: ravg1189: task 0: Exited with exit code 1
-srun: Terminating StepId=13172571.0
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 896, in <module>
+    gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.2, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM2_plot.png'), iteration=args.iteration)
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 654, in plotSlice1D
+    indices_train = np.where((self.x_train[:, slice_dim] >= slice_value - tolerance + add_on) & (self.x_train[:, slice_dim] <= slice_value + tolerance - add_on))[0]
+  File "<__array_function__ internals>", line 180, in where
+  File "/mpcdf/soft/SLE_15/packages/skylake/pytorch/gpu-cuda-11.6/anaconda_3_2021.11-2021.11/1.11.0/lib/python3.9/site-packages/torch/_tensor.py", line 732, in __array__
+    return self.numpy()
+TypeError: can't convert cuda:0 device type tensor to numpy. Use Tensor.cpu() to copy the tensor to host memory first.
+srun: error: ravg1149: task 0: Exited with exit code 1
+srun: Terminating StepId=13181823.0

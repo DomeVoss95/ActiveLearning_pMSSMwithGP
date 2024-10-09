@@ -12,11 +12,17 @@ X = torch.triangular_solve(B, A).solution
 should be replaced with
 X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
   res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+/mpcdf/soft/SLE_15/packages/skylake/pytorch/gpu-cuda-11.6/anaconda_3_2021.11-2021.11/1.11.0/lib/python3.9/site-packages/torch/functional.py:568: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/TensorShape.cpp:2227.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
 Traceback (most recent call last):
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 890, in <module>
-    gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, 'diff_plot.png'), iteration=args.iteration)
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 398, in plotDifference
-    lower = lower.cpu().numpy()
-RuntimeError: Can't call numpy() on Tensor that requires grad. Use tensor.detach().numpy() instead.
-srun: error: ravg1189: task 0: Exited with exit code 1
-srun: Terminating StepId=13172571.0
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 905, in <module>
+    gp_pipeline.load_training_data(training_data_path)
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 858, in load_training_data
+    self.x_train, self.y_train, self.data_min, self.data_max = torch.load(filepath, map_location=torch.device('cpu'))
+  File "/mpcdf/soft/SLE_15/packages/skylake/pytorch/gpu-cuda-11.6/anaconda_3_2021.11-2021.11/1.11.0/lib/python3.9/site-packages/torch/serialization.py", line 713, in load
+    return _legacy_load(opened_file, map_location, pickle_module, **pickle_load_args)
+  File "/mpcdf/soft/SLE_15/packages/skylake/pytorch/gpu-cuda-11.6/anaconda_3_2021.11-2021.11/1.11.0/lib/python3.9/site-packages/torch/serialization.py", line 922, in _legacy_load
+    raise RuntimeError("Invalid magic number; corrupt file?")
+RuntimeError: Invalid magic number; corrupt file?
+srun: error: ravg1057: task 0: Exited with exit code 1
+srun: Terminating StepId=13182723.0
