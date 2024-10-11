@@ -12,17 +12,14 @@ X = torch.triangular_solve(B, A).solution
 should be replaced with
 X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
   res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 1.86423e-06 GeV),
+/mpcdf/soft/SLE_15/packages/skylake/pytorch/gpu-cuda-11.6/anaconda_3_2021.11-2021.11/1.11.0/lib/python3.9/site-packages/torch/functional.py:568: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/TensorShape.cpp:2227.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
 Traceback (most recent call last):
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 881, in <module>
-    gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.2, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM2_plot.png'), iteration=args.iteration)
-  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 626, in plotSlice1D
-    x_true = x_true[indices_true]
-  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/pandas/core/series.py", line 966, in __getitem__
-    return self._get_with(key)
-  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/pandas/core/series.py", line 981, in _get_with
-    return self._get_values_tuple(key)
-  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/pandas/core/series.py", line 1016, in _get_values_tuple
-    raise KeyError("key of type tuple not found and not a MultiIndex")
-KeyError: 'key of type tuple not found and not a MultiIndex'
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 891, in <module>
+    gp_pipeline.load_training_data(training_data_path)
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py", line 845, in load_training_data
+    self.x_train, self.y_train, self.data_min, self.data_max = pickle.load(f, map_location=torch.device('cpu'))     
+TypeError: 'map_location' is an invalid keyword argument for load()
 srun: error: ravg1074: task 0: Exited with exit code 1
-srun: Terminating StepId=13181624.0
+srun: Terminating StepId=13183009.0
