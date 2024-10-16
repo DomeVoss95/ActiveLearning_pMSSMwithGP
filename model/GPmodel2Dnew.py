@@ -1,6 +1,7 @@
 import uproot
 import argparse
 import os
+import io
 import torch
 import gpytorch
 import pickle
@@ -20,8 +21,9 @@ def parse_args():
     return parser.parse_args()
 
 class GPModelPipeline:
-    def __init__(self, csv_file, root_file_path=None, output_dir=None, initial_train_points=10, valid_points=250, additional_points_per_iter=3, n_test=100000):
-        self.csv_file = csv_file
+    def __init__(self, start_root_file_path=None, true_root_file_path=None, root_file_path=None, output_dir=None, initial_train_points=50, valid_points=150, additional_points_per_iter=3, n_test=100000):
+        self.start_root_file_path = start_root_file_path
+        self.true_root_file_path = true_root_file_path
         self.root_file_path = root_file_path
         self.output_dir = output_dir
         self.initial_train_points = initial_train_points
@@ -43,8 +45,8 @@ class GPModelPipeline:
         self.observed_pred = None
         self.entropy = None
 
-        x1_test = torch.linspace(0, 1, 100)
-        x2_test = torch.linspace(0, 1, 100)
+        x1_test = torch.linspace(0, 1, 50)
+        x2_test = torch.linspace(0, 1, 50)
         x1_grid, x2_grid = torch.meshgrid(x1_test, x2_test)
         self.x_test = torch.stack([x1_grid.flatten(), x2_grid.flatten()], dim=1).to(self.device)
 
@@ -52,7 +54,16 @@ class GPModelPipeline:
         self.initialize_model()
 
     def load_initial_data(self):
-        final_df = pd.read_csv(self.csv_file)
+
+        # Open the ROOT file
+        file = uproot.open(self.start_root_file_path)
+        
+        tree_name = "susy"
+        tree = file[tree_name]
+        
+        # Convert tree to pandas DataFrame
+        final_df = tree.arrays(library="pd")
+
         M_1 = final_df['IN_M_1']
         M_2 = final_df['IN_M_2']
         Omega = final_df['MO_Omega']
@@ -297,10 +308,6 @@ class GPModelPipeline:
         '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
 
         mean = self.observed_pred.mean.cpu().numpy()
-        lower, upper = self.observed_pred.confidence_region()
-        lower = lower.cpu().numpy()
-        upper = upper.cpu().numpy()
-        var = self.observed_pred.variance.cpu().numpy()
 
         heatmap, xedges, yedges = np.histogram2d(self.x_test[:, 0].cpu().numpy(), self.x_test[:, 1].cpu().numpy(), bins=50, weights=mean)
 
@@ -312,6 +319,9 @@ class GPModelPipeline:
 
         # Scatterplot of the training points
         plt.scatter(self.x_train[:, 0].cpu().numpy(), self.x_train[:,1].cpu().numpy(), marker='*', s=200, c='b', label='training_points')
+
+        # Contour wo mean > 0
+        plt.contour(xedges[:-1], yedges[:-1], heatmap.T, levels=[0], colors='white', linewidths=2, linestyles='solid')
 
         # Scatter plot of additional data (al_df) if root_file_path is provided
         if self.root_file_path is not None:
@@ -328,7 +338,7 @@ class GPModelPipeline:
             M_2_al_normalized = self._normalize(M_2_al_tensor, self.data_min, self.data_max)[0]
 
             # Scatter plot for the additional points (M_1_al and M_2_al)
-            plt.scatter(M_1_al_normalized.cpu().numpy(), M_2_al_normalized.cpu().numpy(), 
+            plt.scatter(M_1_al_normalized.cpu().numpy(), M_2_al_normalized.cpu().numpy(), s=200,
                         c='g', marker='*', label='al_df Data')
 
         else:
@@ -344,6 +354,341 @@ class GPModelPipeline:
         else:
             plt.show()
 
+    def plotDifference(self, new_x=None, save_path=None, iteration=None):
+        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
+
+        # Obtain the mean predictions from the GP model
+        mean = self.observed_pred.mean.cpu().numpy()
+
+        # Open the ROOT file
+        file = uproot.open(self.true_root_file_path)
+        tree_name = "susy"
+        tree = file[tree_name]
+        df = tree.arrays(library="pd")
+
+        M_1 = df['IN_M_1'].values
+        M_2 = df['IN_M_2'].values
+        Omega = df['MO_Omega'].values
+
+        mask = Omega > 0
+        M_1_filtered = self._normalize(M_1[mask], self.data_min, self.data_max)[0]
+        M_2_filtered = self._normalize(M_2[mask], self.data_min, self.data_max)[0]
+        Omega_filtered = Omega[mask]
+
+        # Calculate the true values (log-scaled)
+        true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32) / 0.12)
+
+        # Evaluate model at M_1 and M_2 coordinates of true
+        input_data = torch.stack([
+            torch.tensor(M_1_filtered, dtype=torch.float32),
+            torch.tensor(M_2_filtered, dtype=torch.float32)
+        ], dim=1).to(self.device)
+
+        self.model.eval()
+
+        # Disable gradient computation for evaluation
+        with torch.no_grad():
+            predictions = self.model(input_data)
+
+        observed_pred = self.likelihood(predictions)
+        mean = observed_pred.mean.cpu().numpy()
+        lower, upper = observed_pred.confidence_region()
+        lower = lower.detach().cpu().numpy()
+        upper = upper.detach().cpu().numpy()
+
+        # Now calculate the difference
+        diff = torch.tensor(mean) - true
+
+        # Use a histogram to create a 2D heatmap of the differences
+        heatmap, xedges, yedges = np.histogram2d(M_1_filtered,
+                                                M_2_filtered,
+                                                bins=50, weights=diff.cpu().numpy())
+
+        # Plot the heatmap
+        plt.figure(figsize=(8, 6))
+        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]],
+                origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='Mean - True')
+        plt.xlabel('M_1_normalized')
+        plt.ylabel('M_2_normalized')
+
+        # Add the iteration number to the plot title if provided
+        if iteration is not None:
+            plt.title(f"Difference mean vs true - Iteration {iteration}")
+
+        # Save the plot or display it
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
+
+
+    def plotPull(self, new_x=None, save_path=None, iteration=None):
+        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
+
+        # Open the ROOT file
+        file = uproot.open(self.true_root_file_path)
+        tree_name = "susy"
+        tree = file[tree_name]
+        df = tree.arrays(library="pd")
+
+        M_1 = df['IN_M_1'].values
+        M_2 = df['IN_M_2'].values
+        Omega = df['MO_Omega'].values
+
+        mask = Omega > 0
+        M_1_filtered = self._normalize(M_1[mask], self.data_min, self.data_max)[0]
+        M_2_filtered = self._normalize(M_2[mask], self.data_min, self.data_max)[0]
+        Omega_filtered = Omega[mask]
+
+        # Calculate the true values (log-scaled)
+        true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32) / 0.12)
+
+        # Evaluate model at M_1 and M_2 coordinates of true
+        input_data = torch.stack([
+            torch.tensor(M_1_filtered, dtype=torch.float32),
+            torch.tensor(M_2_filtered, dtype=torch.float32)
+        ], dim=1).to(self.device)
+
+        self.model.eval()
+
+        # Disable gradient computation for evaluation
+        with torch.no_grad():
+            predictions = self.model(input_data)
+
+        observed_pred = self.likelihood(predictions)
+        mean = observed_pred.mean.cpu().numpy()
+        lower, upper = observed_pred.confidence_region()
+        lower = lower.detach().cpu().numpy()
+        upper = upper.detach().cpu().numpy()
+
+        # Calculate the pull: (predicted mean - true value) / uncertainty (upper - lower)
+        pull = (torch.tensor(mean) - true) / (upper - lower)
+
+        # Use a histogram to create a 2D heatmap of the pull values
+        heatmap, xedges, yedges = np.histogram2d(M_1_filtered,
+                                                M_2_filtered,
+                                                bins=50, weights=pull.cpu().numpy())
+
+        # Plot the heatmap
+        plt.figure(figsize=(8, 6))
+        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]],
+                origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='(Mean - True) / Uncertainty')
+        plt.xlabel('M_1_normalized')
+        plt.ylabel('M_2_normalized')
+
+        # Add the iteration number to the plot title if provided
+        if iteration is not None:
+            plt.title(f"Pull - Iteration {iteration}")
+
+        # Save the plot or display it
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
+
+
+    def plotEntropy(self, new_x=None, save_path=None, iteration=None):
+        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
+        
+        heatmap, xedges, yedges = np.histogram2d(self.x_test[:, 0].cpu().numpy(), self.x_test[:, 1].cpu().numpy(), bins=50, weights=self.entropy.cpu().numpy())
+
+        plt.figure(figsize=(8, 6))
+        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='Entropy')
+        plt.xlabel('M_1_normalized')
+        plt.ylabel('M_2_normalized')
+
+        # Add the iteration number to the plot title
+        if iteration is not None:
+            plt.title(f"Entropy - Iteration {iteration}")
+
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
+    
+    def plotTrue(self, new_x=None, save_path=None, iteration=None):
+        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
+
+        # Open the ROOT file
+        file = uproot.open(self.true_root_file_path)
+        
+        tree_name = "susy"
+        tree = file[tree_name]
+        
+        # Convert tree to pandas DataFrame
+        df = tree.arrays(library="pd")
+
+        M_1 = df['IN_M_1'].values
+        M_2 = df['IN_M_2'].values
+        Omega = df['MO_Omega'].values
+
+        # Create a mask to filter out negative or zero values of Omega
+        mask = Omega > 0
+
+        # Apply the mask to filter M_1, M_2, and Omega
+        M_1_filtered = M_1[mask]
+        M_2_filtered = M_2[mask]
+        Omega_filtered = Omega[mask]
+
+        # Calculate the true values (log-scaled)
+        true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32) / 0.12)
+        
+        heatmap, xedges, yedges = np.histogram2d(M_1_filtered, M_2_filtered, bins=50, weights=true.cpu().numpy())
+
+        plt.figure(figsize=(8, 6))
+        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='log(Omega/0.12)')
+        plt.xlabel('M_1_normalized')
+        plt.ylabel('M_2_normalized')
+
+        # Add the iteration number to the plot title
+        if iteration is not None:
+            plt.title(f"True Function - Iteration {iteration}")
+
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
+
+
+
+    def plotSlice1D(self, slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=None, save_path=None, iteration=None):
+        """
+        Plot a 1D slice of the GP model's predictions, confidence interval, training data, and entropy for a fixed value of M_1 or M_2.
+
+        Parameters:
+            slice_dim (int): The dimension to slice (0 for M_1, 1 for M_2).
+            slice_value (float): The value of the dimension to slice at.
+            tolerance (float): The tolerance for the slice (e.g., +/- 0.1).
+            new_x (torch.Tensor): New points to highlight on the plot (optional).
+            save_path (str): The path to save the plot, if specified.
+            iteration (int): The current iteration number, if any (for the plot title).
+        """
+        # Obtain mean, lower, and upper bounds for confidence intervals
+        mean = self.observed_pred.mean.cpu().numpy()
+        lower, upper = self.observed_pred.confidence_region()
+        lower = lower.cpu().numpy()
+        upper = upper.cpu().numpy()
+        entropy = self.entropy.cpu().numpy()
+        x_test = self.x_test.cpu().numpy()
+
+        add_on = 0.05
+
+        # Slice the data based on the specified slice_dim (0 for M_1, 1 for M_2)
+        indices = np.where((x_test[:, slice_dim] >= slice_value - tolerance) & (x_test[:, slice_dim] <= slice_value + tolerance))[0]
+
+        # Get the corresponding x_test[:, 1 - slice_dim] and filtered values
+        x_test_filtered = x_test[indices, 1 - slice_dim]
+        mean_filtered = mean[indices]
+        lower_filtered = lower[indices]
+        upper_filtered = upper[indices]
+        entropy_filtered = entropy[indices]
+
+        # Start plotting
+        fig, ax1 = plt.subplots(1, 1, figsize=(10, 6))
+
+        # Plot the GP mean prediction with confidence intervals
+        ax1.plot(x_test_filtered, mean_filtered, 'b-', label='Predicted Mean')
+        ax1.fill_between(x_test_filtered, lower_filtered, upper_filtered, color='blue', alpha=0.3, label='Confidence Interval')
+        
+        ax1.set_xlabel(f'M_{"2" if slice_dim == 0 else "1"}')
+        ax1.set_ylabel('log(Omega/0.12)')
+        ax1.grid(True)
+
+        # Plot true data points
+        if self.true_root_file_path:
+            # Open the ROOT file
+            file = uproot.open(self.true_root_file_path)
+            tree_name = "susy"
+            tree = file[tree_name]
+            
+            # Convert tree to pandas DataFrame
+            df = tree.arrays(library="pd")
+            M_1 = df['IN_M_1']
+            M_2 = df['IN_M_2']
+            Omega = df['MO_Omega']
+            mask = Omega > 0
+            M_1_filtered = self._normalize(M_1[mask], self.data_min, self.data_max)[0] 
+            M_2_filtered = self._normalize(M_2[mask], self.data_min, self.data_max)[0] 
+            print(f"M_1_filtered: {M_1_filtered}")
+            print(f"M_2_filtered: {M_2_filtered}")
+            print(f"M_1_filtered Shape: {M_1_filtered.shape}")
+            print(f"M_2_filtered Shape: {M_1_filtered.shape}")
+            Omega_filtered = Omega[mask]
+
+            # Normalize the true data
+            if slice_dim == 0:
+                indices_true = np.where((M_1_filtered >= slice_value - tolerance) & (M_1_filtered <= slice_value + tolerance))[0] # Creates tuple from which we take the first index
+                x_true = M_2_filtered[indices_true] # Is marginalized along M_1, so M_2 is x_coordinate
+            else:
+                indices_true = np.where((M_2_filtered >= slice_value - tolerance) & (M_2_filtered <= slice_value + tolerance))[0]
+                x_true = M_1_filtered[indices_true] # Is marginalized along M_2, so M_1 is x_coordinate
+            y_true = torch.log(torch.tensor(Omega_filtered.values, dtype=torch.float32) / 0.12).cpu().numpy()
+            y_true = y_true[indices_true]
+            ax1.plot(x_true, y_true, '*', c='b', label = 'True Function')
+
+            print(f"X_true: {x_true}")
+            print(f"X_true Shape: {x_true.shape}")
+            print(f"Y_true: {y_true}")
+            print(f"Y_true Shape: {y_true.shape}")
+
+        # Plot training data points
+        if slice_dim == 0:
+            indices_train = np.where((self.x_train[:, 0].cpu().numpy() >= slice_value - tolerance - add_on) & (self.x_train[:, 0].cpu().numpy() <= slice_value + tolerance + add_on))[0]
+            x_train = self.x_train[:, 1].cpu().numpy()
+            x_train = x_train[indices_train]
+        else:
+            indices_train = np.where((self.x_train[:, 1].cpu().numpy() >= slice_value - tolerance - add_on) & (self.x_train[:, 1].cpu().numpy() <= slice_value + tolerance + add_on))[0]
+            x_train = self.x_train[:, 0].cpu().numpy()
+            x_train = x_train[indices_train]
+        y_train = self.y_train.cpu().numpy()
+        y_train = y_train[indices_train]
+        ax1.plot(x_train, y_train, '*', c='r', label='Training Data')
+
+        # Plot new points if provided
+        if new_x is not None:
+            new_x_np = new_x[:, slice_dim].cpu().numpy()
+            dolabel = True
+            for xval in new_x_np:  # Loop through the new_x values and plot each as a vertical line
+                ax1.axvline(x=xval, color='r', linestyle='--', label='New Points' if dolabel else "")
+                dolabel = False
+
+        # Add a second y-axis to plot entropy
+        ax2 = ax1.twinx()
+        ax2.set_ylabel('Entropy')
+        ax2.plot(x_test_filtered, entropy_filtered, 'g-', label='Entropy')
+
+        # Set the lower limit of the y-axis to 0.0 without specifying an upper limit
+        ax2.set_ylim(bottom=0.0)
+
+        # Mark the maximum entropy point
+        maxE = np.max(entropy_filtered)
+        maxIndex = np.argmax(entropy_filtered)
+        maxX = x_test_filtered[maxIndex]
+        ax2.plot(maxX, maxE, 'go', label='Max. Entropy')
+
+        # Combine legends from both y-axes
+        lines, labels = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines + lines2, labels + labels2, loc='upper right')
+
+        # Add the iteration number to the plot title
+        if iteration is not None:
+            ax1.set_title(f"GP Model Prediction Slice - Iteration {iteration}")
+
+        # Save the plot or show it
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
 
 
     def best_not_yet_chosen(self, score, previous_indices):
@@ -479,50 +824,288 @@ class GPModelPipeline:
         print("Corresponding new x values (unnormalized):", new_x_unnormalized)  # The unnormalized values of the selected points
         
         return new_x, new_x_unnormalized  # Return both the normalized and unnormalized selected points
+    
+    def random_new_points(self, N=4, n=2):
+        # Select new points randomly as a comparision for Active Learning effect
+        points = np.random.rand(N, n)
+        new_x = self.x_test[list(points)]
+
+        # Unnormalize the selected points to return them to their original scale.
+        new_x_unnormalized = self._unnormalize(new_x, self.data_min, self.data_max)
+
+        return new_x, new_x_unnormalized
+    
+    def goodness_of_fit(self, test='chi_squared'):
+        # Chi-Squared divided by degrees of freedom - Goodness of Fit for quantification and comparison of training
+
+        # Open the ROOT file
+        file = uproot.open(self.true_root_file_path)
+        tree_name = "susy"
+        tree = file[tree_name]
+        df = tree.arrays(library="pd")
+
+        M_1 = df['IN_M_1'].values
+        M_2 = df['IN_M_2'].values
+        Omega = df['MO_Omega'].values
+
+        mask = Omega > 0
+        M_1_filtered = self._normalize(M_1[mask], self.data_min, self.data_max)[0]
+        M_2_filtered = self._normalize(M_2[mask], self.data_min, self.data_max)[0]
+        Omega_filtered = Omega[mask]
+
+        # Calculate the true values (log-scaled)
+        true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32) / 0.12)
+
+        # Evaluate model at M_1 and M_2 coordinates of true
+        input_data = torch.stack([
+            torch.tensor(M_1_filtered, dtype=torch.float32),
+            torch.tensor(M_2_filtered, dtype=torch.float32)
+        ], dim=1).to(self.device)
+
+        self.model.eval()
+
+        # Disable gradient computation for evaluation
+        with torch.no_grad():
+            predictions = self.model(input_data)
+
+        observed_pred = self.likelihood(predictions)
+        mean = observed_pred.mean.cpu().numpy()
+        lower, upper = observed_pred.confidence_region()
+        lower = lower.detach().cpu().numpy()
+        upper = upper.detach().cpu().numpy()
+
+        # Define the various goodness_of_fit metrics
+        def mean_squared():
+            # Mean Squared Error (MSE)
+            mse = torch.mean((mean - true) ** 2)
+
+            # Root Mean Squared Error (RMSE)
+            rmse = torch.sqrt(mse)
+
+            return mse, rmse
+        
+        def r_squared():
+            # Residual Sum of Squares (SS_res)
+            ss_res = torch.sum((mean - true) ** 2)
+
+            # Total Sum of Squares (SS_tot), variability in the true values
+            ss_tot = torch.sum((true - torch.mean(true)) ** 2)
+
+            # R-squared value
+            r_squared = 1 - ss_res / ss_tot
+
+            return r_squared
+        
+        def chi_squared():
+            # Convert mean, upper, and lower back to tensors and ensure they are all on the same device as 'true'
+            device = true.device  # Get the device of the 'true' tensor (could be CPU or CUDA)
+            
+            mean_tensor = torch.tensor(mean, dtype=torch.float32).to(device)
+            upper_tensor = torch.tensor(upper, dtype=torch.float32).to(device)
+            lower_tensor = torch.tensor(lower, dtype=torch.float32).to(device)
+            
+            # Now calculate the pull: (predicted mean - true value) / uncertainty
+            pull = (mean_tensor - true) / (upper_tensor - lower_tensor)
+
+            # Chi-squared statistic
+            chi_squared = torch.sum(pull ** 2)
+
+            # Degrees of freedom: number of data points - number of parameters in the model
+            dof = len(true) - 1  # Adjust as necessary for model complexity
+
+            # Reduced chi-squared
+            reduced_chi_squared = chi_squared / dof
+
+            return chi_squared.cpu().item(), reduced_chi_squared.cpu().item()
+
+        
+        def average_pull():
+            # Absolute pull values
+            absolute_pull = torch.abs((mean - true) / (upper - lower))
+
+            # Mean Absolute Pull (MAP)
+            mean_absolute_pull = torch.mean(absolute_pull)
+
+            # Root Mean Squared Pull (RMSP)
+            root_mean_squared_pull = torch.sqrt(torch.mean((absolute_pull) ** 2))
+
+            return mean_absolute_pull, root_mean_squared_pull
+
+        # Dictionary to map test names to functions
+        tests = {
+            'mean_squared': mean_squared,
+            'r_squared': r_squared,
+            'chi_squared': chi_squared,
+            'average_pull': average_pull
+        }
+
+        if test in tests:
+            result = tests[test]()
+            print(f"Goodness of Fit ({test}): {result}")
+            return result
+        else:
+            raise ValueError(f"Unknown test: {test}.")
+        
 
 
+# Utility functions 
     def save_training_data(self, filepath):
         with open(filepath, 'wb') as f:
             pickle.dump((self.x_train, self.y_train, self.data_min, self.data_max), f)
     
     def load_training_data(self, filepath):
         with open(filepath, 'rb') as f:
-            self.x_train, self.y_train, self.data_min, self.data_max = pickle.load(f)
+            self.x_train, self.y_train, self.data_min, self.data_max = pickle.load(f)     
+
+    def save_model(self, model_checkpoint_path):
+        torch.save(self.model.state_dict(), model_checkpoint_path)
+
+    def load_model(self, model_checkpoint_path):
+        # Initialize the model architecture
+        self.initialize_model()
+
+        # # Load the saved dict
+        # self.model.load_state_dict(torch.load(model_checkpoint_path))
+        # print(f"Model loaded from the {model_checkpoint_path}")
+        
+        # Ensure the model loads on the correct device (GPU or CPU)
+        map_location = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        
+        # Load the saved state dict
+        self.model.load_state_dict(torch.load(model_checkpoint_path, map_location=map_location))
+        print(f"Model loaded from {model_checkpoint_path}")
+    
+    def save_gof(self, file, filepath):
+        # Calculate the goodness-of-fit values
+        gof_values = self.goodness_of_fit()
+
+        # If the gof_values is a tuple (e.g., chi_squared, reduced_chi_squared), format it accordingly
+        if isinstance(gof_values, tuple):
+            gof_values = {"Metric": ["chi_squared", "reduced_chi_squared"],
+                        "Value": [val.cpu().item() if isinstance(val, torch.Tensor) else val for val in gof_values]}
+        elif isinstance(gof_values, torch.Tensor):
+            gof_values = {"Metric": ["unknown_metric"], "Value": [gof_values.cpu().item()]}
+        elif isinstance(gof_values, dict):
+            # Convert all tensor values in the dictionary to float
+            gof_values = {"Metric": list(gof_values.keys()), 
+                        "Value": [val.cpu().item() if isinstance(val, torch.Tensor) else val for val in gof_values.values()]}
+        else:
+            raise ValueError("Unexpected goodness of fit values format")
+
+        # Create a DataFrame for the GoF values
+        gof_df = pd.DataFrame(gof_values)
+
+        # Define the full file path
+        full_path = os.path.join(filepath, file)
+        
+        # Check if the file exists
+        if os.path.exists(full_path):
+            # If the file exists, append the new data (without header)
+            gof_df.to_csv(full_path, mode='a', header=False, index=False)
+        else:
+            # If the file doesn't exist, create it with headers
+            gof_df.to_csv(full_path, mode='w', header=True, index=False)
+
+        print(f"GoF values saved to {full_path}")
+
+
 
 
 # Usage
 if __name__ == "__main__":
-    args = parse_args()
-    
-    previous_iter = args.iteration - 1
-    previous_output_dir = f'/raven/u/dvoss/al_pmssmwithgp/model/plots/Iter{previous_iter}'
-    training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
-    
-    if args.iteration == 1:
-        # First iteration, initialize with initial data
-        gp_pipeline = GPModelPipeline(
-            csv_file='output.csv',
-            # root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{args.iteration}/ntuple.0.0.root',
-            output_dir=args.output_dir
-        )
-    else:
-        # Load previous training data and add new data from this iteration
-        gp_pipeline = GPModelPipeline(
-            csv_file='output.csv',
-            root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{previous_iter}/ntuple.0.0.root',
-            output_dir=args.output_dir
-        )
-        if os.path.exists(training_data_path):
-            gp_pipeline.load_training_data(training_data_path)
-        gp_pipeline.load_additional_data()
 
-    gp_pipeline.initialize_model()
-    gp_pipeline.train_model(iters=750)
-    gp_pipeline.plot_losses()
-    gp_pipeline.evaluate_model()
-    new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=3)
-    gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, 'gp_plot.png'), iteration=args.iteration)
-    create_config(new_points=new_points_unnormalized, output_file ='new_config.yaml')
+    # Define Variable to decide wether to develope on Raven GPU or local CPU
+    raven = True
+
+    if raven == True:
+        args = parse_args()
+        
+        previous_iter = args.iteration - 1
+        previous_output_dir = f'/raven/u/dvoss/al_pmssmwithgp/model/plots/Iter{previous_iter}'
+        training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
+        
+        if args.iteration == 1:
+            # First iteration, initialize with initial data
+            gp_pipeline = GPModelPipeline(
+                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
+                true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
+                root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{args.iteration}/ntuple.0.0.root',
+                output_dir=args.output_dir
+            )
+        else:
+            # Load previous training data and add new data from this iteration
+            gp_pipeline = GPModelPipeline(
+                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
+                true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
+                root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{previous_iter}/ntuple.0.0.root',
+                output_dir=args.output_dir
+            )
+            if os.path.exists(training_data_path):
+                gp_pipeline.load_training_data(training_data_path)
+            gp_pipeline.load_additional_data()
+
+        gp_pipeline.initialize_model()
+        gp_pipeline.train_model(iters=750)
+        gp_pipeline.plot_losses()
+        gp_pipeline.evaluate_model()
+        new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
+        # gp_pipeline.goodness_of_fit()
+        # new_points, new_points_unnormalized = gp_pipeline.random_new_points(N=10)
+        gp_pipeline.save_gof( 'goodness_of_fit.csv', '/u/dvoss/al_pmssmwithgp/model')
+        gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, 'gp_plot.png'), iteration=args.iteration)
+        gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, 'diff_plot.png'), iteration=args.iteration)
+        gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join(args.output_dir, 'pull_plot.png'), iteration=args.iteration)
+        gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join(args.output_dir, 'entropy_plot.png'), iteration=args.iteration)
+        gp_pipeline.plotTrue(new_x=new_points, save_path=os.path.join(args.output_dir, 'true_plot.png'), iteration=args.iteration)
+        gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM2_plot.png'), iteration=args.iteration)
+        gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM1_plot.png'), iteration=args.iteration)
+
+        create_config(new_points=new_points_unnormalized, output_file ='new_config.yaml')
+        
+        gp_pipeline.save_training_data(os.path.join(args.output_dir, 'training_data.pkl'))
+        gp_pipeline.save_model(os.path.join(args.output_dir,'model_checkpoint.pth'))
     
-    gp_pipeline.save_training_data(os.path.join(args.output_dir, 'training_data.pkl'))
+    else:
+        # Just load trained model to make plots
+
+        args = parse_args()
+        
+        previous_iter = 9
+        previous_output_dir = f'/raven/u/dvoss/al_pmssmwithgp/model/plots/Iter{previous_iter}'
+        training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
+
+        if args.iteration == 1:
+            # First iteration, initialize with initial data
+            gp_pipeline = GPModelPipeline(
+                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
+                true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
+                root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{10}/ntuple.0.0.root',
+                output_dir='/u/dvoss/al_pmssmwithgp/model/plots/plots_test'
+            )
+        else:
+            # Load previous training data and add new data from this iteration
+            gp_pipeline = GPModelPipeline(
+                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
+                true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
+                root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{previous_iter}/ntuple.0.0.root',
+                output_dir='/u/dvoss/al_pmssmwithgp/model/plots/plots_test'
+            )
+            if os.path.exists(training_data_path):
+                gp_pipeline.load_training_data(training_data_path)
+            gp_pipeline.load_additional_data()
+
+        model_checkpoint_path = '/u/dvoss/al_pmssmwithgp/model/plots/Iter10/model_checkpoint.pth'
+        
+        gp_pipeline.load_model(model_checkpoint_path)
+        gp_pipeline.evaluate_model()
+        new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
+
+        # Generate the plots as needed
+        gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'gp_plot.png'))
+        gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'diff_plot.png'))
+        gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'pull_plot.png'))
+        gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'entropy_plot.png'))
+        gp_pipeline.plotTrue(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'true_plot.png'))
+        gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.2, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM2_plot.png'))
+        gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.2, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM1_plot.png'))
 

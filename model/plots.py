@@ -1,0 +1,476 @@
+import uproot
+import torch
+import seaborn as sns
+from matplotlib import pyplot as plt
+from gpytorch.likelihoods import GaussianLikelihood
+import pandas as pd
+import numpy as np
+
+class Plots:
+    def __init__(self, observed_pred, x_test, entropy, x_train, y_train):
+        self.observed_pred = observed_pred
+        self.x_test = x_test
+        self.entropy = entropy
+        self.x_train = x_train
+        self.y_train = y_train
+
+    def plotGP1D(self, new_x=None, save_path=None, iteration=None):
+            """
+            Plot the GP model's predictions, confidence interval, and various data points.
+            
+            :param new_x: New points to be highlighted on the plot (if any).
+            :param save_path: Path to save the plot as an image file.
+            :param iteration: The current iteration number to be displayed in the plot title.
+            """
+            mean = self.observed_pred.mean.cpu().numpy()
+            lower, upper = self.observed_pred.confidence_region()
+            lower = lower.cpu().numpy()
+            upper = upper.cpu().numpy()
+            var = self.observed_pred.variance.cpu().numpy()
+
+            # print("Confindence difference: ", upper - lower)
+
+            _, ax = plt.subplots(1, 1, figsize=(10, 6))
+            ax.plot(self.x_test.cpu().numpy(), mean, 'b', label='Learnt Function')
+            ax.plot(self.x_test.cpu().numpy(), var, label='Variance')
+            ax.fill_between(self.x_test.cpu().numpy(), lower, upper, alpha=0.5, label='Confidence')
+
+            ax.set_xlabel("M_1")
+            ax.set_ylabel("log(Omega/0.12)")
+            
+            # Plot true data points
+            x_true = torch.tensor(pd.read_csv(self.csv_file)['IN_M_1'].values[:], dtype=torch.float32).to(self.device)
+            x_true_min = x_true.min(dim=0, keepdim=True).values
+            x_true_max = x_true.max(dim=0, keepdim=True).values
+            x_true = (x_true - x_true_min) / (x_true_max - x_true_min)
+            y_true = torch.log(torch.tensor(pd.read_csv(self.csv_file)['MO_Omega'].values[:], dtype=torch.float32) / 0.12).to(self.device)
+            
+            ax.plot(x_true.cpu().numpy(), y_true.cpu().numpy(), '*', c="r", label='Truth')
+            ax.plot(self.x_train.cpu().numpy(), self.y_train.cpu().numpy(), 'k*', label='Training Data')
+
+            if new_x is not None:
+                dolabel = True
+                for xval in new_x.cpu().numpy():  # Move xval to CPU before using it in axvline
+                    ax.axvline(x=xval, color='r', linestyle='--', label='new points') if dolabel else ax.axvline(x=xval, color='r', linestyle='--')
+                    dolabel = False
+
+            # Check if root_file_path is provided before loading and plotting al_df data
+            if self.root_file_path is not None:
+                # Extract and normalize al_df data points
+                al_df = uproot.open(self.root_file_path)["susy"].arrays(library="pd")
+                M_1_al = al_df['IN_M_1']
+                Omega_al = al_df['MO_Omega']
+
+                M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
+                M_1_al_normalized = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0]
+                Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
+                Omega_al_normalized = torch.log(Omega_al_tensor / 0.12)
+
+                # Plot al_df data points in green
+                ax.plot(M_1_al_normalized.cpu().numpy(), Omega_al_normalized.cpu().numpy(), '*', c="g", label='al_df Data')
+            else:
+                print("No root_file_path provided; skipping ROOT file data plotting.")
+
+            ax2 = ax.twinx()
+            ax2.set_ylabel("Entropy")
+            # Make sure to use the filtered x_test when plotting entropy
+            x_test_to_plot = self.x_test if self.entropy.shape[0] == self.x_test.shape[0] else self.x_test[self.valid_indices]
+
+            # Now use x_test_to_plot for plotting entropy
+            ax2.plot(x_test_to_plot.cpu().numpy(), self.entropy.cpu().numpy(), 'g', label='Entropy')
+            # ax2.plot(self.x_test.cpu().numpy(), self.entropy.cpu().numpy(), 'g', label='Entropy')
+
+            # Set the lower limit of the y-axis to 0.0 without specifying an upper limit
+            ax2.set_ylim(bottom=0.0)
+
+            maxE = torch.max(self.entropy)
+            maxIndex = torch.argmax(self.entropy)
+            maxX = x_test_to_plot[maxIndex] # self.x_test[maxIndex] #maybe use x_test_to plot here to make sure that its maxE is at peak of entropy
+            ax2.plot(maxX.cpu().numpy(), maxE.cpu().numpy(), 'go', label='Max. E')
+
+            # # Plot smoothed batch entropy
+            # smoothed_batch_entropy = self.smoothed_batch_entropy(blur=0.15)
+            # batch_entropy_values = smoothed_batch_entropy(mean=self.observed_pred.mean, cov=self.observed_pred.covariance_matrix)
+
+            # print("Batch_entropy values: ", smoothed_batch_entropy)
+            
+            #ax2.plot(self.x_test.cpu().numpy(), batch_entropy_values.cpu().detach().numpy(), 'm', linestyle='--', label='Smoothed Batch Entropy')
+
+
+            lines, labels = ax.get_legend_handles_labels()
+            lines2, labels2 = ax2.get_legend_handles_labels()
+            ax2.legend(lines + lines2, labels + labels2)
+
+            # Add the iteration number to the plot title
+            if iteration is not None:
+                ax.set_title(f"GP Model Prediction - Iteration {iteration}")
+
+            if save_path is not None:
+                plt.savefig(save_path)
+                print(f"Plot saved to {save_path}")
+            else:
+                plt.show()
+
+    def plotGP2D(self, new_x=None, save_path=None, iteration=None):
+        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
+
+        mean = self.observed_pred.mean.cpu().numpy()
+
+        heatmap, xedges, yedges = np.histogram2d(self.x_test[:, 0].cpu().numpy(), self.x_test[:, 1].cpu().numpy(), bins=50, weights=mean)
+
+        plt.figure(figsize=(8, 6))
+        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='log(Omega/0.12)')
+        plt.xlabel('M_1_normalized')
+        plt.ylabel('M_2_normalized')
+
+        # Scatterplot of the training points
+        plt.scatter(self.x_train[:, 0].cpu().numpy(), self.x_train[:,1].cpu().numpy(), marker='*', s=200, c='b', label='training_points')
+
+        # Contour wo mean > 0
+        plt.contour(xedges[:-1], yedges[:-1], heatmap.T, levels=[0], colors='white', linewidths=2, linestyles='solid')
+
+        # Scatter plot of additional data (al_df) if root_file_path is provided
+        if self.root_file_path is not None:
+            # Extract and normalize al_df data points
+            al_df = uproot.open(self.root_file_path)["susy"].arrays(library="pd")
+            M_1_al = al_df['IN_M_1']
+            M_2_al = al_df['IN_M_2']  # Assuming M_2_al should be plotted in 2D
+            Omega_al = al_df['MO_Omega']
+
+            # Normalize the al_df points
+            M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
+            M_2_al_tensor = torch.tensor(M_2_al.values, dtype=torch.float32).to(self.device)
+            M_1_al_normalized = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0]
+            M_2_al_normalized = self._normalize(M_2_al_tensor, self.data_min, self.data_max)[0]
+
+            # Scatter plot for the additional points (M_1_al and M_2_al)
+            plt.scatter(M_1_al_normalized.cpu().numpy(), M_2_al_normalized.cpu().numpy(), 
+                        c='g', marker='*', label='al_df Data')
+
+        else:
+            print("No root_file_path provided; skipping ROOT file data plotting.")
+
+        # Add the iteration number to the plot title
+        if iteration is not None:
+            plt.title(f"GP Model Prediction - Iteration {iteration}")
+
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
+
+    def find_closest_2d(x_test_values, m1_values, m2_values):
+        """Find closest points in M_1_filtered and M_2_filtered for each x_test point."""
+        indices = []
+        for i, x in enumerate(x_test_values):
+            distances = np.sqrt((m1_values - x[0]) ** 2 + (m2_values - x[1]) ** 2)
+            idx = np.argmin(distances)  # Find index of the closest point
+            indices.append(idx)
+        return np.array(indices)
+
+    def plotDifference(self, new_x=None, save_path=None, iteration=None):
+        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
+
+        # Obtain the mean predictions from the GP model
+        mean = self.observed_pred.mean.cpu().numpy()
+
+        # Open the ROOT file
+        file = uproot.open(self.start_root_file_path)
+        tree_name = "susy"
+        tree = file[tree_name]
+        df = tree.arrays(library="pd")
+
+        M_1 = df['IN_M_1'].values
+        M_2 = df['IN_M_2'].values
+        Omega = df['MO_Omega'].values
+
+        mask = Omega > 0
+        M_1_filtered = M_1[mask]
+        M_2_filtered = M_2[mask]
+        Omega_filtered = Omega[mask]
+
+        # Calculate the true values (log-scaled)
+        true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32)/0.12)
+
+        # Ensure x_test is in the right format (matching M_1 and M_2)
+        x_test_np = self.x_test.cpu().numpy()
+
+        # Find the closest matching (M_1_filtered, M_2_filtered) pairs for each x_test point
+        closest_indices = self.find_closest_2d(x_test_np, M_1_filtered, M_2_filtered)
+
+        # Map the true values to the x_test points using the closest matching indices
+        mapped_true = true[closest_indices]
+
+        # Make sure mean and true values have the same size
+        min_size = min(len(mean), len(mapped_true))
+        mean = mean[:min_size]
+        mapped_true = mapped_true[:min_size]
+
+        # Calculate the difference between the predicted mean and the true values
+        diff = torch.tensor(mean) - true
+
+        # Use a histogram to create a 2D heatmap of the differences
+        heatmap, xedges, yedges = np.histogram2d(self.x_test[:min_size, 0].cpu().numpy(), 
+                                                self.x_test[:min_size, 1].cpu().numpy(), 
+                                                bins=50, weights=diff.cpu().numpy())
+
+        # Plot the heatmap
+        plt.figure(figsize=(8, 6))
+        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], 
+                origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='Mean - True')
+        plt.xlabel('M_1_normalized')
+        plt.ylabel('M_2_normalized')
+
+        # Add the iteration number to the plot title if provided
+        if iteration is not None:
+            plt.title(f"Difference mean vs true - Iteration {iteration}")
+
+        # Save the plot or display it
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
+
+    def plotPull(self, new_x=None, save_path=None, iteration=None):
+        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
+
+        # Obtain the mean predictions from the GP model
+        mean = self.observed_pred.mean.cpu().numpy()
+        lower, upper = self.observed_pred.confidence_region()
+        lower = lower.cpu().numpy()
+        upper = upper.cpu().numpy()
+
+        # Open the ROOT file
+        file = uproot.open(self.start_root_file_path)
+        tree_name = "susy"
+        tree = file[tree_name]
+        df = tree.arrays(library="pd")
+
+        M_1 = df['IN_M_1'].values
+        M_2 = df['IN_M_2'].values
+        Omega = df['MO_Omega'].values
+
+        mask = Omega > 0
+        M_1_filtered = M_1[mask]
+        M_2_filtered = M_2[mask]
+        Omega_filtered = Omega[mask]
+
+        # Calculate the true values (log-scaled)
+        true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32)/0.12)
+
+        # Ensure x_test is in the right format (matching M_1 and M_2)
+        x_test_np = self.x_test.cpu().numpy()
+
+        # Find the closest matching (M_1_filtered, M_2_filtered) pairs for each x_test point
+        closest_indices = self.find_closest_2d(x_test_np, M_1_filtered, M_2_filtered)
+
+        # Map the true values to the x_test points using the closest matching indices
+        mapped_true = true[closest_indices]
+
+        # Make sure mean and true values have the same size
+        min_size = min(len(mean), len(mapped_true), len(lower), len(upper))
+        mean = mean[:min_size]
+        mapped_true = mapped_true[:min_size]
+        lower = lower[:min_size]
+        upper = upper[:min_size]
+
+        # Calculate the difference between the predicted mean and the true values
+        pull = (torch.tensor(mean) - true) / (upper - lower)
+
+        # Use a histogram to create a 2D heatmap of the differences
+        heatmap, xedges, yedges = np.histogram2d(self.x_test[:min_size, 0].cpu().numpy(), 
+                                                self.x_test[:min_size, 1].cpu().numpy(), 
+                                                bins=50, weights=pull.cpu().numpy())
+
+        # Plot the heatmap
+        plt.figure(figsize=(8, 6))
+        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], 
+                origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='(Mean - True) / Uncertainty')
+        plt.xlabel('M_1_normalized')
+        plt.ylabel('M_2_normalized')
+
+        # Add the iteration number to the plot title if provided
+        if iteration is not None:
+            plt.title(f"Pull - Iteration {iteration}")
+
+        # Save the plot or display it
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
+
+    def plotEntropy(self, new_x=None, save_path=None, iteration=None):
+        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
+        
+        heatmap, xedges, yedges = np.histogram2d(self.x_test[:, 0].cpu().numpy(), self.x_test[:, 1].cpu().numpy(), bins=50, weights=self.entropy.cpu().numpy())
+
+        plt.figure(figsize=(8, 6))
+        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='Entropy')
+        plt.xlabel('M_1_normalized')
+        plt.ylabel('M_2_normalized')
+
+        # Add the iteration number to the plot title
+        if iteration is not None:
+            plt.title(f"Entropy - Iteration {iteration}")
+
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
+
+    def plotTrue(self, new_x=None, save_path=None, iteration=None):
+        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
+
+        # Open the ROOT file
+        file = uproot.open(self.start_root_file_path)
+        
+        tree_name = "susy"
+        tree = file[tree_name]
+        
+        # Convert tree to pandas DataFrame
+        df = tree.arrays(library="pd")
+
+        M_1 = df['IN_M_1']
+        M_2 = df['IN_M_2']
+        Omega = df['MO_Omega']
+
+        M_1_filtered = M_1[mask]
+        M_2_filtered = M_2[mask]
+
+        mask = Omega > 0
+        Omega_filtered = Omega[mask]
+
+        # Calculate the true values (log-scaled)
+        true = torch.log(torch.tensor(Omega_filtered.values, dtype=torch.float32)/0.12)
+        
+        heatmap, xedges, yedges = np.histogram2d(M_1_filtered.cpu().numpy(), M_2_filtered.cpu().numpy(), bins=50, weights=true.cpu().numpy())
+
+        plt.figure(figsize=(8, 6))
+        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='log(Omega/0.12)')
+        plt.xlabel('M_1_normalized')
+        plt.ylabel('M_2_normalized')
+
+        # Add the iteration number to the plot title
+        if iteration is not None:
+            plt.title(f"True Function - Iteration {iteration}")
+
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
+
+
+    def plotSlice1D(self, slice_dim=0, slice_value=0.2, tolerance=0.1, new_x=None, save_path=None, iteration=None):
+        """
+        Plot a 1D slice of the GP model's predictions, confidence interval, training data, and entropy for a fixed value of M_1 or M_2.
+
+        Parameters:
+            slice_dim (int): The dimension to slice (0 for M_1, 1 for M_2).
+            slice_value (float): The value of the dimension to slice at.
+            tolerance (float): The tolerance for the slice (e.g., +/- 0.1).
+            new_x (torch.Tensor): New points to highlight on the plot (optional).
+            save_path (str): The path to save the plot, if specified.
+            iteration (int): The current iteration number, if any (for the plot title).
+        """
+        # Obtain mean, lower, and upper bounds for confidence intervals
+        mean = self.observed_pred.mean.cpu().numpy()
+        lower, upper = self.observed_pred.confidence_region()
+        lower = lower.cpu().numpy()
+        upper = upper.cpu().numpy()
+        entropy = self.entropy.cpu().numpy()
+        x_test = self.x_test.cpu().numpy()
+
+        # Slice the data based on the specified slice_dim (0 for M_1, 1 for M_2)
+        indices = np.where((x_test[:, slice_dim] >= slice_value - tolerance) & (x_test[:, slice_dim] <= slice_value + tolerance))[0]
+
+        # Get the corresponding x_test[:, 1 - slice_dim] and filtered values
+        x_test_filtered = x_test[indices, 1 - slice_dim]
+        mean_filtered = mean[indices]
+        lower_filtered = lower[indices]
+        upper_filtered = upper[indices]
+        entropy_filtered = entropy[indices]
+
+        # Start plotting
+        fig, ax1 = plt.subplots(1, 1, figsize=(10, 6))
+
+        # Plot the GP mean prediction with confidence intervals
+        ax1.plot(x_test_filtered, mean_filtered, 'b-', label='Predicted Mean')
+        ax1.fill_between(x_test_filtered, lower_filtered, upper_filtered, color='blue', alpha=0.3, label='Confidence Interval')
+        
+        ax1.set_xlabel(f'M_{"2" if slice_dim == 0 else "1"}')
+        ax1.set_ylabel('log(Omega/0.12)')
+        ax1.grid(True)
+
+        # Plot true data points
+        if self.csv_file:
+            df = pd.read_csv(self.csv_file)
+            M_1 = df['IN_M_1']
+            M_2 = df['IN_M_2']
+            Omega = df['MO_Omega']
+            mask = Omega > 0
+            M_1_filtered = M_1[mask]
+            M_2_filtered = M_2[mask]
+            Omega_filtered = Omega[mask]
+            
+            # Normalize the true data
+            if slice_dim == 0:
+                x_true = M_2_filtered
+            else:
+                x_true = M_1_filtered
+            y_true = torch.log(torch.tensor(Omega_filtered.values, dtype=torch.float32) / 0.12).cpu().numpy()
+
+            # Plot the true data points
+            ax1.plot(x_true, y_true, '*', c='r', label='True Data')
+
+        # Plot training data points
+        if slice_dim == 0:
+            x_train = self.x_train[:, 1].cpu().numpy()
+        else:
+            x_train = self.x_train[:, 0].cpu().numpy()
+        y_train = self.y_train.cpu().numpy()
+        ax1.plot(x_train, y_train, 'k*', label='Training Data')
+
+        # Plot new points if provided
+        if new_x is not None:
+            new_x_np = new_x[:, slice_dim].cpu().numpy()
+            ax1.axvline(x=new_x_np, color='r', linestyle='--', label='New Points')
+
+        # Add a second y-axis to plot entropy
+        ax2 = ax1.twinx()
+        ax2.set_ylabel('Entropy')
+        ax2.plot(x_test_filtered, entropy_filtered, 'g-', label='Entropy')
+
+        # Set the lower limit of the y-axis to 0.0 without specifying an upper limit
+        ax2.set_ylim(bottom=0.0)
+
+        # Mark the maximum entropy point
+        maxE = np.max(entropy_filtered)
+        maxIndex = np.argmax(entropy_filtered)
+        maxX = x_test_filtered[maxIndex]
+        ax2.plot(maxX, maxE, 'go', label='Max. Entropy')
+
+        # Combine legends from both y-axes
+        lines, labels = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines + lines2, labels + labels2, loc='upper right')
+
+        # Add the iteration number to the plot title
+        if iteration is not None:
+            ax1.set_title(f"GP Model Prediction Slice - Iteration {iteration}")
+
+        # Save the plot or show it
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
