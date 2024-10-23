@@ -1,26 +1,45 @@
 import torch
 import gpytorch
 from multitaskGP2D import MultitaskGP2D
+from gpytorch.likelihoods import GaussianLikelihood
 
 class GPModel:
-    def __init__(self, likelihood, device):
-        self.likelihood = likelihood.to(device)
+    def __init__(self):
         self.model = None
-        self.device = device
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.likelihood = GaussianLikelihood().to(self.device)
 
-    def initialize_model(self, x_train, y_train, x_valid, y_valid):
-        self.model = MultitaskGP2D(x_train, y_train, x_valid, y_valid, self.likelihood, 2).to(self.device)
+        # Define x_test for 2 Dimensions TODO: adjust less hard coded
+        x1_test = torch.linspace(0, 1, 50)
+        x2_test = torch.linspace(0, 1, 50)
+        x1_grid, x2_grid = torch.meshgrid(x1_test, x2_test)
+        self.x_test = torch.stack([x1_grid.flatten(), x2_grid.flatten()], dim=1).to(self.device)
+        
+    def initialize_model(self):
+        self.model = MultitaskGP2D(self.x_train, self.y_train, self.x_valid, self.y_valid, self.likelihood, 2).to(self.device)
 
     def train_model(self, iters=20):
-        print("Training model with {} iterations...".format(iters))
-        best_model, losses, losses_valid = self.model.do_train_loop(iters=iters)
-        print("Training complete.")
-        return best_model, losses, losses_valid
-
-    def evaluate_model(self, x_test):
+        print("These training_points are used in the GP", self.x_train)
+        self.best_model, self.losses, self.losses_valid = self.model.do_train_loop(iters=iters)
+        # Print the hyperparameters of the best model
+        print("best model parameters: ", self.best_model.state_dict())
+        # Save the state dictionary of the best model
+        # torch.save(self.best_model.state_dict(), os.path.join(self.output_dir, 'best_multitask_gp.pth'))
+    
+    def evaluate_model(self):
         self.model.eval()
         self.likelihood.eval()
 
         with torch.no_grad(), gpytorch.settings.fast_pred_var(False):
-            observed_pred = self.likelihood(self.model(x_test))
-            return observed_pred
+            self.observed_pred = self.likelihood(self.model(self.x_test))
+            print("Likelihood", self.observed_pred)
+            mean = self.observed_pred.mean.detach().reshape(-1, 1).to(self.device)
+            print("Mean: ", mean)
+            var = self.observed_pred.variance.detach().reshape(-1, 1).to(self.device)
+            print("Variance: ", var)
+            thr = torch.Tensor([0.]).to(self.device)
+
+            #print(f"Point: {self.x_test} - Variance: {var} ")
+
+            # self.entropy = entropy_local(mean, var, thr, self.device, torch.float32)
+            # print("Entropy: ", self.entropy)

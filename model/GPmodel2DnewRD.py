@@ -849,8 +849,8 @@ class GPModelPipeline:
         new_x_unnormalized = self._unnormalize(new_x, self.data_min, self.data_max)
 
         return new_x, new_x_unnormalized
-    
-    def goodness_of_fit(self, test='chi_squared'):
+
+    def goodness_of_fit(self, test=None, csv_path=None):
         # Chi-Squared divided by degrees of freedom - Goodness of Fit for quantification and comparison of training
 
         # Open the ROOT file
@@ -889,60 +889,34 @@ class GPModelPipeline:
         lower = lower.detach().cpu().numpy()
         upper = upper.detach().cpu().numpy()
 
+        mean = torch.tensor(mean, dtype=torch.float32).to(self.device)
+        upper = torch.tensor(upper, dtype=torch.float32).to(self.device)
+        lower= torch.tensor(lower, dtype=torch.float32).to(self.device)
+
         # Define the various goodness_of_fit metrics
         def mean_squared():
-            # Mean Squared Error (MSE)
             mse = torch.mean((mean - true) ** 2)
-
-            # Root Mean Squared Error (RMSE)
             rmse = torch.sqrt(mse)
-
-            return mse, rmse
+            return mse.item(), rmse.item()
         
         def r_squared():
-            # Residual Sum of Squares (SS_res)
             ss_res = torch.sum((mean - true) ** 2)
-
-            # Total Sum of Squares (SS_tot), variability in the true values
             ss_tot = torch.sum((true - torch.mean(true)) ** 2)
-
-            # R-squared value
             r_squared = 1 - ss_res / ss_tot
-
-            return r_squared
+            return r_squared.item()
         
         def chi_squared():
-            # Convert mean, upper, and lower back to tensors
-            mean_tensor = torch.tensor(mean, dtype=torch.float32).to(self.device)
-            upper_tensor = torch.tensor(upper, dtype=torch.float32).to(self.device)
-            lower_tensor = torch.tensor(lower, dtype=torch.float32).to(self.device)
-            
-            # Calculate the pull: (predicted mean - true value) / uncertainty
-            pull = (mean_tensor - true) / (upper_tensor - lower_tensor)
-
-            # Chi-squared statistic
+            pull = (mean - true) / (upper - lower)
             chi_squared = torch.sum(pull ** 2)
-
-            # Degrees of freedom: number of data points - number of parameters in the model
-            dof = len(true) - 1  # Adjust as necessary for model complexity
-
-            # Reduced chi-squared
+            dof = len(true) - 1  # Degrees of freedom
             reduced_chi_squared = chi_squared / dof
-
             return chi_squared.cpu().item(), reduced_chi_squared.cpu().item()
 
-        
         def average_pull():
-            # Absolute pull values
             absolute_pull = torch.abs((mean - true) / (upper - lower))
-
-            # Mean Absolute Pull (MAP)
             mean_absolute_pull = torch.mean(absolute_pull)
-
-            # Root Mean Squared Pull (RMSP)
             root_mean_squared_pull = torch.sqrt(torch.mean((absolute_pull) ** 2))
-
-            return mean_absolute_pull, root_mean_squared_pull
+            return mean_absolute_pull.item(), root_mean_squared_pull.item()
 
         # Dictionary to map test names to functions
         tests = {
@@ -952,13 +926,34 @@ class GPModelPipeline:
             'average_pull': average_pull
         }
 
+        # If 'test' is None, run all tests and return the results
+        if test is None:
+            results = {}
+            for test_name, test_function in tests.items():
+                result = test_function()
+                if isinstance(result, tuple):
+                    for i, value in enumerate(result):
+                        results[f"{test_name}_{i}"] = value  # Store each element of the tuple separately
+                else:
+                    results[test_name] = result  # Store single value directly
+
+            # Save results to CSV if a path is provided
+            if csv_path is not None:
+                file_exists = os.path.isfile(csv_path)
+                df_results = pd.DataFrame([results])  # Convert results to a DataFrame
+                
+                # Append data to CSV file, write header only if file does not exist
+                df_results.to_csv(csv_path, mode='a', header=not file_exists, index=False)
+
+            return results
+
+        # Run a specific test
         if test in tests:
             result = tests[test]()
             print(f"Goodness of Fit ({test}): {result}")
             return result
         else:
             raise ValueError(f"Unknown test: {test}.")
-        
 
 
 # Utility functions 
@@ -993,61 +988,22 @@ class GPModelPipeline:
         self.model.load_state_dict(torch.load(model_checkpoint_path, map_location=map_location))
         print(f"Model loaded from {model_checkpoint_path}")
     
-    def save_gof(self, file, filepath):
-        # Calculate the goodness-of-fit values
-        gof_values = self.goodness_of_fit()
-
-        # If the gof_values is a tuple (e.g., chi_squared, reduced_chi_squared), format it accordingly
-        if isinstance(gof_values, tuple):
-            gof_values = {"Metric": ["chi_squared", "reduced_chi_squared"],
-                        "Value": [val.cpu().item() if isinstance(val, torch.Tensor) else val for val in gof_values]}
-        elif isinstance(gof_values, torch.Tensor):
-            gof_values = {"Metric": ["unknown_metric"], "Value": [gof_values.cpu().item()]}
-        elif isinstance(gof_values, dict):
-            # Convert all tensor values in the dictionary to float
-            gof_values = {"Metric": list(gof_values.keys()), 
-                        "Value": [val.cpu().item() if isinstance(val, torch.Tensor) else val for val in gof_values.values()]}
-        else:
-            raise ValueError("Unexpected goodness of fit values format")
-
-        # Create a DataFrame for the GoF values
-        gof_df = pd.DataFrame(gof_values)
-
-        # Define the full file path
-        full_path = os.path.join(filepath, file)
+def run_for_iterations(start_iter, end_iter):
+    # Loop over all iterations
+    for iteration in range(start_iter, end_iter + 1):
+        print(f"Running for iteration {iteration}")
         
-        # Check if the file exists
-        if os.path.exists(full_path):
-            # If the file exists, append the new data (without header)
-            gof_df.to_csv(full_path, mode='a', header=False, index=False)
-        else:
-            # If the file doesn't exist, create it with headers
-            gof_df.to_csv(full_path, mode='w', header=True, index=False)
-
-        print(f"GoF values saved to {full_path}")
-
-
-
-
-# Usage
-if __name__ == "__main__":
-
-    # Define Variable to decide wether to develope on Raven GPU or local CPU
-    raven = False
-
-    if raven == True:
-        args = parse_args()
-        
-        previous_iter = args.iteration - 1
+        # Set current iteration
+        previous_iter = iteration - 1
         previous_output_dir = f'/raven/u/dvoss/al_pmssmwithgp/model/plots/Iter{previous_iter}'
         training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
-        
-        if args.iteration == 1:
+
+        if iteration == 1:
             # First iteration, initialize with initial data
             gp_pipeline = GPModelPipeline(
                 start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
                 true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
-                root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{args.iteration}/ntuple.0.0.root',
+                root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{iteration}/ntuple.0.0.root',
                 output_dir=args.output_dir
             )
         else:
@@ -1062,94 +1018,38 @@ if __name__ == "__main__":
                 gp_pipeline.load_training_data(training_data_path)
             gp_pipeline.load_additional_data()
 
-        gp_pipeline.initialize_model()
-        gp_pipeline.train_model(iters=750)
-        gp_pipeline.plot_losses()
-        gp_pipeline.evaluate_model()
-        new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
-        # gp_pipeline.goodness_of_fit()
-        # new_points, new_points_unnormalized = gp_pipeline.random_new_points(N=10)
-        gp_pipeline.save_gof( 'goodness_of_fit.csv', '/u/dvoss/al_pmssmwithgp/model')
-        gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, 'gp_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, 'diff_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join(args.output_dir, 'pull_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join(args.output_dir, 'entropy_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotTrue(new_x=new_points, save_path=os.path.join(args.output_dir, 'true_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM2_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM1_plot.png'), iteration=args.iteration)
+        ActiveLearning = False
 
-        create_config(new_points=new_points_unnormalized, output_file ='new_config.yaml')
+        if ActiveLearning == True:
+            model_checkpoint_path = f'/u/dvoss/al_pmssmwithgp/model/plots/Iter{iteration}/model_checkpoint.pth'
         
-        gp_pipeline.save_training_data(os.path.join(args.output_dir, 'training_data.pkl'))
-        gp_pipeline.save_model(os.path.join(args.output_dir,'model_checkpoint.pth'))
-    
-    else:
-        # # Just load trained model to make plots
-        # args = parse_args()
-        
-        # previous_iter = args.iteration - 1
-        # previous_output_dir = f'/raven/u/dvoss/al_pmssmwithgp/model/plots/Iter{previous_iter}'
-        # training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
-        
-        # if args.iteration == 1:
-        #     # First iteration, initialize with initial data
-        #     gp_pipeline = GPModelPipeline(
-        #         start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
-        #         true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
-        #         root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{args.iteration}/ntuple.0.0.root',
-        #         output_dir=args.output_dir
-        #     )
-        # else:
-        #     # Load previous training data and add new data from this iteration
-        #     gp_pipeline = GPModelPipeline(
-        #         start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
-        #         true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
-        #         root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{previous_iter}/ntuple.0.0.root',
-        #         output_dir=args.output_dir
-        #     )
-        #     if os.path.exists(training_data_path):
-        #         gp_pipeline.load_training_data(training_data_path)
-        #     gp_pipeline.load_additional_data()
-
-        args = parse_args()
-        
-        previous_iter = 9
-        previous_output_dir = f'/raven/u/dvoss/al_pmssmwithgp/model/plots/Iter{previous_iter}'
-        training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
-
-        if args.iteration == 1:
-            # First iteration, initialize with initial data
-            gp_pipeline = GPModelPipeline(
-                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
-                true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
-                root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{10}/ntuple.0.0.root',
-                output_dir='/u/dvoss/al_pmssmwithgp/model/plots/plots_test'
-            )
+            gp_pipeline.load_model(model_checkpoint_path)
+            gp_pipeline.evaluate_model()
+            gp_pipeline.goodness_of_fit(csv_path='/u/dvoss/al_pmssmwithgp/model/gof.csv')
         else:
-            # Load previous training data and add new data from this iteration
-            gp_pipeline = GPModelPipeline(
-                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
-                true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
-                root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{previous_iter}/ntuple.0.0.root',
-                output_dir='/u/dvoss/al_pmssmwithgp/model/plots/plots_test'
-            )
-            if os.path.exists(training_data_path):
-                gp_pipeline.load_training_data(training_data_path)
-            gp_pipeline.load_additional_data()
-
-        model_checkpoint_path = '/u/dvoss/al_pmssmwithgp/model/plots/Iter10/model_checkpoint.pth'
+            model_checkpoint_path = f'/u/dvoss/al_pmssmwithgp/model/plots/Iter{iteration}/model_checkpoint_rand.pth'
         
-        gp_pipeline.load_model(model_checkpoint_path)
-        gp_pipeline.evaluate_model()
-        new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
-        # gp_pipeline.save_gof( 'goodness_of_fit.csv', '/u/dvoss/al_pmssmwithgp/model')
-
+            gp_pipeline.load_model(model_checkpoint_path)
+            gp_pipeline.evaluate_model()
+            gp_pipeline.goodness_of_fit(csv_path='/u/dvoss/al_pmssmwithgp/model/gof_rand.csv')
+            
+        #new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
         # Generate the plots as needed
         # gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'gp_plot.png'))
         # gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'diff_plot.png'))
         # gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'pull_plot.png'))
         # gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'entropy_plot.png'))
         # gp_pipeline.plotTrue(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'true_plot.png'))
-        gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM2_plot.png'))
-        gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM1_plot.png'))
+        # gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM2_plot.png'))
+        # gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM1_plot.png'))
 
+# Usage
+if __name__ == "__main__":
+    args = parse_args()
+
+    # Set the range of iterations you want to run
+    start_iter = 1
+    end_iter = 20
+
+    # Run the pipeline for all iterations in the range
+    run_for_iterations(start_iter, end_iter)

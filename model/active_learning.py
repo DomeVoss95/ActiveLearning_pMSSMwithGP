@@ -1,40 +1,8 @@
 import torch
 import gpytorch
-from gpytorch.likelihoods import GaussianLikelihood
 import numpy as np
 
 class ActiveLearning:
-    def __init__(self, start_root_file_path=None, root_file_path=None, output_dir=None, initial_train_points=50, valid_points=150, additional_points_per_iter=3, n_test=100000):
-        self.start_root_file_path = start_root_file_path
-        self.root_file_path = root_file_path
-        self.output_dir = output_dir
-        self.initial_train_points = initial_train_points
-        self.valid_points = valid_points
-        self.additional_points_per_iter = additional_points_per_iter
-        self.n_test = n_test
-        
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        
-        self.likelihood = GaussianLikelihood().to(self.device)
-        self.model = None
-        self.best_model = None
-        self.losses = None
-        self.losses_valid = None
-        self.x_train = None
-        self.y_train = None
-        self.x_valid = None
-        self.y_valid = None
-        self.observed_pred = None
-        self.entropy = None
-
-        x1_test = torch.linspace(0, 1, 50)
-        x2_test = torch.linspace(0, 1, 50)
-        x1_grid, x2_grid = torch.meshgrid(x1_test, x2_test)
-        self.x_test = torch.stack([x1_grid.flatten(), x2_grid.flatten()], dim=1).to(self.device)
-
-        self.load_initial_data()
-        self.initialize_model()
-
     def best_not_yet_chosen(self, score, previous_indices):
         candidates = torch.sort(score, descending=True)[1].to(self.device)
         for next_index in candidates:
@@ -168,3 +136,13 @@ class ActiveLearning:
         print("Corresponding new x values (unnormalized):", new_x_unnormalized)  # The unnormalized values of the selected points
         
         return new_x, new_x_unnormalized  # Return both the normalized and unnormalized selected points
+    
+    def random_new_points(self, N=4):
+        # Select random indices from the available test points
+        random_indices = np.random.choice(self.x_test.shape[0], N, replace=False)  # Randomly select N indices
+        new_x = self.x_test[random_indices]
+
+        # Unnormalize the selected points to return them to their original scale.
+        new_x_unnormalized = self._unnormalize(new_x, self.data_min, self.data_max)
+
+        return new_x, new_x_unnormalized

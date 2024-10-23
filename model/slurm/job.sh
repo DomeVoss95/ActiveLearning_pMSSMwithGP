@@ -8,7 +8,7 @@ GEN_MODELS_SCRIPT="/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scri
 SETUP_SCRIPT="/u/dvoss/al_pmssmwithgp/Run3ModelGen/build/setup.sh"
 PIX_WORKING_DIR="/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen"
 RUN3MODELGEN_PARENT_DIR="/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/"
-ITERATIONS=20
+ITERATIONS=1
 
 # Function to wait for a file to be created
 wait_for_file() {

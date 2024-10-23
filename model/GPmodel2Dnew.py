@@ -21,7 +21,7 @@ def parse_args():
     return parser.parse_args()
 
 class GPModelPipeline:
-    def __init__(self, start_root_file_path=None, true_root_file_path=None, root_file_path=None, output_dir=None, initial_train_points=50, valid_points=150, additional_points_per_iter=3, n_test=100000):
+    def __init__(self, start_root_file_path=None, true_root_file_path=None, root_file_path=None, output_dir=None, initial_train_points=7000, valid_points=2000, additional_points_per_iter=3, n_test=100000):
         self.start_root_file_path = start_root_file_path
         self.true_root_file_path = true_root_file_path
         self.root_file_path = root_file_path
@@ -825,15 +825,16 @@ class GPModelPipeline:
         
         return new_x, new_x_unnormalized  # Return both the normalized and unnormalized selected points
     
-    def random_new_points(self, N=4, n=2):
-        # Select new points randomly as a comparision for Active Learning effect
-        points = np.random.rand(N, n)
-        new_x = self.x_test[list(points)]
+    def random_new_points(self, N=4):
+        # Select random indices from the available test points
+        random_indices = np.random.choice(self.x_test.shape[0], N, replace=False)  # Randomly select N indices
+        new_x = self.x_test[random_indices]
 
         # Unnormalize the selected points to return them to their original scale.
         new_x_unnormalized = self._unnormalize(new_x, self.data_min, self.data_max)
 
         return new_x, new_x_unnormalized
+
     
     def goodness_of_fit(self, test='chi_squared'):
         # Chi-Squared divided by degrees of freedom - Goodness of Fit for quantification and comparison of training
@@ -1013,21 +1014,30 @@ class GPModelPipeline:
 
 # Usage
 if __name__ == "__main__":
+    # Define Boolean to do Iterations or not
+    Iteration = True
 
-    # Define Variable to decide wether to develope on Raven GPU or local CPU
-    raven = True
+    # Do iterative training with AL generation of new points
+    if Iteration == True:
+        # Define Boolean to either do Active learning selection or random selection
+        ActiveLearning = True
 
-    if raven == True:
         args = parse_args()
         
         previous_iter = args.iteration - 1
         previous_output_dir = f'/raven/u/dvoss/al_pmssmwithgp/model/plots/Iter{previous_iter}'
-        training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
+
+        if ActiveLearning == True:
+            training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
+        else:
+            training_data_path = os.path.join(previous_output_dir, 'training_data_rand.pkl')
         
         if args.iteration == 1:
             # First iteration, initialize with initial data
             gp_pipeline = GPModelPipeline(
-                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
+                # TODO: uncomment when finisched with no iteration training
+                #start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
+                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
                 true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
                 root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{args.iteration}/ntuple.0.0.root',
                 output_dir=args.output_dir
@@ -1035,7 +1045,9 @@ if __name__ == "__main__":
         else:
             # Load previous training data and add new data from this iteration
             gp_pipeline = GPModelPipeline(
-                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
+                # TODO: uncomment when finisched with no iteration training
+                #start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
+                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
                 true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
                 root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{previous_iter}/ntuple.0.0.root',
                 output_dir=args.output_dir
@@ -1045,67 +1057,55 @@ if __name__ == "__main__":
             gp_pipeline.load_additional_data()
 
         gp_pipeline.initialize_model()
-        gp_pipeline.train_model(iters=750)
+        gp_pipeline.train_model(iters=1000)
         gp_pipeline.plot_losses()
         gp_pipeline.evaluate_model()
-        new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
-        # gp_pipeline.goodness_of_fit()
-        # new_points, new_points_unnormalized = gp_pipeline.random_new_points(N=10)
-        gp_pipeline.save_gof( 'goodness_of_fit.csv', '/u/dvoss/al_pmssmwithgp/model')
-        gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, 'gp_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, 'diff_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join(args.output_dir, 'pull_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join(args.output_dir, 'entropy_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotTrue(new_x=new_points, save_path=os.path.join(args.output_dir, 'true_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM2_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM1_plot.png'), iteration=args.iteration)
+        
+        # Plot with new points
+        if ActiveLearning == True:
+            new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
+            #gp_pipeline.save_gof( 'goodness_of_fit.csv', '/u/dvoss/al_pmssmwithgp/model')
+            gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, 'gp_plot.png'), iteration=args.iteration)
+            gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, 'diff_plot.png'), iteration=args.iteration)
+            gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join(args.output_dir, 'pull_plot.png'), iteration=args.iteration)
+            gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join(args.output_dir, 'entropy_plot.png'), iteration=args.iteration)
+            gp_pipeline.plotTrue(new_x=new_points, save_path=os.path.join(args.output_dir, 'true_plot.png'), iteration=args.iteration)
+            gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM2_plot.png'), iteration=args.iteration)
+            gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM1_plot.png'), iteration=args.iteration)
+            gp_pipeline.save_training_data(os.path.join(args.output_dir, 'training_data.pkl'))
+            gp_pipeline.save_model(os.path.join(args.output_dir,'model_checkpoint.pth'))
+        # Plot without new points
+        else:
+            # gp_pipeline.goodness_of_fit()
+            new_points, new_points_unnormalized = gp_pipeline.random_new_points(N=10)
+            gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, 'gp_plot_rand.png'), iteration=args.iteration)
+            gp_pipeline.save_training_data(os.path.join(args.output_dir, 'training_data_rand.pkl'))
+            gp_pipeline.save_model(os.path.join(args.output_dir,'model_checkpoint_rand.pth'))
 
         create_config(new_points=new_points_unnormalized, output_file ='new_config.yaml')
-        
-        gp_pipeline.save_training_data(os.path.join(args.output_dir, 'training_data.pkl'))
-        gp_pipeline.save_model(os.path.join(args.output_dir,'model_checkpoint.pth'))
-    
+    # Do training in one batch without any iterations   
     else:
-        # Just load trained model to make plots
-
-        args = parse_args()
-        
-        previous_iter = 9
-        previous_output_dir = f'/raven/u/dvoss/al_pmssmwithgp/model/plots/Iter{previous_iter}'
-        training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
-
-        if args.iteration == 1:
-            # First iteration, initialize with initial data
-            gp_pipeline = GPModelPipeline(
-                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
+        output_dir = '/u/dvoss/al_pmssmwithgp/model/plots/plots_no_iteration'
+        gp_pipeline = GPModelPipeline(
+                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
                 true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
-                root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{10}/ntuple.0.0.root',
-                output_dir='/u/dvoss/al_pmssmwithgp/model/plots/plots_test'
+                output_dir= output_dir
             )
-        else:
-            # Load previous training data and add new data from this iteration
-            gp_pipeline = GPModelPipeline(
-                start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_start/ntuple.0.0.root',
-                true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
-                root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{previous_iter}/ntuple.0.0.root',
-                output_dir='/u/dvoss/al_pmssmwithgp/model/plots/plots_test'
-            )
-            if os.path.exists(training_data_path):
-                gp_pipeline.load_training_data(training_data_path)
-            gp_pipeline.load_additional_data()
-
-        model_checkpoint_path = '/u/dvoss/al_pmssmwithgp/model/plots/Iter10/model_checkpoint.pth'
-        
-        gp_pipeline.load_model(model_checkpoint_path)
+        gp_pipeline.initialize_model()
+        gp_pipeline.train_model(iters=1000)
+        gp_pipeline.plot_losses()
         gp_pipeline.evaluate_model()
+
         new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
+        gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(output_dir, 'gp_plot.png'))
+        gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(output_dir, 'diff_plot.png'))
+        gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join(output_dir, 'pull_plot.png'))
+        gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join(output_dir, 'entropy_plot.png'))
+        gp_pipeline.plotTrue(new_x=new_points, save_path=os.path.join(output_dir, 'true_plot.png'))
+        gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(output_dir, '1DsliceM2_plot.png'))
+        gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(output_dir, '1DsliceM1_plot.png'))
+        gp_pipeline.save_training_data(os.path.join(output_dir, 'training_data.pkl'))
+        gp_pipeline.save_model(os.path.join(output_dir,'model_checkpoint.pth'))
 
-        # Generate the plots as needed
-        gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'gp_plot.png'))
-        gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'diff_plot.png'))
-        gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'pull_plot.png'))
-        gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'entropy_plot.png'))
-        gp_pipeline.plotTrue(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'true_plot.png'))
-        gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.2, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM2_plot.png'))
-        gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.2, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM1_plot.png'))
 
+    
