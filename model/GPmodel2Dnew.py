@@ -318,7 +318,8 @@ class GPModelPipeline:
         plt.ylabel('M_2_normalized')
 
         # Scatterplot of the training points
-        plt.scatter(self.x_train[:, 0].cpu().numpy(), self.x_train[:,1].cpu().numpy(), marker='*', s=200, c='b', label='training_points')
+        # TODO: Remove comment, when again with fewer points than 10.000
+        # plt.scatter(self.x_train[:, 0].cpu().numpy(), self.x_train[:,1].cpu().numpy(), marker='*', s=200, c='b', label='training_points')
 
         # Contour wo mean > 0
         plt.contour(xedges[:-1], yedges[:-1], heatmap.T, levels=[0], colors='white', linewidths=2, linestyles='solid')
@@ -1073,7 +1074,7 @@ if __name__ == "__main__":
             gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM2_plot.png'), iteration=args.iteration)
             gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM1_plot.png'), iteration=args.iteration)
             gp_pipeline.save_training_data(os.path.join(args.output_dir, 'training_data.pkl'))
-            gp_pipeline.save_model(os.path.join(args.output_dir,'model_checkpoint.pth'))
+            gp_pipeline.save_model(os.path.join(args.output_dir,'model_checkpoint_10000.pth')) # TODO: Remove 10000 when done
         # Plot without new points
         else:
             # gp_pipeline.goodness_of_fit()

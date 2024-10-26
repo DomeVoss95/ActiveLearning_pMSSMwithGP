@@ -329,7 +329,7 @@ class GPModelPipeline:
         plt.ylabel('M_2_normalized')
 
         # Scatterplot of the training points
-        plt.scatter(self.x_train[:, 0].cpu().numpy(), self.x_train[:,1].cpu().numpy(), marker='*', s=200, c='b', label='training_points')
+        # plt.scatter(self.x_train[:, 0].cpu().numpy(), self.x_train[:,1].cpu().numpy(), marker='*', s=200, c='b', label='training_points')
 
         # Contour wo mean > 0
         plt.contour(xedges[:-1], yedges[:-1], heatmap.T, levels=[0], colors='white', linewidths=2, linestyles='solid')
@@ -354,6 +354,67 @@ class GPModelPipeline:
 
         else:
             print("No root_file_path provided; skipping ROOT file data plotting.")
+
+        # Add the iteration number to the plot title
+        if iteration is not None:
+            plt.title(f"GP Model Prediction - Iteration {iteration}")
+
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
+    
+    def plotGP2D_new(self, new_x=None, save_path=None, iteration=None):
+        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
+
+        # Open the ROOT file
+        file = uproot.open(self.true_root_file_path)
+        tree_name = "susy"
+        tree = file[tree_name]
+        df = tree.arrays(library="pd")
+
+        M_1 = df['IN_M_1'].values
+        M_2 = df['IN_M_2'].values
+        Omega = df['MO_Omega'].values
+
+        mask = Omega > 0
+        M_1_filtered = self._normalize(M_1[mask], self.data_min, self.data_max)[0]
+        M_2_filtered = self._normalize(M_2[mask], self.data_min, self.data_max)[0]
+
+        # Evaluate model at M_1 and M_2 coordinates of true
+        input_data = torch.stack([
+            torch.tensor(M_1_filtered, dtype=torch.float32),
+            torch.tensor(M_2_filtered, dtype=torch.float32)
+        ], dim=1).to(self.device)
+
+        self.model.eval()
+
+        # Disable gradient computation for evaluation
+        with torch.no_grad():
+            predictions = self.model(input_data)
+
+        observed_pred = self.likelihood(predictions)
+        mean = observed_pred.mean.cpu().numpy()
+
+        # Use a histogram to create a 2D heatmap of the pull values
+        heatmap, xedges, yedges = np.histogram2d(M_1_filtered,
+                                                M_2_filtered,
+                                                bins=50, weights=mean)
+        heatmap_counts, xedges, yedges = np.histogram2d(M_1_filtered, M_2_filtered, bins=50)
+        heatmap = heatmap/heatmap_counts
+
+        plt.figure(figsize=(8, 6))
+        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='log(Omega/0.12)')
+        plt.xlabel('M_1_normalized')
+        plt.ylabel('M_2_normalized')
+
+        # Scatterplot of the training points
+        # plt.scatter(self.x_train[:, 0].cpu().numpy(), self.x_train[:,1].cpu().numpy(), marker='*', s=200, c='b', label='training_points')
+
+        # Contour wo mean > 0
+        plt.contour(xedges[:-1], yedges[:-1], heatmap.T, levels=[0], colors='white', linewidths=2, linestyles='solid')
 
         # Add the iteration number to the plot title
         if iteration is not None:
@@ -1018,9 +1079,9 @@ def run_for_iterations(start_iter, end_iter):
                 gp_pipeline.load_training_data(training_data_path)
             gp_pipeline.load_additional_data()
 
-        ActiveLearning = False
+        ActiveLearning = True
 
-        if ActiveLearning == True:
+        if ActiveLearning:
             model_checkpoint_path = f'/u/dvoss/al_pmssmwithgp/model/plots/Iter{iteration}/model_checkpoint.pth'
         
             gp_pipeline.load_model(model_checkpoint_path)
@@ -1033,12 +1094,12 @@ def run_for_iterations(start_iter, end_iter):
             gp_pipeline.evaluate_model()
             gp_pipeline.goodness_of_fit(csv_path='/u/dvoss/al_pmssmwithgp/model/gof_rand.csv')
             
-        #new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
+        new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
         # Generate the plots as needed
-        # gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'gp_plot.png'))
+        gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'gp_plot_10000.png'))
         # gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'diff_plot.png'))
         # gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'pull_plot.png'))
-        # gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'entropy_plot.png'))
+        gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'entropy_plot_10000.png'))
         # gp_pipeline.plotTrue(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'true_plot.png'))
         # gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM2_plot.png'))
         # gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM1_plot.png'))
@@ -1047,9 +1108,33 @@ def run_for_iterations(start_iter, end_iter):
 if __name__ == "__main__":
     args = parse_args()
 
-    # Set the range of iterations you want to run
-    start_iter = 1
-    end_iter = 20
+    # # Set the range of iterations you want to run
+    # start_iter = 1
+    # end_iter = 1
 
-    # Run the pipeline for all iterations in the range
-    run_for_iterations(start_iter, end_iter)
+    # # Run the pipeline for all iterations in the range
+    # run_for_iterations(start_iter, end_iter)
+
+    # Set current iteration
+    gp_pipeline = GPModelPipeline(
+        start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
+        true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
+        root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/ntuple.0.0.root',
+        output_dir=args.output_dir
+    )
+
+
+    model_checkpoint_path = f'/u/dvoss/al_pmssmwithgp/model/plots/Iter1/model_checkpoint.pth'
+
+    gp_pipeline.load_model(model_checkpoint_path)
+    gp_pipeline.evaluate_model()
+    gp_pipeline.goodness_of_fit(csv_path='/u/dvoss/al_pmssmwithgp/model/gof.csv')
+        
+    new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
+    # Generate the plots as needed
+    gp_pipeline.plotGP2D_new(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'gp_plot_10000.png'))
+    # gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'diff_plot.png'))
+    # gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'pull_plot.png'))
+    # gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'entropy_plot_10000.png'))
+    # gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM2_plot_10000.png'))
+    # gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM1_plot_10000.png'))
