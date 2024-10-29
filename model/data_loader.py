@@ -14,12 +14,13 @@ class CPU_Unpickler(pickle.Unpickler):
 
 
 class DataLoader:
-    
-    def __init__(self, start_root_file_path=None, true_root_file_path=None, root_file_path=None, output_dir=None):
+    def __init__(self, start_root_file_path=None, true_root_file_path=None, root_file_path=None, initial_train_points=1000, valid_points=400, device=None):
         self.start_root_file_path = start_root_file_path
         self.true_root_file_path = true_root_file_path
         self.root_file_path = root_file_path
-        self.output_dir = output_dir
+        self.initial_train_points = initial_train_points
+        self.valid_points = valid_points
+        self.device = device
 
     def load_initial_data(self):
 
@@ -134,9 +135,6 @@ class DataLoader:
         if data_max is None:
             data_max = data.max(dim=0, keepdim=True).values
         return (data - data_min) / (data_max - data_min), data_min, data_max
-
-    def _unnormalize(self, data, data_min, data_max):
-        return data * (data_max - data_min) + data_min
 
     # Save the trained data in a pickle file
     def save_training_data(filepath, x_train, y_train, data_min, data_max):

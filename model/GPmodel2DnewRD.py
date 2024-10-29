@@ -319,8 +319,8 @@ class GPModelPipeline:
         mean = self.observed_pred.mean.cpu().numpy()
 
         heatmap, xedges, yedges = np.histogram2d(self.x_test[:, 0].cpu().numpy(), self.x_test[:, 1].cpu().numpy(), bins=50, weights=mean)
-        heatmap_counts, xedges, yedges = np.histogram2d(self.x_test[:, 0].cpu().numpy(), self.x_test[:, 1].cpu().numpy(), bins=50)
-        heatmap = heatmap/heatmap_counts
+        # heatmap_counts, xedges, yedges = np.histogram2d(self.x_test[:, 0].cpu().numpy(), self.x_test[:, 1].cpu().numpy(), bins=50)
+        # heatmap = heatmap/heatmap_counts
 
         plt.figure(figsize=(8, 6))
         plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
@@ -958,13 +958,13 @@ class GPModelPipeline:
         def mean_squared():
             mse = torch.mean((mean - true) ** 2)
             rmse = torch.sqrt(mse)
-            return mse.item(), rmse.item()
+            return mse.cpu().item(), rmse.cpu().item()
         
         def r_squared():
             ss_res = torch.sum((mean - true) ** 2)
             ss_tot = torch.sum((true - torch.mean(true)) ** 2)
             r_squared = 1 - ss_res / ss_tot
-            return r_squared.item()
+            return r_squared.cpu().item()
         
         def chi_squared():
             pull = (mean - true) / (upper - lower)
@@ -977,14 +977,47 @@ class GPModelPipeline:
             absolute_pull = torch.abs((mean - true) / (upper - lower))
             mean_absolute_pull = torch.mean(absolute_pull)
             root_mean_squared_pull = torch.sqrt(torch.mean((absolute_pull) ** 2))
-            return mean_absolute_pull.item(), root_mean_squared_pull.item()
+            return mean_absolute_pull.cpu().item(), root_mean_squared_pull.cpu().item()
+
+        # Weights for adjusting to threshold
+        thr = 0.0
+        epsilon = 0.1 # Tolerance area around threshold, considered close
+        weights = torch.exp(-((true - thr) ** 2) / (2 * epsilon ** 2))  
+
+        def mean_squared_weighted():
+            mse_weighted = torch.mean(weights * (mean - true) ** 2)
+            rmse_weighted = torch.sqrt(mse_weighted)
+            return mse_weighted.cpu().item(), rmse_weighted.cpu().item()
+
+        def r_squared_weighted():
+            ss_res_weighted = torch.sum(weights * (mean - true) ** 2)
+            ss_tot_weighted = torch.sum(weights * (true - torch.mean(true)) ** 2)
+            r_squared_weighted = 1 - ss_res_weighted / ss_tot_weighted
+            return r_squared_weighted.cpu().item()
+        
+        def chi_squared_weighted():
+            pull_weighted = (mean - true) / (upper - lower)
+            chi_squared_weighted = torch.sum(weights * pull_weighted ** 2)
+            dof = len(true) - 1  # Degrees of freedom
+            reduced_chi_squared_weighted = chi_squared_weighted / dof
+            return chi_squared_weighted.cpu().item(), reduced_chi_squared_weighted.cpu().item()
+        
+        def average_pull_weighted():
+            absolute_pull_weighted = torch.abs((mean - true) / (upper - lower))
+            mean_absolute_pull_weighted = torch.mean(weights * absolute_pull_weighted)
+            root_mean_squared_pull_weighted = torch.sqrt(torch.mean(weights * (absolute_pull_weighted) ** 2))
+            return mean_absolute_pull_weighted.cpu().item(), root_mean_squared_pull_weighted.cpu().item()
 
         # Dictionary to map test names to functions
         tests = {
             'mean_squared': mean_squared,
             'r_squared': r_squared,
             'chi_squared': chi_squared,
-            'average_pull': average_pull
+            'average_pull': average_pull,
+            'mean_squared_weighted': mean_squared_weighted,
+            'r_squared_weighted': r_squared_weighted,
+            'chi_squared_weighted': chi_squared_weighted,
+            'average_pull_weighted': average_pull_weighted
         }
 
         # If 'test' is None, run all tests and return the results
@@ -1079,27 +1112,27 @@ def run_for_iterations(start_iter, end_iter):
                 gp_pipeline.load_training_data(training_data_path)
             gp_pipeline.load_additional_data()
 
-        ActiveLearning = True
+        ActiveLearning = False
 
         if ActiveLearning:
             model_checkpoint_path = f'/u/dvoss/al_pmssmwithgp/model/plots/Iter{iteration}/model_checkpoint.pth'
         
             gp_pipeline.load_model(model_checkpoint_path)
             gp_pipeline.evaluate_model()
-            gp_pipeline.goodness_of_fit(csv_path='/u/dvoss/al_pmssmwithgp/model/gof.csv')
+            gp_pipeline.goodness_of_fit(csv_path='/u/dvoss/al_pmssmwithgp/model/gof_test.csv')
         else:
             model_checkpoint_path = f'/u/dvoss/al_pmssmwithgp/model/plots/Iter{iteration}/model_checkpoint_rand.pth'
         
             gp_pipeline.load_model(model_checkpoint_path)
             gp_pipeline.evaluate_model()
-            gp_pipeline.goodness_of_fit(csv_path='/u/dvoss/al_pmssmwithgp/model/gof_rand.csv')
+            gp_pipeline.goodness_of_fit(csv_path='/u/dvoss/al_pmssmwithgp/model/gof_test_rand.csv')
             
-        new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
+        # new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
         # Generate the plots as needed
-        gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'gp_plot_10000.png'))
+        # gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'gp_plot_10000.png'))
         # gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'diff_plot.png'))
         # gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'pull_plot.png'))
-        gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'entropy_plot_10000.png'))
+        # gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'entropy_plot_10000.png'))
         # gp_pipeline.plotTrue(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'true_plot.png'))
         # gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM2_plot.png'))
         # gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', '1DsliceM1_plot.png'))
@@ -1109,8 +1142,8 @@ if __name__ == "__main__":
     args = parse_args()
 
     # # Set the range of iterations you want to run
-    # start_iter = 1
-    # end_iter = 1
+    # start_iter = 3
+    # end_iter = 17
 
     # # Run the pipeline for all iterations in the range
     # run_for_iterations(start_iter, end_iter)
@@ -1124,7 +1157,7 @@ if __name__ == "__main__":
     )
 
 
-    model_checkpoint_path = f'/u/dvoss/al_pmssmwithgp/model/plots/Iter1/model_checkpoint.pth'
+    model_checkpoint_path = f'/u/dvoss/al_pmssmwithgp/model/plots/Iter5/model_checkpoint.pth'
 
     gp_pipeline.load_model(model_checkpoint_path)
     gp_pipeline.evaluate_model()
@@ -1132,7 +1165,7 @@ if __name__ == "__main__":
         
     new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=10)
     # Generate the plots as needed
-    gp_pipeline.plotGP2D_new(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'gp_plot_10000.png'))
+    gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'gp_plot.png'))
     # gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'diff_plot.png'))
     # gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'pull_plot.png'))
     # gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join('/u/dvoss/al_pmssmwithgp/model/plots/plots_test', 'entropy_plot_10000.png'))

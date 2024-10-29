@@ -3,6 +3,17 @@ import gpytorch
 import numpy as np
 
 class ActiveLearning:
+    def __init__(self, device, x_test, data_min, data_max):
+        self.observed_pred = None
+        self.entropy = None
+        self.device = device
+        self.x_test = x_test
+        self.data_min = data_min 
+        self.data_max = data_max
+    
+    def _unnormalize(self, data, data_min, data_max):
+        return data * (data_max - data_min) + data_min
+        
     def best_not_yet_chosen(self, score, previous_indices):
         candidates = torch.sort(score, descending=True)[1].to(self.device)
         for next_index in candidates:

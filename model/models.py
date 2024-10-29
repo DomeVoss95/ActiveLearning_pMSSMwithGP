@@ -6,10 +6,15 @@ from gpytorch.likelihoods import GaussianLikelihood
 class GPModel:
     def __init__(self):
         self.model = None
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = None
         self.likelihood = GaussianLikelihood().to(self.device)
 
-        # Define x_test for 2 Dimensions TODO: adjust less hard coded
+        self.x_train = None
+        self.y_train = None
+        self.x_valid = None
+        self.y_valid = None
+
+        # Define x_test for 2 Dimensions TODO: adjust less hard coded for higher dimensions
         x1_test = torch.linspace(0, 1, 50)
         x2_test = torch.linspace(0, 1, 50)
         x1_grid, x2_grid = torch.meshgrid(x1_test, x2_test)
@@ -39,7 +44,4 @@ class GPModel:
             print("Variance: ", var)
             thr = torch.Tensor([0.]).to(self.device)
 
-            #print(f"Point: {self.x_test} - Variance: {var} ")
-
-            # self.entropy = entropy_local(mean, var, thr, self.device, torch.float32)
-            # print("Entropy: ", self.entropy)
+        

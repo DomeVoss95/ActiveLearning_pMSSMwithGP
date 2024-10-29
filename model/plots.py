@@ -2,18 +2,10 @@ import uproot
 import torch
 import seaborn as sns
 from matplotlib import pyplot as plt
-from gpytorch.likelihoods import GaussianLikelihood
 import pandas as pd
 import numpy as np
 
 class Plots:
-    def __init__(self, observed_pred, x_test, entropy, x_train, y_train):
-        self.observed_pred = observed_pred
-        self.x_test = x_test
-        self.entropy = entropy
-        self.x_train = x_train
-        self.y_train = y_train
-
     def plot_losses(self):
         plt.plot(self.losses, label='training loss')
         plt.plot(self.losses_valid, label='validation loss')
