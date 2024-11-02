@@ -862,7 +862,7 @@ class GPModelPipeline:
         Omega_filtered = Omega[mask]
 
         # Calculate the true values (log-scaled)
-        true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32) / 0.12)
+        true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32).to(self.device) / 0.12)
 
         # Evaluate model at M_1 and M_2 coordinates of true
         input_data = torch.stack([
@@ -911,12 +911,45 @@ class GPModelPipeline:
             root_mean_squared_pull = torch.sqrt(torch.mean((absolute_pull) ** 2))
             return mean_absolute_pull.cpu().item(), root_mean_squared_pull.cpu().item()
 
+        # Weights for adjusting to threshold
+        thr = 0.0
+        epsilon = 0.1 # Tolerance area around threshold, considered close
+        weights = torch.exp(-((true - thr) ** 2) / (2 * epsilon ** 2))  
+
+        def mean_squared_weighted():
+            mse_weighted = torch.mean(weights * (mean - true) ** 2)
+            rmse_weighted = torch.sqrt(mse_weighted)
+            return mse_weighted.cpu().item(), rmse_weighted.cpu().item()
+
+        def r_squared_weighted():
+            ss_res_weighted = torch.sum(weights * (mean - true) ** 2)
+            ss_tot_weighted = torch.sum(weights * (true - torch.mean(true)) ** 2)
+            r_squared_weighted = 1 - ss_res_weighted / ss_tot_weighted
+            return r_squared_weighted.cpu().item()
+        
+        def chi_squared_weighted():
+            pull_weighted = (mean - true) / (upper - lower)
+            chi_squared_weighted = torch.sum(weights * pull_weighted ** 2)
+            dof = len(true) - 1  # Degrees of freedom
+            reduced_chi_squared_weighted = chi_squared_weighted / dof
+            return chi_squared_weighted.cpu().item(), reduced_chi_squared_weighted.cpu().item()
+        
+        def average_pull_weighted():
+            absolute_pull_weighted = torch.abs((mean - true) / (upper - lower))
+            mean_absolute_pull_weighted = torch.mean(weights * absolute_pull_weighted)
+            root_mean_squared_pull_weighted = torch.sqrt(torch.mean(weights * (absolute_pull_weighted) ** 2))
+            return mean_absolute_pull_weighted.cpu().item(), root_mean_squared_pull_weighted.cpu().item()
+
         # Dictionary to map test names to functions
         tests = {
             'mean_squared': mean_squared,
             'r_squared': r_squared,
             'chi_squared': chi_squared,
-            'average_pull': average_pull
+            'average_pull': average_pull,
+            'mean_squared_weighted': mean_squared_weighted,
+            'r_squared_weighted': r_squared_weighted,
+            'chi_squared_weighted': chi_squared_weighted,
+            'average_pull_weighted': average_pull_weighted
         }
 
         # If 'test' is None, run all tests and return the results

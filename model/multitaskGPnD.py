@@ -25,29 +25,37 @@ class MultitaskGP(gpytorch.models.ExactGP):
         
         # Setting up the covariance module with lengthscale constraints
         self.covar_module = gpytorch.kernels.RBFKernel()
-        self.covar_module.raw_lengthscale.requires_grad_(False)
-        self.covar_module.register_constraint("raw_lengthscale", gpytorch.constraints.Interval(1e-4, 1.0)) # (1e-4, 1.0) 
-        self.covar_module.raw_lengthscale.requires_grad_(True)
-        
-        # Setting initial lengthscale value within the new constraints
-        self.covar_module.lengthscale = torch.tensor([0.5e-3]).unsqueeze(0)  # This value is within the range [0.01, 10.0] and has correct shape
 
-        # Task covariance module
+        self.covar_module.lengthscale = 0.5e-2
         self.task_covar_module = gpytorch.kernels.IndexKernel(
-            num_tasks=1,  # Single task
-            rank=1,  # Rank of the covariance matrix - higher rank for more complex relationships between tasks
-            prior=gpytorch.priors.SmoothedBoxPrior(0, 1)  # If using multiple tasks, use a different prior
-        )
+            num_tasks=1, # Single task
+            rank=1, # Rank of the covariance matrix - higher rank for more complex relationsships between tasks
+            prior=gpytorch.priors.SmoothedBoxPrior(0,1) # der auskommentierte, wenn mehrere tasks (den lkj)
+            )
 
-        # Adjusting the noise constraint
-        self.likelihood.noise_covar.raw_noise.requires_grad_(False)
-        self.likelihood.noise_covar.register_constraint("raw_noise", gpytorch.constraints.Interval(1e-5, 1e-2))#1e-2))
-        self.likelihood.noise_covar.raw_noise.requires_grad_(True)
+        # self.covar_module.raw_lengthscale.requires_grad_(False)
+        # self.covar_module.register_constraint("raw_lengthscale", gpytorch.constraints.Interval(1e-4, 1.0)) # (1e-4, 1.0) 
+        # self.covar_module.raw_lengthscale.requires_grad_(True)
+        
+        # # Setting initial lengthscale value within the new constraints
+        # self.covar_module.lengthscale = torch.tensor([0.5e-3]).unsqueeze(0) 
 
-        # Adjusting the raw variance constraint
-        self.task_covar_module.raw_var.requires_grad_(False)
-        self.task_covar_module.register_constraint("raw_var", gpytorch.constraints.Interval(0,1e-1))#1e-1))
-        self.task_covar_module.raw_var.requires_grad_(True)
+        # # Task covariance module
+        # self.task_covar_module = gpytorch.kernels.IndexKernel(
+        #     num_tasks=1,  # Single task
+        #     rank=1,  # Rank of the covariance matrix - higher rank for more complex relationships between tasks
+        #     prior=gpytorch.priors.SmoothedBoxPrior(0, 1)  # If using multiple tasks, use a different prior
+        # )
+
+        # # Adjusting the noise constraint
+        # self.likelihood.noise_covar.raw_noise.requires_grad_(False)
+        # self.likelihood.noise_covar.register_constraint("raw_noise", gpytorch.constraints.Interval(1e-5, 1e-2))#1e-2))
+        # self.likelihood.noise_covar.raw_noise.requires_grad_(True)
+
+        # # Adjusting the raw variance constraint
+        # self.task_covar_module.raw_var.requires_grad_(False)
+        # self.task_covar_module.register_constraint("raw_var", gpytorch.constraints.Interval(0,1e-1))#1e-1))
+        # self.task_covar_module.raw_var.requires_grad_(True)
 
         self.x_train = x_train
         self.y_train = y_train
