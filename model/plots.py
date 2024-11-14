@@ -4,8 +4,12 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
+from data_loader import DataLoader
 
 class Plots:
+    def __init__(self, data_loader):
+        self.data_loader = data_loader
+
     def plot_losses(self):
         plt.plot(self.losses, label='training loss')
         plt.plot(self.losses_valid, label='validation loss')
@@ -65,7 +69,7 @@ class Plots:
             Omega_al = al_df['MO_Omega']
 
             M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
-            M_1_al_normalized = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0]
+            M_1_al_normalized = self.data_loader._normalize(M_1_al_tensor, self.data_min, self.data_max)[0]
             Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
             Omega_al_normalized = torch.log(Omega_al_tensor / 0.12)
 
@@ -146,8 +150,8 @@ class Plots:
             # Normalize the al_df points
             M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
             M_2_al_tensor = torch.tensor(M_2_al.values, dtype=torch.float32).to(self.device)
-            M_1_al_normalized = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0]
-            M_2_al_normalized = self._normalize(M_2_al_tensor, self.data_min, self.data_max)[0]
+            M_1_al_normalized = self.data_loader._normalize(M_1_al_tensor, self.data_min, self.data_max)[0]
+            M_2_al_normalized = self.data_loader._normalize(M_2_al_tensor, self.data_min, self.data_max)[0]
 
             # Scatter plot for the additional points (M_1_al and M_2_al)
             plt.scatter(M_1_al_normalized.cpu().numpy(), M_2_al_normalized.cpu().numpy(), s=200,
@@ -183,8 +187,8 @@ class Plots:
         Omega = df['MO_Omega'].values
 
         mask = Omega > 0
-        M_1_filtered = self._normalize(M_1[mask], self.data_min, self.data_max)[0]
-        M_2_filtered = self._normalize(M_2[mask], self.data_min, self.data_max)[0]
+        M_1_filtered = self.data_loader._normalize(M_1[mask], self.data_min, self.data_max)[0]
+        M_2_filtered = self.data_loader._normalize(M_2[mask], self.data_min, self.data_max)[0]
         Omega_filtered = Omega[mask]
 
         # Calculate the true values (log-scaled)
@@ -252,8 +256,8 @@ class Plots:
         Omega = df['MO_Omega'].values
 
         mask = Omega > 0
-        M_1_filtered = self._normalize(M_1[mask], self.data_min, self.data_max)[0]
-        M_2_filtered = self._normalize(M_2[mask], self.data_min, self.data_max)[0]
+        M_1_filtered = self.data_loader._normalize(M_1[mask], self.data_min, self.data_max)[0]
+        M_2_filtered = self.data_loader._normalize(M_2[mask], self.data_min, self.data_max)[0]
         Omega_filtered = Omega[mask]
 
         # Calculate the true values (log-scaled)
@@ -433,8 +437,8 @@ class Plots:
             M_2 = df['IN_M_2']
             Omega = df['MO_Omega']
             #mask = Omega > 0
-            M_1_filtered = self._normalize(M_1, self.data_min, self.data_max)[0] 
-            M_2_filtered = self._normalize(M_2, self.data_min, self.data_max)[0] 
+            M_1_filtered = self.data_loader._normalize(M_1, self.data_min, self.data_max)[0] 
+            M_2_filtered = self.data_loader._normalize(M_2, self.data_min, self.data_max)[0] 
             print(f"M_1_filtered Shape: {M_1_filtered.shape}")
             print(f"M_2_filtered Shape: {M_1_filtered.shape}")
             Omega_filtered = Omega#[mask]

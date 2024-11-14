@@ -5,6 +5,7 @@ from gpytorch.likelihoods import GaussianLikelihood
 
 class GPModel:
     def __init__(self):
+        super(GPModel, self).__init__()
         self.model = None
         self.device = None
         self.likelihood = GaussianLikelihood().to(self.device)

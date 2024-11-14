@@ -2,6 +2,7 @@ import uproot
 import torch
 import pandas as pd
 import pickle
+import io
 
 # Define the custom CPU_Unpickler class
 class CPU_Unpickler(pickle.Unpickler):
@@ -14,12 +15,13 @@ class CPU_Unpickler(pickle.Unpickler):
 
 
 class DataLoader:
-    def __init__(self, start_root_file_path=None, true_root_file_path=None, root_file_path=None, initial_train_points=1000, valid_points=400, device=None):
+    def __init__(self, start_root_file_path=None, true_root_file_path=None, root_file_path=None, initial_train_points=1000, valid_points=400, additional_points_per_iter=3, device=None):
         self.start_root_file_path = start_root_file_path
         self.true_root_file_path = true_root_file_path
         self.root_file_path = root_file_path
         self.initial_train_points = initial_train_points
         self.valid_points = valid_points
+        self.additional_points_per_iter = additional_points_per_iter
         self.device = device
 
     def load_initial_data(self):
@@ -137,9 +139,9 @@ class DataLoader:
         return (data - data_min) / (data_max - data_min), data_min, data_max
 
     # Save the trained data in a pickle file
-    def save_training_data(filepath, x_train, y_train, data_min, data_max):
+    def save_training_data(self, filepath):
         with open(filepath, 'wb') as f:
-            pickle.dump((x_train, y_train, data_min, data_max), f)
+            pickle.dump((self.x_train, self.y_train, self.data_min, self.data_max), f)
 
     # Load the trained data in a pickle file, which is GPU specific for raven
     def load_training_data_raven(self, filepath):
@@ -152,11 +154,11 @@ class DataLoader:
             self.x_train, self.y_train, self.data_min, self.data_max = CPU_Unpickler(f).load()
 
     # Save the model state dictionary in checkpoint
-    def save_model(self, model_checkpoint_path):
-        torch.save(self.model.state_dict(), model_checkpoint_path)
+    def save_model(self, model, model_checkpoint_path):
+        torch.save(model.model.state_dict(), model_checkpoint_path)
 
     # Load the state_dict from checkpoint
-    def load_model(self, model_checkpoint_path):
+    def load_model(self, model, model_checkpoint_path):
         # Initialize the model architecture
         self.initialize_model()
 
@@ -168,6 +170,6 @@ class DataLoader:
         map_location = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         # Load the saved state dict
-        self.model.load_state_dict(torch.load(model_checkpoint_path, map_location=map_location))
+        model.load_state_dict(torch.load(model_checkpoint_path, map_location=map_location))
         print(f"Model loaded from {model_checkpoint_path}")
 

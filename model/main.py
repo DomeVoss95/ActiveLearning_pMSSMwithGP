@@ -47,6 +47,9 @@ class GPModelPipeline:
         self.observed_pred = None
         self.entropy = None
 
+        self.data_min = None
+        self.data_max = None
+
         # Initialize evalution parameters
         x1_test = torch.linspace(0, 1, 50)
         x2_test = torch.linspace(0, 1, 50)
@@ -73,12 +76,13 @@ class GPModelPipeline:
                 root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{iteration}/ntuple.0.0.root',
                 initial_train_points = self.initial_train_points,
                 valid_points = self.valid_points,
+                additional_points_per_iter = self.additional_points_per_iter,
                 device=self.device
             )
-            gp_model = GPModel()
+            self.model = GPModel()
             
 
-            # Step 1: Load data
+            # Load data
             if iteration == 1:
                 data_loader.load_initial_data()
             else:
@@ -86,32 +90,51 @@ class GPModelPipeline:
                     data_loader.load_training_data(training_data_path)
                 data_loader.load_additional_data()
 
-            # Step 2: Initialize model and train
-            gp_model.initialize_model()
-            #gp_model.train_model(iters=1000)
+            # Initialize model and train
+            self.model.initialize_model()
+            #gp_model.train_model(iters=1000) # TODO: try on raven
 
-            # Step 3: Evaluate the model
-            gp_model.evaluate_model()
 
-            # TODO: how can i fix unnormalize in ACtive lEaring
-            # Assign the necessary normalization values to ActiveLearning
-            active_learning.data_min = data_loader.data_min
-            active_learning.data_max = data_loader.data_max
+            # Evaluate the model
+            self.model.evaluate_model()
 
             # Set the observed_pred in ActiveLearning
-            active_learning = ActiveLearning(device=self.device, x_test=self.x_test, data_min=self.data_min, data_max=self)
-            active_learning.observed_pred = gp_model.observed_pred
+            active_learning = ActiveLearning(device=self.device, x_test=self.x_test, data_min=data_loader.data_min, data_max=data_loader.data_max)
+            active_learning.observed_pred = self.model.observed_pred
 
-            # Step 4: Active learning to select new points
+            # Active learning to select new points
             new_points, new_points_unnormalized = active_learning.select_new_points(N=3)
 
-            # Step 5: Plot results
-            plots = Plots(gp_model.observed_pred, gp_model.x_test, active_learning.entropy, data_loader.x_train, data_loader.y_train)
-            plots.plotGP2D(new_x=new_points, save_path=os.path.join(self.output_dir, 'gp_plot.png'), iteration=iteration)
+             # Name plots dynamically
+            name = "50"
 
-            # Step 6: Save model and data
+            # Save Goodness of Fit
+            Metrics.goodness_of_fit(csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}.csv')
+
+            # Plot results
+            plots = Plots(data_loader=data_loader)
+            plots.observed_pred = self.model.observed_pred
+            plots.x_test = self.x_test
+            plots.x_train = data_loader.x_train
+            plots.root_file_path = self.root_file_path
+            plots.device = self.device
+            plots.data_min = self.data_min
+            plots.data_max = self.data_max
+
+            # TODO: plots.plot_losses()
+            plots.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, f'gp_plot_{name}.png'), iteration=args.iteration)
+            plots.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, f'diff_plot_{name}.png'), iteration=args.iteration)
+            plots.plotPull(new_x=new_points, save_path=os.path.join(args.output_dir, f'pull_plot_{name}.png'), iteration=args.iteration)
+            plots.plotEntropy(new_x=new_points, save_path=os.path.join(args.output_dir, f'entropy_plot_{name}.png'), iteration=args.iteration)
+            plots.plotTrue(new_x=new_points, save_path=os.path.join(args.output_dir, f'true_plot_{name}.png'), iteration=args.iteration)
+            plots.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, f'1DsliceM2_plot_{name}.png'), iteration=args.iteration)
+            plots.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, f'1DsliceM1_plot_{name}.png'), iteration=args.iteration)
+            plots.save_training_data(os.path.join(args.output_dir, 'training_data.pkl'))
+            plots.save_model(os.path.join(args.output_dir,f'model_checkpoint_{name}.pth'))
+
+            # Save model and data
             data_loader.save_training_data(os.path.join(self.output_dir, 'training_data.pkl'))
-            data_loader.save_model(model_checkpoint_path)
+            data_loader.save_model(self.model, model_checkpoint_path)
 
 if __name__ == "__main__":
     args = parse_args()

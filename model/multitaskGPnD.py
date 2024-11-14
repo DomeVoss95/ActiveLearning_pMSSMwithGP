@@ -87,126 +87,199 @@ class MultitaskGP(gpytorch.models.ExactGP):
 
         return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
     
-    def do_train_loop(self, lr=0.01, iters=1200, optimizer="Adam", weight_decay=0.01):
+    def do_train_loop(self, lr=0.01, iters=1200, optimizer="Adam"):
         '''Basic method to train a MultitaskGP with marginal loglikelihood as loss
             lr: Learning rate, Default is 0.01
             iters: Number of iterations for optimizer, Defaults is 1200
-            optimizer: Type either Adam or SGD without momentum. Default is Adam    
-            weight_decay: L2 regularization term, Default is 0.01
+            optimzer: Type either Adam or SGD without momentum. Default is Adam    
         '''
 
         # Optimizer
-        if optimizer == "SGD": 
-            optimizer = torch.optim.SGD(self.parameters(), lr=lr, momentum=0, weight_decay=weight_decay)
+        if optimizer == "SGD": # Good: simple & memory efficient - Bad: LR sensitive, no adaptive LR, noise Updates --> may struggle  
+            optimizer = torch.optim.SGD(self.parameters(), lr=lr, momentum=0) # higher momentum ~ 0.9 increase influence of past gradients, leading to smoother and more stable updates
         else:
-            optimizer = torch.optim.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
-
-        print("Likelihood:", self.likelihood)
+            optimizer = torch.optim.Adam(self.parameters(), lr=lr) # Good: adaptive LR & momentum & bias correction & fast converge - Bad: expensive & complex
         
-        # Initial loss
-        mll = gpytorch.mlls.ExactMarginalLogLikelihood(self.likelihood, self)
+        # Inital loss
+        mll = gpytorch.mlls.ExactMarginalLogLikelihood(
+            self.likelihood, self
+        )
         best_loss = 1e10
 
-        # Initialize best_model with the current state of the model
-        best_model = self
-
         # Training loop
-        with gpytorch.settings.cg_tolerance(1e-6), gpytorch.settings.max_preconditioner_size(10), gpytorch.settings.max_root_decomposition_size(7000), gpytorch.settings.cholesky_jitter(1e-6):
+        with gpytorch.settings.cg_tolerance(
+            1e-6
+        ), gpytorch.settings.max_preconditioner_size(
+            10
+        ), gpytorch.settings.max_root_decomposition_size(
+            7000
+        ), gpytorch.settings.cholesky_jitter(1e-5):
             losses_train = []
             losses_valid = []
-
+            
             for i in range(iters):
                 self.train()
                 self.likelihood.train()
 
                 optimizer.zero_grad()
                 
+                # output = self.likelihood(self(x=self.x_train))
                 output = self(self.x_train)
 
-                # Calculate the Likelihood
-                observed_pred_train = self.likelihood(output)
+                # Debug: print shapes
+                print(f"Iteration {i}: x_train shape: {self.x_train.shape}, y_train shape: {self.y_train.shape}")
+                print(f"Output mean shape: {output.mean.shape}")
 
-                # Debugging: print mean and variance over the likelihood
-                print(f"Iter {i}: Likelihood Mean: {observed_pred_train.mean.mean().item()}, Variance: {observed_pred_train.variance.mean().item()}")
-
-                
-                # Debugging: Print model output statistics
-                #print(f"Iter {i}: Output mean: {output.mean.mean().item()}, Output variance: {output.variance.mean().item()}")
-
-                print(type(output.covariance_matrix))
-                
-                covariance_matrix = NonLazyTensor(output.covariance_matrix)
-
-                # Debugging: Print quadratic covariance_matrix
-                with gpytorch.settings.fast_computations(covar_root_decomposition=False):
-                    inv_quad, logdet = covariance_matrix.inv_quad_logdet(
-                        inv_quad_rhs=self.y_train.view(-1).unsqueeze(-1), logdet=True
-                    )
-      
-                # inv_quad, logdet = output.covariance_matrix.inv_quad_logdet(inv_quad_rhs=self.y_train.view(-1).unsqueeze(-1), logdet=True)
-                res = -0.5 * sum([inv_quad, logdet, self.y_train.size(-1) * math.log(2 * math.pi)])
-                print(f"Iteration {i}: inv_quad - {inv_quad.item()}, logdet - {logdet.item()}")
-                print(f"Iteration {i}: MLL - {res.item()}")
-
-                covar_matrix = self.covar_module(self.x_train).evaluate()
-                print(f"Iteration {i}: Covariance matrix determinant: {torch.det(covar_matrix).item()}")
-                if torch.isnan(covar_matrix).any():
-                    print("NaN detected in covariance matrix!")
-
-
-                
+                #loss = -mll(output, self.y_train.view(-1))
                 loss = -mll(output, self.y_train.view(-1))
-                
-                # Debugging: Print loss and check for NaNs
-                print(f"Iteration {i}: Loss - {loss.item()}")
-                # if torch.isnan(loss):
-                #     print(f"Iter {i}: NaN loss detected! Breaking training loop.")
-                #     break
-
-                
                 loss.backward(retain_graph=True)
 
-                # Debugging: Print gradients for each parameter
-                for name, param in self.named_parameters():
-                    if param.grad is not None:
-                        print(f"{name} grad: {param.grad.norm().item()}")
-                
-                # Save training loss
+                # Save training loss:
                 losses_train.append(loss.detach().item())
 
-                # Save best model
+                # Save model:
                 if loss < best_loss:
                     best_loss = loss.detach()
                     best_model = self
 
                 optimizer.step()
 
-                # Debugging: Print parameter values (lengthscale and noise) before and after optimizer step
-                # print(f"Iter {i}: Lengthscale: {self.covar_module.lengthscale.item()}, Noise: {self.likelihood.noise.item()}")
-
-                # Evaluate on validation data
+                # Evaluate model and save validtation loss:
                 self.eval()
                 self.likelihood.eval()
 
+                # x_valid and y_valid are defined globally for now!
                 with torch.no_grad(), gpytorch.settings.fast_pred_var():
                     observed_pred_valid = self.likelihood(self(self.x_valid))
                     loss_valid = -mll(observed_pred_valid, self.y_valid.view(-1))
                     losses_valid.append(loss_valid.item())
 
-                # Calculation of the logarithmic loss
-                def log_loss(y_true, mean_pred, var_pred):
-                    return torch.mean(torch.log(2 * torch.pi * var_pred) + ((y_true - mean_pred) ** 2) / var_pred)
-
-                mean_pred = observed_pred_valid.mean
-                var_pred = observed_pred_valid.variance  
-
-                log_loss_value = log_loss(self.y_valid.view(-1), mean_pred, var_pred)
-                print(f"Logarithmic Loss: {log_loss_value.item()}")
-
-                # Debugging: Print validation loss
-                # print(f"Iter {i}: Validation Loss: {loss_valid.item()}")
-
-                # if i % 100 == 0:
-                #     print(f"Iter {i}: Training Loss: {loss.item()}, Validation Loss: {loss_valid.item()}")
-
+                if i % 100 == 0:
+                    print(
+                        "Iter %d / %d - Loss (Train): %.3f - Loss (Val): %.3f" % (i + 1, iters, loss.detach().item(), loss_valid.detach().item())
+                    )
         return best_model, losses_train, losses_valid
+    
+    # def do_train_loop(self, lr=0.01, iters=1200, optimizer="Adam", weight_decay=0.01):
+    #     '''Basic method to train a MultitaskGP with marginal loglikelihood as loss
+    #         lr: Learning rate, Default is 0.01
+    #         iters: Number of iterations for optimizer, Defaults is 1200
+    #         optimizer: Type either Adam or SGD without momentum. Default is Adam    
+    #         weight_decay: L2 regularization term, Default is 0.01
+    #     '''
+
+    #     # Optimizer
+    #     if optimizer == "SGD": 
+    #         optimizer = torch.optim.SGD(self.parameters(), lr=lr, momentum=0, weight_decay=weight_decay)
+    #     else:
+    #         optimizer = torch.optim.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
+
+    #     print("Likelihood:", self.likelihood)
+        
+    #     # Initial loss
+    #     mll = gpytorch.mlls.ExactMarginalLogLikelihood(self.likelihood, self)
+    #     best_loss = 1e10
+
+    #     # Initialize best_model with the current state of the model
+    #     best_model = self
+
+    #     # Training loop
+    #     with gpytorch.settings.cg_tolerance(1e-6), gpytorch.settings.max_preconditioner_size(10), gpytorch.settings.max_root_decomposition_size(7000), gpytorch.settings.cholesky_jitter(1e-6):
+    #         losses_train = []
+    #         losses_valid = []
+
+    #         for i in range(iters):
+    #             self.train()
+    #             self.likelihood.train()
+
+    #             optimizer.zero_grad()
+                
+    #             output = self(self.x_train)
+
+    #             # Calculate the Likelihood
+    #             observed_pred_train = self.likelihood(output)
+
+    #             # Debugging: print mean and variance over the likelihood
+    #             print(f"Iter {i}: Likelihood Mean: {observed_pred_train.mean.mean().item()}, Variance: {observed_pred_train.variance.mean().item()}")
+
+                
+    #             # Debugging: Print model output statistics
+    #             #print(f"Iter {i}: Output mean: {output.mean.mean().item()}, Output variance: {output.variance.mean().item()}")
+
+    #             print(type(output.covariance_matrix))
+                
+    #             covariance_matrix = NonLazyTensor(output.covariance_matrix)
+
+    #             # Debugging: Print quadratic covariance_matrix
+    #             with gpytorch.settings.fast_computations(covar_root_decomposition=False):
+    #                 inv_quad, logdet = covariance_matrix.inv_quad_logdet(
+    #                     inv_quad_rhs=self.y_train.view(-1).unsqueeze(-1), logdet=True
+    #                 )
+      
+    #             # inv_quad, logdet = output.covariance_matrix.inv_quad_logdet(inv_quad_rhs=self.y_train.view(-1).unsqueeze(-1), logdet=True)
+    #             res = -0.5 * sum([inv_quad, logdet, self.y_train.size(-1) * math.log(2 * math.pi)])
+    #             print(f"Iteration {i}: inv_quad - {inv_quad.item()}, logdet - {logdet.item()}")
+    #             print(f"Iteration {i}: MLL - {res.item()}")
+
+    #             covar_matrix = self.covar_module(self.x_train).evaluate()
+    #             print(f"Iteration {i}: Covariance matrix determinant: {torch.det(covar_matrix).item()}")
+    #             if torch.isnan(covar_matrix).any():
+    #                 print("NaN detected in covariance matrix!")
+
+
+                
+    #             loss = -mll(output, self.y_train.view(-1))
+                
+    #             # Debugging: Print loss and check for NaNs
+    #             print(f"Iteration {i}: Loss - {loss.item()}")
+    #             # if torch.isnan(loss):
+    #             #     print(f"Iter {i}: NaN loss detected! Breaking training loop.")
+    #             #     break
+
+                
+    #             loss.backward(retain_graph=True)
+
+    #             # Debugging: Print gradients for each parameter
+    #             for name, param in self.named_parameters():
+    #                 if param.grad is not None:
+    #                     print(f"{name} grad: {param.grad.norm().item()}")
+                
+    #             # Save training loss
+    #             losses_train.append(loss.detach().item())
+
+    #             # Save best model
+    #             if loss < best_loss:
+    #                 best_loss = loss.detach()
+    #                 best_model = self
+
+    #             optimizer.step()
+
+    #             # Debugging: Print parameter values (lengthscale and noise) before and after optimizer step
+    #             # print(f"Iter {i}: Lengthscale: {self.covar_module.lengthscale.item()}, Noise: {self.likelihood.noise.item()}")
+
+    #             # Evaluate on validation data
+    #             self.eval()
+    #             self.likelihood.eval()
+
+    #             with torch.no_grad(), gpytorch.settings.fast_pred_var():
+    #                 observed_pred_valid = self.likelihood(self(self.x_valid))
+    #                 loss_valid = -mll(observed_pred_valid, self.y_valid.view(-1))
+    #                 losses_valid.append(loss_valid.item())
+
+    #             # Calculation of the logarithmic loss
+    #             def log_loss(y_true, mean_pred, var_pred):
+    #                 return torch.mean(torch.log(2 * torch.pi * var_pred) + ((y_true - mean_pred) ** 2) / var_pred)
+
+    #             mean_pred = observed_pred_valid.mean
+    #             var_pred = observed_pred_valid.variance  
+
+    #             log_loss_value = log_loss(self.y_valid.view(-1), mean_pred, var_pred)
+    #             print(f"Logarithmic Loss: {log_loss_value.item()}")
+
+    #             # Debugging: Print validation loss
+    #             # print(f"Iter {i}: Validation Loss: {loss_valid.item()}")
+
+    #             # if i % 100 == 0:
+    #             #     print(f"Iter {i}: Training Loss: {loss.item()}, Validation Loss: {loss_valid.item()}")
+
+    #     return best_model, losses_train, losses_valid

@@ -21,7 +21,7 @@ def parse_args():
     return parser.parse_args()
 
 class GPModelPipeline:
-    def __init__(self, start_root_file_path=None, true_root_file_path=None, root_file_path=None, output_dir=None, initial_train_points=1000, valid_points=400, additional_points_per_iter=3, n_test=100000):
+    def __init__(self, start_root_file_path=None, true_root_file_path=None, root_file_path=None, output_dir=None, initial_train_points=500, valid_points=1000, additional_points_per_iter=500, n_test=100000):
         self.start_root_file_path = start_root_file_path
         self.true_root_file_path = true_root_file_path
         self.root_file_path = root_file_path
@@ -325,8 +325,8 @@ class GPModelPipeline:
         plt.contour(xedges[:-1], yedges[:-1], heatmap.T, levels=[0], colors='white', linewidths=2, linestyles='solid')
 
         # Scatter plot of additional data (al_df) if root_file_path is provided
-        if self.root_file_path is not None:
-            # Extract and normalize al_df data points
+        if self.root_file_path is not None and iteration != 1: # TODO: for iteration 1 do not plot new points
+            # Extract and normalize al_df data points 
             al_df = uproot.open(self.root_file_path)["susy"].arrays(library="pd")
             M_1_al = al_df['IN_M_1']
             M_2_al = al_df['IN_M_2']  # Assuming M_2_al should be plotted in 2D
@@ -337,7 +337,8 @@ class GPModelPipeline:
             M_2_al_tensor = torch.tensor(M_2_al.values, dtype=torch.float32).to(self.device)
             M_1_al_normalized = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0]
             M_2_al_normalized = self._normalize(M_2_al_tensor, self.data_min, self.data_max)[0]
-
+            
+            
             # Scatter plot for the additional points (M_1_al and M_2_al)
             plt.scatter(M_1_al_normalized.cpu().numpy(), M_2_al_normalized.cpu().numpy(), s=200,
                         c='g', marker='*', label='al_df Data')
@@ -621,14 +622,12 @@ class GPModelPipeline:
             M_1 = df['IN_M_1']
             M_2 = df['IN_M_2']
             Omega = df['MO_Omega']
-            mask = Omega > 0
-            M_1_filtered = self._normalize(M_1[mask], self.data_min, self.data_max)[0] 
-            M_2_filtered = self._normalize(M_2[mask], self.data_min, self.data_max)[0] 
-            print(f"M_1_filtered: {M_1_filtered}")
-            print(f"M_2_filtered: {M_2_filtered}")
+            #mask = Omega > 0
+            M_1_filtered = self._normalize(M_1, self.data_min, self.data_max)[0] 
+            M_2_filtered = self._normalize(M_2, self.data_min, self.data_max)[0] 
             print(f"M_1_filtered Shape: {M_1_filtered.shape}")
             print(f"M_2_filtered Shape: {M_1_filtered.shape}")
-            Omega_filtered = Omega[mask]
+            Omega_filtered = Omega#[mask]
 
             # Normalize the true data
             if slice_dim == 0:
@@ -745,7 +744,9 @@ class GPModelPipeline:
             # print("end_cov Shape: ", end_cov.shape)
             
             center_mean = torch.stack([gp_mean[indices]] * num_pts).to(self.device) # Mean between selected points
-            new_mean = gp_mean[:, None].to(self.device)
+            # TODO: Sampling approach for a sampling mean
+            # new_mean = torch.normal(mean=gp_mean, std=gp_covar.sqrt())
+            new_mean = gp_mean[:, None].to(self.device) # Reshapes gp_mean to a column vector of shape (num_pts, 1)
             mean_batch = torch.cat([center_mean, new_mean], axis=1).to(self.device)
 
             # print("Mean_batch Shape: ", mean_batch.shape)
@@ -792,47 +793,44 @@ class GPModelPipeline:
     def select_new_points(self, N=4):
         # Initialize the selector using a combination of a smoothed batch entropy score function and a Gibbs sampling choice function.
         selector = self.iterative_batch_selector(
-            score_function=self.smoothed_batch_entropy(blur=0.15),  # Score function with a small blur applied to smooth entropy calculation
-            choice_function=self.gibbs_sample(beta=100)  # Choice function using Gibbs sampling with a specified beta
+            score_function=self.smoothed_batch_entropy(blur=0.15),
+            choice_function=self.gibbs_sample(beta=50)
             # choice_function=self.best_not_yet_chosen
         )
 
         with torch.no_grad(), gpytorch.settings.fast_pred_var(False):
-            # Detach the mean and covariance of the observed predictions from the computational graph
-            # and move them to the appropriate device (CPU or GPU).
-            mean = self.observed_pred.mean.detach().to(self.device)
-            covar = self.observed_pred.covariance_matrix.detach().to(self.device)
-            thr = torch.Tensor([0.]).to(self.device)  # Threshold tensor (can be adjusted if needed)
+            # Initialize a random x_test_rand to be able to choose new points out of the whole parameter space
+            x_test_rand = torch.rand(self.x_test.shape[0], 2).to(self.device)
 
-            # # Filter the points in the middle out: there cannot be new points selected
-            # self.valid_indices = ((self.x_test < 0.50) | (self.x_test > 0.515)) 
-            # x_test_filtered = self.x_test[self.valid_indices]  
-            # mean_filtered = mean[self.valid_indices]  
-            # covar_filtered = covar[self.valid_indices][:, self.valid_indices]  
+            # Evaluate the model
+            self.model.eval()
 
-            # # Check x_test for NaNs
-            # print("NaN in x_test_filtered:", torch.isnan(x_test_filtered).any())
+            # Disable gradient computation for evaluation
+            with torch.no_grad():
+                # Get predictions of model for random test points
+                predictions = self.model(x_test_rand)
+                observed_pred = self.likelihood(predictions)
 
-
-            # # Use the selector to choose a set of points based on the filtered mean and covariance matrix.
-            # points = set(selector(N=N, gp_mean=mean_filtered - thr, gp_covar=covar_filtered))  
-            # new_x = x_test_filtered[list(points)]  
+            mean = observed_pred.mean.detach().to(self.device)
+            covar = observed_pred.covariance_matrix.detach().to(self.device)
+            thr = torch.Tensor([0.]).to(self.device) 
 
             # Use the selector to choose a set of points based on the  mean and covariance matrix.
             points = set(selector(N=N, gp_mean=mean - thr, gp_covar=covar))  
-            new_x = self.x_test[list(points)]
-
+            new_x = x_test_rand[list(points)]
+            
             # Unnormalize the selected points to return them to their original scale.
             new_x_unnormalized = self._unnormalize(new_x, self.data_min, self.data_max)
 
         # Debugging and informational prints to check the selected points and their corresponding values.
-        print("Selected points (indices):", points)  # Indices of the selected points
-        print("Selected new x values (normalized):", new_x)  # The normalized new x values chosen by the selector
-        print("Corresponding new x values (unnormalized):", new_x_unnormalized)  # The unnormalized values of the selected points
+        print("Selected points (indices):", points)
+        print("Selected new x values (normalized):", new_x)
+        print("Corresponding new x values (unnormalized):", new_x_unnormalized)
         
-        return new_x, new_x_unnormalized  # Return both the normalized and unnormalized selected points
+        return new_x, new_x_unnormalized  
     
     def random_new_points(self, N=4):
+        # TODO: adjust this method to random as well
         # Select random indices from the available test points
         random_indices = np.random.choice(self.x_test.shape[0], N, replace=False)  # Randomly select N indices
         new_x = self.x_test[random_indices]
@@ -940,6 +938,33 @@ class GPModelPipeline:
             root_mean_squared_pull_weighted = torch.sqrt(torch.mean(weights * (absolute_pull_weighted) ** 2))
             return mean_absolute_pull_weighted.cpu().item(), root_mean_squared_pull_weighted.cpu().item()
 
+        # Calculate classification matrix and accuracy
+        def accuracy():
+    
+            # # TODO: Classification with uncertainty    
+            # mean_plus = mean + (upper - lower)/2
+            # mean_minus = mean + (upper - lower)/2
+
+            # if mean > 0 and true > 0: # If mean lies above true and the true values is above threshold -> correctly classifed
+            #     TP += 1
+            # elif mean > 0 and true < 0:
+            #     FP += 1
+            # elif mean < 0 and true > 0:
+            #     FN += 1
+            # elif mean < 0 and true < 0:
+            #     TN += 1
+
+            TP = ((mean > 0) & (true > 0)).sum().item()  # True Positives
+            FP = ((mean > 0) & (true < 0)).sum().item()  # False Positives
+            FN = ((mean < 0) & (true > 0)).sum().item()  # False Negatives
+            TN = ((mean < 0) & (true < 0)).sum().item()  # True Negatives
+
+            total = TP + FP + FN + TN
+            accuracy = (TP + TN) / total if total > 0 else 0
+
+            return accuracy
+
+            
         # Dictionary to map test names to functions
         tests = {
             'mean_squared': mean_squared,
@@ -949,7 +974,8 @@ class GPModelPipeline:
             'mean_squared_weighted': mean_squared_weighted,
             'r_squared_weighted': r_squared_weighted,
             'chi_squared_weighted': chi_squared_weighted,
-            'average_pull_weighted': average_pull_weighted
+            'average_pull_weighted': average_pull_weighted,
+            'accuarcy': accuracy
         }
 
         # If 'test' is None, run all tests and return the results
@@ -1036,7 +1062,7 @@ if __name__ == "__main__":
             start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
             true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
             root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{args.iteration}/ntuple.0.0.root',
-            output_dir=args.output_dir
+            output_dir=args.output_dir, initial_train_points=50, valid_points=300, additional_points_per_iter=50
         )
     else:
         # Load previous training data and add new data from this iteration
@@ -1046,7 +1072,7 @@ if __name__ == "__main__":
             start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
             true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
             root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_{previous_iter}/ntuple.0.0.root',
-            output_dir=args.output_dir
+            output_dir=args.output_dir, initial_train_points=50, valid_points=300, additional_points_per_iter=50
         )
         if os.path.exists(training_data_path):
             gp_pipeline.load_training_data(training_data_path)
@@ -1057,26 +1083,29 @@ if __name__ == "__main__":
     gp_pipeline.plot_losses()
     gp_pipeline.evaluate_model()
     
-    # Plot with new points
-    if ActiveLearning == True:
-        new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=100)
-        gp_pipeline.goodness_of_fit(csv_path='/u/dvoss/al_pmssmwithgp/model/gof.csv')
-        gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, 'gp_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, 'diff_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join(args.output_dir, 'pull_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join(args.output_dir, 'entropy_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotTrue(new_x=new_points, save_path=os.path.join(args.output_dir, 'true_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM2_plot.png'), iteration=args.iteration)
-        gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, '1DsliceM1_plot.png'), iteration=args.iteration)
+    
+    # Name plots dynamically
+    name = "50"
+    # Plot with Active Learning new points
+    if ActiveLearning:
+        new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=50)
+        gp_pipeline.goodness_of_fit(csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}.csv')
+        gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, f'gp_plot_{name}.png'), iteration=args.iteration)
+        gp_pipeline.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, f'diff_plot_{name}.png'), iteration=args.iteration)
+        gp_pipeline.plotPull(new_x=new_points, save_path=os.path.join(args.output_dir, f'pull_plot_{name}.png'), iteration=args.iteration)
+        gp_pipeline.plotEntropy(new_x=new_points, save_path=os.path.join(args.output_dir, f'entropy_plot_{name}.png'), iteration=args.iteration)
+        gp_pipeline.plotTrue(new_x=new_points, save_path=os.path.join(args.output_dir, f'true_plot_{name}.png'), iteration=args.iteration)
+        gp_pipeline.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, f'1DsliceM2_plot_{name}.png'), iteration=args.iteration)
+        gp_pipeline.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, f'1DsliceM1_plot_{name}.png'), iteration=args.iteration)
         gp_pipeline.save_training_data(os.path.join(args.output_dir, 'training_data.pkl'))
-        gp_pipeline.save_model(os.path.join(args.output_dir,'model_checkpoint_10000.pth')) # TODO: Remove 10000 when done
-    # Plot without new points
+        gp_pipeline.save_model(os.path.join(args.output_dir,f'model_checkpoint_{name}.pth'))
+    # Plot with random chosen new points
     else:
-        gp_pipeline.goodness_of_fit(csv_path='/u/dvoss/al_pmssmwithgp/model/gof.csv')
-        new_points, new_points_unnormalized = gp_pipeline.random_new_points(N=10)
-        gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, 'gp_plot_rand.png'), iteration=args.iteration)
+        gp_pipeline.goodness_of_fit(csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}_rand.csv')
+        new_points, new_points_unnormalized = gp_pipeline.random_new_points(N=200)
+        gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, f'gp_plot_{name}_rand.png'), iteration=args.iteration)
         gp_pipeline.save_training_data(os.path.join(args.output_dir, 'training_data_rand.pkl'))
-        gp_pipeline.save_model(os.path.join(args.output_dir,'model_checkpoint_rand.pth'))
+        gp_pipeline.save_model(os.path.join(args.output_dir,f'model_checkpoint_{name}_rand.pth'))
 
     create_config(new_points=new_points_unnormalized, output_file ='new_config.yaml')
 
