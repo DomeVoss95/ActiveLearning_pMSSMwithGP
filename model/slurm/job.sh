@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# python /raven/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py # adapt
+## python /raven/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py # adapt
+# python /raven/u/dvoss/al_pmssmwithgp/model/main.py # adapt
 
 ## Set the paths and variables
 GP_MODEL_SCRIPT="/u/dvoss/al_pmssmwithgp/model/GPmodel2Dnew.py"
