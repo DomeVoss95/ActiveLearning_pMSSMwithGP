@@ -4,7 +4,7 @@ from data_loader import DataLoader
 from models import GPModel
 from active_learning import ActiveLearning
 from plots import Plots
-from metrics import Metrics
+from metrics import goodness_of_fit
 from gpytorch.likelihoods import GaussianLikelihood
 import argparse
 
@@ -18,7 +18,7 @@ def parse_args():
 # Steering main class, which initializes all important variables and runs iterationloops
 class GPModelPipeline:
     # Initialize all variables for the imported modular classes
-    def __init__(self, start_root_file_path=None, true_root_file_path=None, root_file_path=None, output_dir=None, initial_train_points=1000, valid_points=400, additional_points_per_iter=3, n_test=100000):
+    def __init__(self, start_root_file_path=None, true_root_file_path=None, root_file_path=None, output_dir=None, initial_train_points=1000, valid_points=400, additional_points_per_iter=3, n_test=100000, isTraining=None, isActiveLearning=None):
         # Initialize all file_paths
         self.start_root_file_path = start_root_file_path
         self.true_root_file_path = true_root_file_path
@@ -66,8 +66,13 @@ class GPModelPipeline:
             # Define paths for models and training data
             previous_iter = iteration - 1
             previous_output_dir = f'plots/Iter{previous_iter}'
-            training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
-            model_checkpoint_path = f'plots/Iter{iteration}/model_checkpoint.pth'
+
+            if isActiveLearning == True:
+                training_data_path = os.path.join(previous_output_dir, 'training_data.pkl')
+                model_checkpoint_path = f'plots/Iter{iteration}/model_checkpoint.pth'
+            else:
+                training_data_path = os.path.join(previous_output_dir, 'training_data_rand.pkl')
+                model_checkpoint_path = f'plots/Iter{iteration}/model_checkpoint_rand.pth'
             
             # Initialize DataLoader, GPModel, and ActiveLearning classes
             data_loader = DataLoader(
@@ -90,65 +95,101 @@ class GPModelPipeline:
                     data_loader.load_training_data(training_data_path)
                 data_loader.load_additional_data()
 
+            # Assign training and validation data to the model
+            self.model.x_train = data_loader.x_train.to(self.device)
+            self.model.y_train = data_loader.y_train.to(self.device)
+            self.model.x_valid = data_loader.x_valid.to(self.device)
+            self.model.y_valid = data_loader.y_valid.to(self.device)
+            self.model.device = self.device
+
             # Initialize model and train
             self.model.initialize_model()
-            #gp_model.train_model(iters=1000) # TODO: try on raven
 
+            if isTraining:
+                self.model.train_model(iters=1) # TODO: adjust to raven again
 
             # Evaluate the model
             self.model.evaluate_model()
 
             # Set the observed_pred in ActiveLearning
-            active_learning = ActiveLearning(device=self.device, x_test=self.x_test, data_min=data_loader.data_min, data_max=data_loader.data_max)
+            active_learning = ActiveLearning(device=self.device, x_test=self.x_test, data_min=data_loader.data_min, data_max=data_loader.data_max, model=self.model.model, likelihood=self.likelihood)
             active_learning.observed_pred = self.model.observed_pred
 
-            # Active learning to select new points
-            new_points, new_points_unnormalized = active_learning.select_new_points(N=3)
 
-             # Name plots dynamically
-            name = "50"
+            # Active learning to select new points
+            new_points, new_points_unnormalized = active_learning.select_new_points(N=self.additional_points_per_iter)
+
+            # Name plots dynamically
+            name = "test"
 
             # Save Goodness of Fit
-            Metrics.goodness_of_fit(csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}.csv')
-
+            goodness_of_fit(true_root_file_path=self.true_root_file_path, model=self.model.model, likelihood=self.likelihood, 
+                            data_min=self.data_min, data_max=self.data_max, device=self.device, csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}.csv')
             # Plot results
-            plots = Plots(data_loader=data_loader)
+            plots = Plots(data_loader=data_loader, model=self.model.model, likelihood=self.likelihood, device=self.device)
             plots.observed_pred = self.model.observed_pred
             plots.x_test = self.x_test
             plots.x_train = data_loader.x_train
+            plots.y_train = data_loader.y_train
             plots.root_file_path = self.root_file_path
+            plots.true_root_file_path = self.true_root_file_path
             plots.device = self.device
             plots.data_min = self.data_min
             plots.data_max = self.data_max
+            plots.entropy = active_learning.entropy
 
-            # TODO: plots.plot_losses()
-            plots.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, f'gp_plot_{name}.png'), iteration=args.iteration)
-            plots.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, f'diff_plot_{name}.png'), iteration=args.iteration)
-            plots.plotPull(new_x=new_points, save_path=os.path.join(args.output_dir, f'pull_plot_{name}.png'), iteration=args.iteration)
-            plots.plotEntropy(new_x=new_points, save_path=os.path.join(args.output_dir, f'entropy_plot_{name}.png'), iteration=args.iteration)
-            plots.plotTrue(new_x=new_points, save_path=os.path.join(args.output_dir, f'true_plot_{name}.png'), iteration=args.iteration)
-            plots.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, f'1DsliceM2_plot_{name}.png'), iteration=args.iteration)
-            plots.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, f'1DsliceM1_plot_{name}.png'), iteration=args.iteration)
-            plots.save_training_data(os.path.join(args.output_dir, 'training_data.pkl'))
-            plots.save_model(os.path.join(args.output_dir,f'model_checkpoint_{name}.pth'))
+            if isTraining:
+                plots.losses = self.model.losses
+                plots.losses_valid = self.model.losses_valid
+                plots.plot_losses()
 
-            # Save model and data
-            data_loader.save_training_data(os.path.join(self.output_dir, 'training_data.pkl'))
-            data_loader.save_model(self.model, model_checkpoint_path)
+            if isActiveLearning:   
+                plots.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, f'gp_plot_{name}.png'), iteration=args.iteration)
+                plots.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, f'diff_plot_{name}.png'), iteration=args.iteration)
+                plots.plotPull(new_x=new_points, save_path=os.path.join(args.output_dir, f'pull_plot_{name}.png'), iteration=args.iteration)
+                plots.plotEntropy(new_x=new_points, save_path=os.path.join(args.output_dir, f'entropy_plot_{name}.png'), iteration=args.iteration)
+                plots.plotTrue(new_x=new_points, save_path=os.path.join(args.output_dir, f'true_plot_{name}.png'), iteration=args.iteration)
+                plots.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, f'1DsliceM2_plot_{name}.png'), iteration=args.iteration)
+                plots.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, f'1DsliceM1_plot_{name}.png'), iteration=args.iteration)
+
+                # Save model and data
+                data_loader.save_training_data(os.path.join(self.output_dir, 'training_data.pkl'))
+                data_loader.save_model(self.model, model_checkpoint_path)
+
+            else:   
+                plots.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, f'gp_plot_rand_{name}.png'), iteration=args.iteration)
+                plots.plotDifference(new_x=new_points, save_path=os.path.join(args.output_dir, f'diff_plot_rand_{name}.png'), iteration=args.iteration)
+                plots.plotPull(new_x=new_points, save_path=os.path.join(args.output_dir, f'pull_plot_rand_{name}.png'), iteration=args.iteration)
+                plots.plotEntropy(new_x=new_points, save_path=os.path.join(args.output_dir, f'entropy_plot_rand_{name}.png'), iteration=args.iteration)
+                plots.plotTrue(new_x=new_points, save_path=os.path.join(args.output_dir, f'true_plot_rand_{name}.png'), iteration=args.iteration)
+                plots.plotSlice1D(slice_dim=0, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, f'1DsliceM2_plot_rand_{name}.png'), iteration=args.iteration)
+                plots.plotSlice1D(slice_dim=1, slice_value=0.75, tolerance=0.01, new_x=new_points, save_path=os.path.join(args.output_dir, f'1DsliceM1_plot_rand_{name}.png'), iteration=args.iteration)
+
+                # Save model and data
+                data_loader.save_training_data(os.path.join(self.output_dir, 'training_data_rand.pkl'))
+                data_loader.save_model(self.model, model_checkpoint_path)
+            
 
 if __name__ == "__main__":
     args = parse_args()
 
     # Define the iteration range
     start_iter = 1
-    end_iter = 5  
+    end_iter = 10  
+
+    # Boolean for Active Learning or Random
+    isActiveLearning = True
+
+    # Boolean for training or evaluation
+    isTraining = True
 
     # Create instance of main class and run the pipeline over iterations
     gp_pipeline = GPModelPipeline(
         start_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
         true_root_file_path='/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true/ntuple.0.0.root',
         root_file_path=f'/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/ntuple.0.0.root',
-        output_dir=args.output_dir
+        output_dir=args.output_dir, initial_train_points=50, valid_points=300, additional_points_per_iter=50,
+        isTraining = isTraining, isActiveLearning = isActiveLearning
     )
 
     # Run the pipeline over the specified iterations

@@ -2,6 +2,7 @@ import uproot
 import torch
 import pandas as pd
 import pickle
+from utils import normalize
 
 # Define the custom CPU_Unpickler class
 class CPU_Unpickler(pickle.Unpickler):
@@ -79,8 +80,8 @@ class DataLoader:
         self.x_valid = torch.stack([torch.tensor(limited_df[col].values[self.valid_points:], dtype=torch.float32) for col in selected_columns], dim=1).to(self.device)
         self.y_valid = torch.log(torch.tensor(limited_df['MO_Omega'].values[self.valid_points:], dtype=torch.float32).to(self.device) / 0.12)
         
-        self.x_train, self.data_min, self.data_max = self._normalize(self.x_train)
-        self.x_valid = self._normalize(self.x_valid, self.data_min, self.data_max)[0]
+        self.x_train, self.data_min, self.data_max = normalize(self.x_train)
+        self.x_valid = normalize(self.x_valid, self.data_min, self.data_max)[0]
 
         print("Initial Training points: ", self.x_train, self.x_train.shape)
 
@@ -106,8 +107,8 @@ class DataLoader:
         Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
         
         # Normalize M_1 and M_2
-        M_1_al_normalized = self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter]
-        M_2_al_normalized = self._normalize(M_2_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter]
+        M_1_al_normalized = normalize(M_1_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter]
+        M_2_al_normalized = normalize(M_2_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter]
 
         # Concatenate M_1 and M_2 into a single tensor of shape [N, 2]
         additional_x_train = torch.cat([M_1_al_normalized.unsqueeze(1), M_2_al_normalized.unsqueeze(1)], dim=1)
@@ -154,12 +155,12 @@ class DataLoader:
 
         print("Training points after adding: ", self.x_train, self.x_train.shape)
 
-    def _normalize(self, data, data_min=None, data_max=None):
-        if data_min is None:
-            data_min = data.min(dim=0, keepdim=True).values
-        if data_max is None:
-            data_max = data.max(dim=0, keepdim=True).values
-        return (data - data_min) / (data_max - data_min), data_min, data_max
+    # def _normalize(self, data, data_min=None, data_max=None):
+    #     if data_min is None:
+    #         data_min = data.min(dim=0, keepdim=True).values
+    #     if data_max is None:
+    #         data_max = data.max(dim=0, keepdim=True).values
+    #     return (data - data_min) / (data_max - data_min), data_min, data_max
 
     # Save the trained data in a pickle file
     def save_training_data(filepath, x_train, y_train, data_min, data_max):

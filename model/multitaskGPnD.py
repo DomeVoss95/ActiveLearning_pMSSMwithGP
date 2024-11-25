@@ -113,7 +113,7 @@ class MultitaskGP(gpytorch.models.ExactGP):
             10
         ), gpytorch.settings.max_root_decomposition_size(
             7000
-        ), gpytorch.settings.cholesky_jitter(1e-5):
+        ): #, gpytorch.settings.cholesky_jitter(1e-5):
             losses_train = []
             losses_valid = []
             

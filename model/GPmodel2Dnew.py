@@ -13,6 +13,8 @@ import numpy as np
 from entropy import entropy_local  
 from create_config import create_config
 from multitaskGPnD import MultitaskGP
+from scipy.stats import qmc
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='GP Model Pipeline')
@@ -800,7 +802,10 @@ class GPModelPipeline:
 
         with torch.no_grad(), gpytorch.settings.fast_pred_var(False):
             # Initialize a random x_test_rand to be able to choose new points out of the whole parameter space
-            x_test_rand = torch.rand(self.x_test.shape[0], 2).to(self.device)
+            # # # Completly random 
+            # x_test_rand = torch.rand(self.x_test.shape[0], 2).to(self.device)
+            # Latin Hypercube
+            x_test_rand = torch.tensor(qmc.LatinHypercube(d=2).random(n=self.x_test.shape[0]), dtype=torch.float32).to(self.device)
 
             # Evaluate the model
             self.model.eval()
@@ -830,6 +835,37 @@ class GPModelPipeline:
         return new_x, new_x_unnormalized  
     
     def random_new_points(self, N=4):
+        # TODO: adjust this method to random as well
+        # Latin Hypercube
+        x_test_rand = torch.tensor(qmc.LatinHypercube(d=2).random(n=self.x_test.shape[0]), dtype=torch.float32).to(self.device)
+        # # Select random indices from the available test points
+        # random_indices = np.random.choice(x_test_rand.shape[0], N, replace=False)  # Randomly select N indices
+
+        # Latin Hypercube sampling
+        # Define the number of samples and dimensions
+        num_samples = N  # Number of indices to sample
+        dimensions = 2  # Dimensionality of the space (e.g., 2 for x_test_rand)
+
+        # Generate Latin Hypercube Samples
+        sampler = qmc.LatinHypercube(d=dimensions)
+        lhs_samples = sampler.random(n=num_samples)  # Generate N samples in [0, 1)
+
+        # Map LHS samples to indices in x_test_rand
+        lhs_indices = np.floor(lhs_samples[:, 0] * x_test_rand.shape[0]).astype(int)  # Use the first dimension for indices
+        lhs_indices = np.clip(lhs_indices, 0, x_test_rand.shape[0] - 1)  # Ensure valid index range
+
+        # Ensure indices are unique if necessary
+        random_indices = np.unique(lhs_indices)[:N]  # Limit to N unique indices
+
+
+        new_x = self.x_test[random_indices]
+
+        # Unnormalize the selected points to return them to their original scale.
+        new_x_unnormalized = self._unnormalize(new_x, self.data_min, self.data_max)
+
+        return new_x, new_x_unnormalized
+    
+    def regular_grid(self, N=4):
         # TODO: adjust this method to random as well
         # Select random indices from the available test points
         random_indices = np.random.choice(self.x_test.shape[0], N, replace=False)  # Randomly select N indices
@@ -945,15 +981,6 @@ class GPModelPipeline:
             # mean_plus = mean + (upper - lower)/2
             # mean_minus = mean + (upper - lower)/2
 
-            # if mean > 0 and true > 0: # If mean lies above true and the true values is above threshold -> correctly classifed
-            #     TP += 1
-            # elif mean > 0 and true < 0:
-            #     FP += 1
-            # elif mean < 0 and true > 0:
-            #     FN += 1
-            # elif mean < 0 and true < 0:
-            #     TN += 1
-
             TP = ((mean > 0) & (true > 0)).sum().item()  # True Positives
             FP = ((mean > 0) & (true < 0)).sum().item()  # False Positives
             FN = ((mean < 0) & (true > 0)).sum().item()  # False Negatives
@@ -975,7 +1002,7 @@ class GPModelPipeline:
             'r_squared_weighted': r_squared_weighted,
             'chi_squared_weighted': chi_squared_weighted,
             'average_pull_weighted': average_pull_weighted,
-            'accuarcy': accuracy
+            'accurcay': accuracy
         }
 
         # If 'test' is None, run all tests and return the results
@@ -1042,7 +1069,7 @@ class GPModelPipeline:
 if __name__ == "__main__":
 
     # Define Boolean to either do Active learning selection or random selection
-    ActiveLearning = True
+    ActiveLearning = False
 
     args = parse_args()
     
@@ -1102,7 +1129,7 @@ if __name__ == "__main__":
     # Plot with random chosen new points
     else:
         gp_pipeline.goodness_of_fit(csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}_rand.csv')
-        new_points, new_points_unnormalized = gp_pipeline.random_new_points(N=200)
+        new_points, new_points_unnormalized = gp_pipeline.random_new_points(N=50)
         gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, f'gp_plot_{name}_rand.png'), iteration=args.iteration)
         gp_pipeline.save_training_data(os.path.join(args.output_dir, 'training_data_rand.pkl'))
         gp_pipeline.save_model(os.path.join(args.output_dir,f'model_checkpoint_{name}_rand.pth'))

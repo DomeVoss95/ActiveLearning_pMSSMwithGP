@@ -19,7 +19,8 @@ class LinearMean(gpytorch.means.Mean):
     def forward(self, x):
         # print("weights:", self.weights.shape)
         # print("X:", x.shape)
-        res = x.matmul(self.weights).squeeze(-1) # Making it a 2D Tensor
+        # res = x.matmul(self.weights).squeeze(-1) # Making it a 2D Tensor
+        res = x.to(self.weights.device).matmul(self.weights).squeeze(-1)
         # print("X:", x)
         # print("weights:", self.weights)
         if self.bias is not None:

@@ -1,15 +1,18 @@
 import torch
 import gpytorch
 import numpy as np
+from scipy.stats import qmc
 
 class ActiveLearning:
-    def __init__(self, device, x_test, data_min, data_max):
+    def __init__(self, device, x_test, data_min, data_max, model, likelihood):
         self.observed_pred = None
         self.entropy = None
         self.device = device
         self.x_test = x_test
         self.data_min = data_min 
         self.data_max = data_max
+        self.model = model
+        self.likelihood = likelihood
     
     def _unnormalize(self, data, data_min, data_max):
         return data * (data_max - data_min) + data_min
@@ -114,30 +117,29 @@ class ActiveLearning:
         )
 
         with torch.no_grad(), gpytorch.settings.fast_pred_var(False):
-            # Detach the mean and covariance of the observed predictions from the computational graph
-            # and move them to the appropriate device (CPU or GPU).
-            mean = self.observed_pred.mean.detach().to(self.device)
-            covar = self.observed_pred.covariance_matrix.detach().to(self.device)
-            thr = torch.Tensor([0.]).to(self.device)  # Threshold tensor (can be adjusted if needed)
+            # Initialize a random x_test_rand to be able to choose new points out of the whole parameter space
+            # # # Completly random 
+            # x_test_rand = torch.rand(self.x_test.shape[0], 2).to(self.device)
+            # Latin Hypercube
+            x_test_rand = torch.tensor(qmc.LatinHypercube(d=2).random(n=self.x_test.shape[0]), dtype=torch.float32).to(self.device)
 
-            # # Filter the points in the middle out: there cannot be new points selected
-            # self.valid_indices = ((self.x_test < 0.50) | (self.x_test > 0.515)) 
-            # x_test_filtered = self.x_test[self.valid_indices]  
-            # mean_filtered = mean[self.valid_indices]  
-            # covar_filtered = covar[self.valid_indices][:, self.valid_indices]  
+            # Evaluate the model
+            self.model.eval()
 
-            # # Check x_test for NaNs
-            # print("NaN in x_test_filtered:", torch.isnan(x_test_filtered).any())
+            # Disable gradient computation for evaluation
+            with torch.no_grad():
+                # Get predictions of model for random test points
+                predictions = self.model(x_test_rand)
+                observed_pred = self.likelihood(predictions)
 
-
-            # # Use the selector to choose a set of points based on the filtered mean and covariance matrix.
-            # points = set(selector(N=N, gp_mean=mean_filtered - thr, gp_covar=covar_filtered))  
-            # new_x = x_test_filtered[list(points)]  
+            mean = observed_pred.mean.detach().to(self.device)
+            covar = observed_pred.covariance_matrix.detach().to(self.device)
+            thr = torch.Tensor([0.]).to(self.device) 
 
             # Use the selector to choose a set of points based on the  mean and covariance matrix.
             points = set(selector(N=N, gp_mean=mean - thr, gp_covar=covar))  
-            new_x = self.x_test[list(points)]
-
+            new_x = x_test_rand[list(points)]
+            
             # Unnormalize the selected points to return them to their original scale.
             new_x_unnormalized = self._unnormalize(new_x, self.data_min, self.data_max)
 

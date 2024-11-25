@@ -4,11 +4,15 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
+import os
 from data_loader import DataLoader
 
 class Plots:
-    def __init__(self, data_loader):
+    def __init__(self, data_loader, model=None, likelihood=None, device=None):
         self.data_loader = data_loader
+        self.model = model
+        self.likelihood = likelihood
+        self.device = device
 
     def plot_losses(self):
         plt.plot(self.losses, label='training loss')
@@ -186,6 +190,10 @@ class Plots:
         M_2 = df['IN_M_2'].values
         Omega = df['MO_Omega'].values
 
+        # Convert to PyTorch tensors
+        M_1 = torch.tensor(M_1, dtype=torch.float32)
+        M_2 = torch.tensor(M_2, dtype=torch.float32)
+
         mask = Omega > 0
         M_1_filtered = self.data_loader._normalize(M_1[mask], self.data_min, self.data_max)[0]
         M_2_filtered = self.data_loader._normalize(M_2[mask], self.data_min, self.data_max)[0]
@@ -254,6 +262,10 @@ class Plots:
         M_1 = df['IN_M_1'].values
         M_2 = df['IN_M_2'].values
         Omega = df['MO_Omega'].values
+
+        # Convert to PyTorch tensors
+        M_1 = torch.tensor(M_1, dtype=torch.float32)
+        M_2 = torch.tensor(M_2, dtype=torch.float32)
 
         mask = Omega > 0
         M_1_filtered = self.data_loader._normalize(M_1[mask], self.data_min, self.data_max)[0]
@@ -348,6 +360,10 @@ class Plots:
         M_2 = df['IN_M_2'].values
         Omega = df['MO_Omega'].values
 
+        # Convert to PyTorch tensors
+        M_1 = torch.tensor(M_1, dtype=torch.float32)
+        M_2 = torch.tensor(M_2, dtype=torch.float32)
+
         # Create a mask to filter out negative or zero values of Omega
         mask = Omega > 0
 
@@ -436,6 +452,11 @@ class Plots:
             M_1 = df['IN_M_1']
             M_2 = df['IN_M_2']
             Omega = df['MO_Omega']
+
+            # Convert to PyTorch tensors
+            M_1 = torch.tensor(M_1, dtype=torch.float32)
+            M_2 = torch.tensor(M_2, dtype=torch.float32)
+            
             #mask = Omega > 0
             M_1_filtered = self.data_loader._normalize(M_1, self.data_min, self.data_max)[0] 
             M_2_filtered = self.data_loader._normalize(M_2, self.data_min, self.data_max)[0] 

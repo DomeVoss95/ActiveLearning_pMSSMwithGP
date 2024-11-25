@@ -25,6 +25,9 @@ class GPModel:
         self.model = MultitaskGP2D(self.x_train, self.y_train, self.x_valid, self.y_valid, self.likelihood, 2).to(self.device)
 
     def train_model(self, iters=20):
+        self.x_train = self.x_train.to(self.device)
+        self.y_train = self.y_train.to(self.device)
+        self.model = self.model.to(self.device)
         print("These training_points are used in the GP", self.x_train)
         self.best_model, self.losses, self.losses_valid = self.model.do_train_loop(iters=iters)
         # Print the hyperparameters of the best model
@@ -37,7 +40,7 @@ class GPModel:
         self.likelihood.eval()
 
         with torch.no_grad(), gpytorch.settings.fast_pred_var(False):
-            self.observed_pred = self.likelihood(self.model(self.x_test))
+            self.observed_pred = self.likelihood(self.model(self.x_test.to(self.device)))
             print("Likelihood", self.observed_pred)
             mean = self.observed_pred.mean.detach().reshape(-1, 1).to(self.device)
             print("Mean: ", mean)

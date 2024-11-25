@@ -95,7 +95,6 @@ class DataLoader:
         # Debugging: Print shapes of both tensors before concatenating
         print(f"self.x_train shape: {self.x_train.shape}")  # Expecting [N, 2]
         print(f"additional_x_train shape: {additional_x_train.shape}")  # Should also be [M, 2]
-
         print(f"additional_x_train: {additional_x_train}")
 
         # Ensure the additional_x_train has the same number of columns as self.x_train
@@ -115,19 +114,6 @@ class DataLoader:
         # Convert the unpacked x_train and y_train back to torch tensors
         self.x_train = torch.tensor(list(x_train), dtype=torch.float32).to(self.device)
         self.y_train = torch.tensor(list(y_train), dtype=torch.float32).to(self.device)
-
-        # # Convert the concatenated x_train and y_train to a set of tuples to remove duplicates
-        # combined_set = {(float(x1), float(x2), float(y.item())) for (x1, x2), y in zip(self.x_train, self.y_train)}
-        # print(self.x_train.shape)
-        # print(self.y_train.shape)
-        # # combined_set = {(float(x), float(y)) for x, y in zip(self.x_train, self.y_train)}
-
-        # # Convert the set back to two tensors
-        # self.x_train, self.y_train = zip(*combined_set)
-        # self.x_train = torch.tensor(self.x_train, dtype=torch.float32).to(self.device)
-        # self.y_train = torch.tensor(self.y_train, dtype=torch.float32).to(self.device)
-
-        #print("Unique training points: ", self.x_train, self.x_train.shape)
 
         print("Training points after adding: ", self.x_train, self.x_train.shape)
 
@@ -161,10 +147,6 @@ class DataLoader:
     def load_model(self, model, model_checkpoint_path):
         # Initialize the model architecture
         self.initialize_model()
-
-        # # Load the saved dict
-        # self.model.load_state_dict(torch.load(model_checkpoint_path))
-        # print(f"Model loaded from the {model_checkpoint_path}")
         
         # Ensure the model loads on the correct device (GPU or CPU)
         map_location = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

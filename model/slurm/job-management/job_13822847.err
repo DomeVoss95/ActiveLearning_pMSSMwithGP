@@ -1,0 +1,26 @@
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+ERROR: Could not find a version that satisfies the requirement scipy.stats (from versions: none)
+ERROR: No matching distribution found for scipy.stats
+ERROR: Could not find a version that satisfies the requirement scipy.interpolate (from versions: none)
+ERROR: No matching distribution found for scipy.interpolate
+/mpcdf/soft/SLE_15/packages/skylake/pytorch/gpu-cuda-11.6/anaconda_3_2021.11-2021.11/1.11.0/lib/python3.9/site-packages/torch/functional.py:568: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/TensorShape.cpp:2227.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/utils/linear_cg.py:321: NumericalWarning: CG terminated in 1000 iterations with average residual norm 6.098702669987688e-06 which is larger than the tolerance of 1e-06 specified by gpytorch.settings.cg_tolerance. If performance is affected, consider raising the maximum number of CG iterations by running code in a gpytorch.settings.max_cg_iterations(value) context.
+  warnings.warn(
+Traceback (most recent call last):
+  File "/u/dvoss/al_pmssmwithgp/model/main.py", line 196, in <module>
+    gp_pipeline.run_for_iterations(start_iter, end_iter)
+  File "/u/dvoss/al_pmssmwithgp/model/main.py", line 120, in run_for_iterations
+    new_points, new_points_unnormalized = active_learning.select_new_points(N=self.additional_points_per_iter)
+  File "/raven/u/dvoss/al_pmssmwithgp/model/active_learning.py", line 132, in select_new_points
+    observed_pred = self.likelihood(predictions)
+AttributeError: 'ActiveLearning' object has no attribute 'likelihood'
+srun: error: ravg1167: task 0: Exited with exit code 1
+srun: Terminating StepId=13822847.0
