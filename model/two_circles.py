@@ -521,10 +521,6 @@ class GPModelPipeline:
     def load_model(self, model_checkpoint_path):
         # Initialize the model architecture
         self.initialize_model()
-
-        # # Load the saved dict
-        # self.model.load_state_dict(torch.load(model_checkpoint_path))
-        # print(f"Model loaded from the {model_checkpoint_path}")
         
         # Ensure the model loads on the correct device (GPU or CPU)
         map_location = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -572,11 +568,11 @@ if __name__ == "__main__":
     
     
     # Name plots dynamically
-    name = "50"
+    name = "two_circles"
     # Plot with Active Learning new points
     if ActiveLearning:
         new_points, new_points_unnormalized = gp_pipeline.select_new_points(N=1)
-        #gp_pipeline.goodness_of_fit(csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}.csv')
+        gp_pipeline.goodness_of_fit(csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}.csv')
         gp_pipeline.plotGP2D(new_x=new_points, save_path=os.path.join(args.output_dir, f'gp_plot_{name}.png'), iteration=args.iteration)
         gp_pipeline.save_model(os.path.join(args.output_dir,f'model_checkpoint_{name}.pth'))
     # Plot with random chosen new points

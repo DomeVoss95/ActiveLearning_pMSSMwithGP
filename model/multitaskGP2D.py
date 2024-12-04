@@ -80,6 +80,7 @@ class MultitaskGP2D(gpytorch.models.ExactGP):
 
                 # Debug: print shapes
                 print(f"Iteration {i}: x_train shape: {self.x_train.shape}, y_train shape: {self.y_train.shape}")
+                print(f"self.x_valid shape: {self.x_valid.shape}")
                 print(f"Output mean shape: {output.mean.shape}")
 
                 #loss = -mll(output, self.y_train.view(-1))
@@ -102,6 +103,8 @@ class MultitaskGP2D(gpytorch.models.ExactGP):
 
                 # x_valid and y_valid are defined globally for now!
                 with torch.no_grad(), gpytorch.settings.fast_pred_var():
+                    print(f"self.x_valid shape: {self.x_valid.shape}")
+                    print(f"self.x_train shape: {self.x_train.shape}")
                     observed_pred_valid = self.likelihood(self(self.x_valid))
                     loss_valid = -mll(observed_pred_valid, self.y_valid.view(-1))
                     losses_valid.append(loss_valid.item())

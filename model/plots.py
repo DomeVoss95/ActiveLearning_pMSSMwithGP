@@ -14,7 +14,7 @@ class Plots:
         self.likelihood = likelihood
         self.device = device
 
-    def plot_losses(self):
+    def plot_losses(self, save_path=None, iteration=None):
         plt.plot(self.losses, label='training loss')
         plt.plot(self.losses_valid, label='validation loss')
         plt.yscale('log')
@@ -22,8 +22,15 @@ class Plots:
         plt.xlabel('Iterations')
         plt.ylabel('Loss')
         plt.title('Training and Validation Loss on Logarithmic Scale')
-        plt.savefig(os.path.join(self.output_dir, 'loss_plot.png'))
-        plt.show()
+
+        if iteration is not None:
+            plt.title(f"Training and Validation Loss on Logarithmic Scale - Iteration {iteration}")
+
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
     
     def plotGP1D(self, new_x=None, save_path=None, iteration=None):
         """
@@ -224,10 +231,10 @@ class Plots:
         diff = torch.tensor(mean) - true
 
         # Use a histogram to create a 2D heatmap of the differences
-        heatmap, xedges, yedges = np.histogram2d(M_1_filtered,
-                                                M_2_filtered,
+        heatmap, xedges, yedges = np.histogram2d(M_1_filtered.cpu().numpy(),
+                                                M_2_filtered.cpu().numpy(),
                                                 bins=50, weights=diff.cpu().numpy())
-        heatmap_counts, xedges, yedges = np.histogram2d(M_1_filtered, M_2_filtered, bins=50)
+        heatmap_counts, xedges, yedges = np.histogram2d(M_1_filtered.cpu().numpy(), M_2_filtered.cpu().numpy(), bins=50)
         heatmap = heatmap/heatmap_counts 
 
         # Plot the heatmap
@@ -297,10 +304,10 @@ class Plots:
         pull = (torch.tensor(mean) - true) / (upper - lower)
 
         # Use a histogram to create a 2D heatmap of the pull values
-        heatmap, xedges, yedges = np.histogram2d(M_1_filtered,
-                                                M_2_filtered,
+        heatmap, xedges, yedges = np.histogram2d(M_1_filtered.cpu().numpy(),
+                                                M_2_filtered.cpu().numpy(),
                                                 bins=50, weights=pull.cpu().numpy())
-        heatmap_counts, xedges, yedges = np.histogram2d(M_1_filtered, M_2_filtered, bins=50)
+        heatmap_counts, xedges, yedges = np.histogram2d(M_1_filtered.cpu().numpy(), M_2_filtered.cpu().numpy(), bins=50)
         heatmap = heatmap/heatmap_counts
 
         # Plot the heatmap
@@ -375,8 +382,8 @@ class Plots:
         # Calculate the true values (log-scaled)
         true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32) / 0.12)
         
-        heatmap, xedges, yedges = np.histogram2d(M_1_filtered, M_2_filtered, bins=50, weights=true.cpu().numpy())
-        heatmap_counts, xedges, yedges = np.histogram2d(M_1_filtered, M_2_filtered, bins=50)
+        heatmap, xedges, yedges = np.histogram2d(M_1_filtered.cpu().numpy(), M_2_filtered.cpu().numpy(), bins=50, weights=true.cpu().numpy())
+        heatmap_counts, xedges, yedges = np.histogram2d(M_1_filtered.cpu().numpy(), M_2_filtered.cpu().numpy(), bins=50)
         heatmap = heatmap/heatmap_counts
 
         plt.figure(figsize=(8, 6))

@@ -24,6 +24,12 @@ class DataLoader:
         self.additional_points_per_iter = additional_points_per_iter
         self.device = device
 
+        # Initialize the training and validation data
+        self.x_train = torch.tensor([]).to(self.device)
+        self.y_train = torch.tensor([]).to(self.device)
+        self.x_valid = torch.tensor([]).to(self.device)
+        self.y_valid = torch.tensor([]).to(self.device)
+
     def load_initial_data(self):
 
         # Open the ROOT file
@@ -53,13 +59,14 @@ class DataLoader:
         self.x_train = torch.stack([torch.tensor(limited_df['IN_M_1'].values[:self.initial_train_points], dtype=torch.float32), torch.tensor(limited_df['IN_M_2'].values[:self.initial_train_points], dtype=torch.float32)], dim=1).to(self.device)
         self.y_train = torch.log(torch.tensor(limited_df['MO_Omega'].values[:self.initial_train_points], dtype=torch.float32).to(self.device) / 0.12)
         
-        self.x_valid = torch.stack([torch.tensor(limited_df['IN_M_1'].values[self.valid_points:], dtype=torch.float32), torch.tensor(limited_df['IN_M_2'].values[self.valid_points:], dtype=torch.float32)], dim=1).to(self.device)
-        self.y_valid = torch.log(torch.tensor(limited_df['MO_Omega'].values[self.valid_points:], dtype=torch.float32).to(self.device) / 0.12)
+        self.x_valid = torch.stack([torch.tensor(limited_df['IN_M_1'].values[-self.valid_points:], dtype=torch.float32), torch.tensor(limited_df['IN_M_2'].values[-self.valid_points:], dtype=torch.float32)], dim=1).to(self.device)
+        self.y_valid = torch.log(torch.tensor(limited_df['MO_Omega'].values[-self.valid_points:], dtype=torch.float32).to(self.device) / 0.12)
         
         self.x_train, self.data_min, self.data_max = self._normalize(self.x_train)
         self.x_valid = self._normalize(self.x_valid, self.data_min, self.data_max)[0]
 
-        print("Initial Training points: ", self.x_train, self.x_train.shape)
+        print("DATALOADER: Initial Training points: ", self.x_train, self.x_train.shape)
+        print("DATALOADER: Initial Validation points: ", self.x_valid, self.x_valid.shape)
 
     # Add the generated data from Run3ModelGen
     def load_additional_data(self):
@@ -87,7 +94,7 @@ class DataLoader:
         M_2_al_normalized = self._normalize(M_2_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter]
 
         # Concatenate M_1 and M_2 into a single tensor of shape [N, 2]
-        additional_x_train = torch.cat([M_1_al_normalized.unsqueeze(1), M_2_al_normalized.unsqueeze(1)], dim=1)
+        additional_x_train = torch.cat([M_1_al_normalized.unsqueeze(1), M_2_al_normalized.unsqueeze(1)], dim=1).to(self.device) 
 
         # additional_x_train = torch.stack([self._normalize(M_1_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter], self._normalize(M_2_al_tensor, self.data_min, self.data_max)[0][:self.additional_points_per_iter]])
         additional_y_train = torch.log(Omega_al_tensor / 0.12)[:self.additional_points_per_iter]
@@ -102,8 +109,8 @@ class DataLoader:
             additional_x_train = additional_x_train[:, :self.x_train.shape[1]]  # Adjust to the correct number of columns
         
         # Append the new points to the existing training data
-        self.x_train = torch.cat((self.x_train, additional_x_train))
-        self.y_train = torch.cat((self.y_train, additional_y_train))
+        self.x_train = torch.cat((self.x_train.to(self.device), additional_x_train.to(self.device)))
+        self.y_train = torch.cat((self.y_train.to(self.device), additional_y_train.to(self.device)))
 
         # Combine x_train (which is 2D) and y_train into tuples (x1, x2, y)
         combined_set = {(float(x1), float(x2), float(y.item())) for (x1, x2), y in zip(self.x_train, self.y_train)}
