@@ -1,0 +1,40 @@
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+ERROR: Could not find a version that satisfies the requirement scipy.stats (from versions: none)
+ERROR: No matching distribution found for scipy.stats
+ERROR: Could not find a version that satisfies the requirement scipy.interpolate (from versions: none)
+ERROR: No matching distribution found for scipy.interpolate
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+Traceback (most recent call last):
+  File "/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scripts/genModels.py", line 23, in <module>
+    main()
+  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/click/core.py", line 1128, in __call__
+    return self.main(*args, **kwargs)
+  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/click/core.py", line 1053, in main
+    rv = self.invoke(ctx)
+  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/click/core.py", line 1395, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages/click/core.py", line 754, in invoke
+    return __callback(*args, **kwargs)
+  File "/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scripts/genModels.py", line 17, in main
+    ModelGen.generate_models()
+  File "/u/dvoss/al_pmssmwithgp/Run3ModelGen/build/Run3ModelGen/modelgen.py", line 313, in generate_models
+    success = self.run_step(modelnum=mod, **step)
+  File "/u/dvoss/al_pmssmwithgp/Run3ModelGen/build/Run3ModelGen/modelgen.py", line 133, in run_step
+    return func(modelnum, **kwargs)
+  File "/u/dvoss/al_pmssmwithgp/Run3ModelGen/build/Run3ModelGen/modelgen.py", line 188, in run_SPheno
+    if success: addinputblocks(infile=outfile, blocksfile=self.rawfilen)
+  File "/u/dvoss/al_pmssmwithgp/Run3ModelGen/build/Run3ModelGen/addinputblocks.py", line 8, in addinputblocks
+    filedict = pyslha.read(infile, ignorenomass=True)
+  File "/u/dvoss/.local/lib/python3.9/site-packages/pyslha.py", line 1548, in read
+    txt = _read(spcfile)
+  File "/u/dvoss/.local/lib/python3.9/site-packages/pyslha.py", line 237, in _read
+    with open(f, "r") as ff:
+FileNotFoundError: [Errno 2] No such file or directory: '/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/SPheno/9.slha'
+srun: error: ravg1165: task 0: Exited with exit code 1
+srun: Terminating StepId=15271519.0

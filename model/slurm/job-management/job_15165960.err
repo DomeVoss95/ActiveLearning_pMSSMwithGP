@@ -1,0 +1,10 @@
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.652424 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.141457 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.266331 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.111134 GeV),
+Warning: DR-bar to on-shell conversion for Mu, M1, M2 failed (reached absolute accuracy: 0.950434 GeV),
+/raven/u/dvoss/al_pmssmwithgp/model/slurm/job_Run3ModelGen_start.sh: line 24: wait_for_file: command not found
+srun: error: ravg1089: task 0: Exited with exit code 127
+srun: Terminating StepId=15165960.0

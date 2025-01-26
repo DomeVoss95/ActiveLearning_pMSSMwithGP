@@ -1,0 +1,427 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: uproot in /raven/u/dvoss/.local/lib/python3.9/site-packages (5.3.10)
+Requirement already satisfied: packaging in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from uproot) (21.0)
+Requirement already satisfied: cramjam>=2.5.0 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (2.8.3)
+Requirement already satisfied: awkward>=2.4.6 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (2.6.6)
+Requirement already satisfied: fsspec in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (2024.6.1)
+Requirement already satisfied: typing-extensions>=4.1.0 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (4.12.2)
+Requirement already satisfied: numpy in /raven/u/dvoss/.local/lib/python3.9/site-packages (from uproot) (1.22.4)
+Requirement already satisfied: awkward-cpp==35 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from awkward>=2.4.6->uproot) (35)
+Requirement already satisfied: importlib-metadata>=4.13.0 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from awkward>=2.4.6->uproot) (8.0.0)
+Requirement already satisfied: zipp>=0.5 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from importlib-metadata>=4.13.0->awkward>=2.4.6->uproot) (3.6.0)
+Requirement already satisfied: pyparsing>=2.0.2 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from packaging->uproot) (3.0.4)
+Defaulting to user installation because normal site-packages is not writeable
+Collecting argparse
+  Using cached argparse-1.4.0-py2.py3-none-any.whl (23 kB)
+Installing collected packages: argparse
+Successfully installed argparse-1.4.0
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pyslha in /raven/u/dvoss/.local/lib/python3.9/site-packages (3.2.6)
+Requirement already satisfied: tex2pix>=0.1.5 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from pyslha) (0.3.1)
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: structlog in /raven/u/dvoss/.local/lib/python3.9/site-packages (24.4.0)
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: imageio[ffmpeg] in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (2.9.0)
+Requirement already satisfied: Pillow in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (8.4.0)
+Requirement already satisfied: numpy in /raven/u/dvoss/.local/lib/python3.9/site-packages (from imageio[ffmpeg]) (1.22.4)
+Requirement already satisfied: imageio-ffmpeg in /raven/u/dvoss/.local/lib/python3.9/site-packages (from imageio[ffmpeg]) (0.5.1)
+Requirement already satisfied: setuptools in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from imageio-ffmpeg->imageio[ffmpeg]) (58.0.4)
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: seaborn in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (0.11.2)
+Requirement already satisfied: scipy>=1.0 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from seaborn) (1.7.1)
+Requirement already satisfied: pandas>=0.23 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from seaborn) (1.3.4)
+Requirement already satisfied: matplotlib>=2.2 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from seaborn) (3.4.3)
+Requirement already satisfied: numpy>=1.15 in /raven/u/dvoss/.local/lib/python3.9/site-packages (from seaborn) (1.22.4)
+Requirement already satisfied: cycler>=0.10 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from matplotlib>=2.2->seaborn) (0.10.0)
+Requirement already satisfied: pyparsing>=2.2.1 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from matplotlib>=2.2->seaborn) (3.0.4)
+Requirement already satisfied: pillow>=6.2.0 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from matplotlib>=2.2->seaborn) (8.4.0)
+Requirement already satisfied: kiwisolver>=1.0.1 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from matplotlib>=2.2->seaborn) (1.3.1)
+Requirement already satisfied: python-dateutil>=2.7 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from matplotlib>=2.2->seaborn) (2.8.2)
+Requirement already satisfied: six in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from cycler>=0.10->matplotlib>=2.2->seaborn) (1.16.0)
+Requirement already satisfied: pytz>=2017.3 in /raven/u/system/soft/SLE_15/packages/x86_64/anaconda/3/2021.11/lib/python3.9/site-packages (from pandas>=0.23->seaborn) (2021.3)
+Defaulting to user installation because normal site-packages is not writeable
+Defaulting to user installation because normal site-packages is not writeable
+Starting iteration 1
+Initial Training points:  tensor([[0.5426, 0.4563, 0.5105, 0.9156],
+        [0.0668, 0.2798, 0.5045, 0.9211],
+        [0.6534, 0.9329, 0.5036, 0.2191],
+        [0.9961, 0.3144, 0.5084, 0.9374],
+        [0.7694, 0.9097, 0.5109, 0.0479],
+        [0.5738, 0.0434, 0.5065, 0.8814],
+        [0.1026, 0.7071, 0.5147, 0.4567],
+        [0.6998, 0.4839, 0.5104, 0.8312],
+        [0.6612, 0.4442, 0.5073, 0.2730],
+        [0.0491, 0.0363, 0.5060, 0.7549],
+        [0.7923, 0.0407, 0.5053, 0.8047],
+        [0.5187, 0.3328, 0.5110, 0.0809],
+        [0.4259, 0.9471, 0.5067, 0.9144],
+        [0.7882, 0.6177, 0.5011, 0.8173],
+        [0.4116, 0.3689, 0.5061, 0.5955],
+        [0.4810, 0.6120, 0.5111, 0.7079],
+        [0.1816, 0.2061, 0.5029, 0.3458],
+        [0.3213, 0.1651, 0.5028, 0.4706],
+        [0.8455, 0.3618, 0.5081, 0.1474],
+        [0.1869, 0.8634, 0.5081, 0.4999],
+        [0.4173, 0.5094, 0.5096, 0.7828],
+        [0.9890, 0.2969, 0.5128, 0.5584],
+        [0.2366, 0.9503, 0.5109, 0.1335],
+        [0.9168, 0.8160, 0.5093, 0.8296],
+        [0.9184, 0.3230, 0.5109, 0.7380],
+        [0.0913, 0.9721, 0.5050, 0.0374],
+        [0.4637, 0.9874, 0.5056, 0.8049],
+        [0.5022, 0.4087, 0.5036, 0.8652],
+        [0.3137, 0.6559, 0.5046, 0.5124],
+        [0.0473, 0.4057, 0.5096, 0.3786],
+        [0.2417, 0.2573, 0.5016, 0.0835],
+        [0.0955, 0.0827, 0.5066, 0.8283],
+        [0.2382, 0.2636, 0.5066, 0.0037],
+        [0.8078, 0.2715, 0.5075, 0.3435],
+        [0.8950, 0.3986, 0.5065, 0.3277],
+        [0.0432, 0.1849, 0.5049, 0.9120],
+        [0.3019, 0.9538, 0.5065, 0.4493],
+        [0.9806, 0.1029, 0.5134, 0.8887],
+        [0.5395, 0.6252, 0.5142, 0.0893],
+        [0.6263, 0.4417, 0.5077, 0.8461],
+        [0.0055, 0.4235, 0.5095, 0.6124],
+        [0.4849, 0.3720, 0.5020, 0.5379],
+        [0.9883, 0.8683, 0.5049, 0.3060],
+        [0.3752, 0.2805, 0.5064, 0.4904],
+        [0.0970, 0.0206, 0.5130, 0.2735],
+        [0.4619, 0.9181, 0.5039, 0.4558],
+        [0.9630, 0.8645, 0.5074, 0.7688],
+        [0.3418, 0.2769, 0.5148, 0.6255],
+        [0.7989, 0.5235, 0.5079, 0.6805],
+        [0.7988, 0.1091, 0.5093, 0.8922]], device='cuda:0') torch.Size([50, 4])
+These training_points are used in the GP tensor([[0.5426, 0.4563, 0.5105, 0.9156],
+        [0.0668, 0.2798, 0.5045, 0.9211],
+        [0.6534, 0.9329, 0.5036, 0.2191],
+        [0.9961, 0.3144, 0.5084, 0.9374],
+        [0.7694, 0.9097, 0.5109, 0.0479],
+        [0.5738, 0.0434, 0.5065, 0.8814],
+        [0.1026, 0.7071, 0.5147, 0.4567],
+        [0.6998, 0.4839, 0.5104, 0.8312],
+        [0.6612, 0.4442, 0.5073, 0.2730],
+        [0.0491, 0.0363, 0.5060, 0.7549],
+        [0.7923, 0.0407, 0.5053, 0.8047],
+        [0.5187, 0.3328, 0.5110, 0.0809],
+        [0.4259, 0.9471, 0.5067, 0.9144],
+        [0.7882, 0.6177, 0.5011, 0.8173],
+        [0.4116, 0.3689, 0.5061, 0.5955],
+        [0.4810, 0.6120, 0.5111, 0.7079],
+        [0.1816, 0.2061, 0.5029, 0.3458],
+        [0.3213, 0.1651, 0.5028, 0.4706],
+        [0.8455, 0.3618, 0.5081, 0.1474],
+        [0.1869, 0.8634, 0.5081, 0.4999],
+        [0.4173, 0.5094, 0.5096, 0.7828],
+        [0.9890, 0.2969, 0.5128, 0.5584],
+        [0.2366, 0.9503, 0.5109, 0.1335],
+        [0.9168, 0.8160, 0.5093, 0.8296],
+        [0.9184, 0.3230, 0.5109, 0.7380],
+        [0.0913, 0.9721, 0.5050, 0.0374],
+        [0.4637, 0.9874, 0.5056, 0.8049],
+        [0.5022, 0.4087, 0.5036, 0.8652],
+        [0.3137, 0.6559, 0.5046, 0.5124],
+        [0.0473, 0.4057, 0.5096, 0.3786],
+        [0.2417, 0.2573, 0.5016, 0.0835],
+        [0.0955, 0.0827, 0.5066, 0.8283],
+        [0.2382, 0.2636, 0.5066, 0.0037],
+        [0.8078, 0.2715, 0.5075, 0.3435],
+        [0.8950, 0.3986, 0.5065, 0.3277],
+        [0.0432, 0.1849, 0.5049, 0.9120],
+        [0.3019, 0.9538, 0.5065, 0.4493],
+        [0.9806, 0.1029, 0.5134, 0.8887],
+        [0.5395, 0.6252, 0.5142, 0.0893],
+        [0.6263, 0.4417, 0.5077, 0.8461],
+        [0.0055, 0.4235, 0.5095, 0.6124],
+        [0.4849, 0.3720, 0.5020, 0.5379],
+        [0.9883, 0.8683, 0.5049, 0.3060],
+        [0.3752, 0.2805, 0.5064, 0.4904],
+        [0.0970, 0.0206, 0.5130, 0.2735],
+        [0.4619, 0.9181, 0.5039, 0.4558],
+        [0.9630, 0.8645, 0.5074, 0.7688],
+        [0.3418, 0.2769, 0.5148, 0.6255],
+        [0.7989, 0.5235, 0.5079, 0.6805],
+        [0.7988, 0.1091, 0.5093, 0.8922]], device='cuda:0')
+Iter 1 / 1000 - Loss (Train): 7.881 - Loss (Val): inf
+Iter 101 / 1000 - Loss (Train): 5.854 - Loss (Val): inf
+Iter 201 / 1000 - Loss (Train): 4.954 - Loss (Val): inf
+Iter 301 / 1000 - Loss (Train): 4.454 - Loss (Val): inf
+Iter 401 / 1000 - Loss (Train): 4.144 - Loss (Val): inf
+Iter 501 / 1000 - Loss (Train): 3.934 - Loss (Val): inf
+Iter 601 / 1000 - Loss (Train): 3.781 - Loss (Val): inf
+Iter 701 / 1000 - Loss (Train): 3.666 - Loss (Val): inf
+Iter 801 / 1000 - Loss (Train): 3.574 - Loss (Val): inf
+Iter 901 / 1000 - Loss (Train): 3.500 - Loss (Val): inf
+best model parameters:  OrderedDict([('likelihood.noise_covar.raw_noise', tensor([4.9754], device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.lower_bound', tensor(1.0000e-04, device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.upper_bound', tensor(inf, device='cuda:0')), ('mean_module.weights', tensor([[ 0.3538],
+        [ 1.7594],
+        [-1.2216],
+        [-0.6098]], device='cuda:0')), ('mean_module.bias', tensor([-0.3066], device='cuda:0')), ('covar_module.raw_lengthscale', tensor([[-7.0002]], device='cuda:0')), ('covar_module.raw_lengthscale_constraint.lower_bound', tensor(0.1000, device='cuda:0')), ('covar_module.raw_lengthscale_constraint.upper_bound', tensor(inf, device='cuda:0')), ('task_covar_module.covar_factor', tensor([[0.3367]], device='cuda:0')), ('task_covar_module.raw_var', tensor([0.1288], device='cuda:0')), ('task_covar_module.IndexKernelPrior.a', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.b', tensor([1.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.sigma', tensor([0.0100], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.loc', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.scale', tensor([0.0100], device='cuda:0')), ('task_covar_module.raw_var_constraint.lower_bound', tensor(0., device='cuda:0')), ('task_covar_module.raw_var_constraint.upper_bound', tensor(inf, device='cuda:0'))])
+Likelihood MultivariateNormal(loc: torch.Size([10000]))
+Mean:  tensor([[-0.3066],
+        [-0.3744],
+        [-0.4421],
+        ...,
+        [ 0.1107],
+        [ 0.0430],
+        [-0.0248]], device='cuda:0')
+Variance:  tensor([[5.9824],
+        [5.9824],
+        [5.9824],
+        ...,
+        [5.9824],
+        [5.9824],
+        [5.9824]], device='cuda:0')
+Selected points (indices): {5922, 9379, 8710, 5991, 7989, 7317, 2679, 9334, 1436, 3996}
+Selected new x values (normalized): tensor([[0.6084, 0.5279, 0.0393, 0.4365],
+        [0.1440, 0.7544, 0.0624, 0.8378],
+        [0.2972, 0.6729, 0.0608, 0.9049],
+        [0.0556, 0.8557, 0.2968, 0.5827],
+        [0.8120, 0.4958, 0.3186, 0.1359],
+        [0.6537, 0.5857, 0.2368, 0.2647],
+        [0.5079, 0.5031, 0.2280, 0.0494],
+        [0.2996, 0.8559, 0.1995, 0.9105],
+        [0.2746, 0.5467, 0.1887, 0.1931],
+        [0.8851, 0.6307, 0.1223, 0.5045]], device='cuda:0')
+Corresponding new x values (unnormalized): tensor([[  433.7375,   111.4968, -1842.7656,  -253.8260],
+        [-1424.0579,  1017.7285, -1750.4056,  1351.3481],
+        [ -811.1855,   691.6987, -1756.7458,  1619.5332],
+        [-1777.6886,  1422.8806,  -812.8333,   330.6348],
+        [ 1248.0022,   -16.7107,  -725.5105, -1456.5571],
+        [  614.7693,   342.6838, -1052.8101,  -941.2872],
+        [   31.4026,    12.4139, -1088.0952, -1802.2380],
+        [ -801.5649,  1423.4263, -1201.9204,  1641.9634],
+        [ -901.4501,   186.9377, -1245.1212, -1227.7511],
+        [ 1540.3074,   522.6978, -1510.6990,    17.8698]], device='cuda:0')
+new_points_rounded: [[433.74, 111.5, -1842.77, -253.83], [-1424.06, 1017.73, -1750.41, 1351.35], [-811.19, 691.7, -1756.75, 1619.53], [-1777.69, 1422.88, -812.83, 330.63], [1248.0, -16.71, -725.51, -1456.56], [614.77, 342.68, -1052.81, -941.29], [31.4, 12.41, -1088.1, -1802.24], [-801.56, 1423.43, -1201.92, 1641.96], [-901.45, 186.94, -1245.12, -1227.75], [1540.31, 522.7, -1510.7, 17.87]]
+YAML file has been created: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml
+Note: detected 144 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+Note: NumExpr detected 144 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+NumExpr defaulting to 8 threads.
+
+  ___              ____ __  __          _       _   ___            
+ | _ \ _  _  _ _  |__ /|  \/  | ___  __| | ___ | | / __| ___  _ _  
+ |   /| || || ' \  |_ \| |\/| |/ _ \/ _` |/ -_)| || (_ |/ -_)| ' \ 
+ |_|_\ \_,_||_||_||___/|_|  |_|\___/\__,_|\___||_| \___|\___||_||_|
+                                                                   
+
+2025-01-26 20:17:58 [info     ] Initialised ModelGenerator with: [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 	config_file = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/new_config.yaml [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 	scan_dir = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1 [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 	rawfilen = /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/raw.slha [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 	seed = 123                    [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 	points = {}                   [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 	prior = fixed                 [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 	num_models = 10               [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 	isGMSB = False                [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 	parameters =                  [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		tanb: [-1842.77, -1750.41, -1756.75, -812.83, -725.51, -1052.81, -1088.1, -1201.92, -1245.12, -1510.7] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		M_1: [433.74, -1424.06, -811.19, -1777.69, 1248.0, 614.77, 31.4, -801.56, -901.45, 1540.31] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		M_2: [111.5, 1017.73, 691.7, 1422.88, -16.71, 342.68, 12.41, 1423.43, 186.94, 522.7] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		M_3: [4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		AT: [4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		Ab: [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		Atau: [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		mu: [-253.83, 1351.35, 1619.53, 330.63, -1456.56, -941.29, -1802.24, 1641.96, -1227.75, 17.87] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		mA: [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		meL: [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		mtauL: [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		meR: [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		mtauR: [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		mqL1: [4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		mqL3: [4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		muR: [4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		mtR: [4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		mdR: [4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		mbR: [4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000] [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 	steps =                       [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		{'name': 'prep_input', 'output_dir': 'input', 'prefix': 'IN'} [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		{'name': 'SPheno', 'input_dir': 'input', 'output_dir': 'SPheno', 'log_dir': 'SPheno_log', 'prefix': 'SP'} [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		{'name': 'softsusy', 'input_dir': 'input', 'output_dir': 'softsusy', 'prefix': 'SS'} [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		{'name': 'micromegas', 'input_dir': 'SPheno', 'output_dir': 'micromegas', 'prefix': 'MO'} [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		{'name': 'superiso', 'input_dir': 'SPheno', 'output_dir': 'superiso', 'prefix': 'SI'} [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		{'name': 'gm2calc', 'input_dir': 'SPheno', 'output_dir': 'gm2calc', 'prefix': 'GM2'} [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 		{'name': 'evade', 'input_dir': 'SPheno', 'output_dir': 'evade', 'prefix': 'EV'} [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] Starting Model Generation...   [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] Setting up output directories for scan [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] Generating Model: 0.slha (1/10) [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2025-01-26 20:17:58 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2025-01-26 20:18:03 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2025-01-26 20:18:05 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2025-01-26 20:18:06 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] Generating Model: 1.slha (2/10) [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] Generating Model: 2.slha (3/10) [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] Generating Model: 3.slha (4/10) [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] Generating Model: 4.slha (5/10) [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2025-01-26 20:18:07 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] Generating Model: 5.slha (6/10) [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] Generating Model: 6.slha (7/10) [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] Generating Model: 7.slha (8/10) [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] Generating Model: 8.slha (9/10) [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] Generating Model: 9.slha (10/10) [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: prep_input      [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: SPheno          [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: softsusy        [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: micromegas      [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: superiso        [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: gm2calc         [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	running step: evade           [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] Finished generating models! Stats for successful generations (successful/attempted): [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	prep_input: 10/10.            [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	SPheno: 0/10.                 [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	softsusy: 0/10.               [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	micromegas: 0/10.             [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	superiso: 0/10.               [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	gm2calc: 0/10.                [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] 	evade: 0/10.                  [Run3ModelGen.modelgen]
+2025-01-26 20:18:08 [info     ] Will make NTuple for: /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1, with 10 models [Run3ModelGen.ntupling]
+2025-01-26 20:18:08 [info     ] 	Filling values for model: 0   [Run3ModelGen.ntupling]
+2025-01-26 20:18:08 [warning  ] no GM2CALCOUTPUT in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/gm2calc/0.slha [Run3ModelGen.ntupling]
+2025-01-26 20:18:08 [warning  ] no GM2CALCOUTPUT in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/gm2calc/1.slha [Run3ModelGen.ntupling]
+2025-01-26 20:18:08 [warning  ] no GM2CALCOUTPUT in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/gm2calc/2.slha [Run3ModelGen.ntupling]
+2025-01-26 20:18:08 [warning  ] no GM2CALCOUTPUT in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/gm2calc/3.slha [Run3ModelGen.ntupling]
+2025-01-26 20:18:08 [warning  ] no GM2CALCOUTPUT in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/gm2calc/4.slha [Run3ModelGen.ntupling]
+2025-01-26 20:18:08 [warning  ] no GM2CALCOUTPUT in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/gm2calc/5.slha [Run3ModelGen.ntupling]
+2025-01-26 20:18:08 [warning  ] no GM2CALCOUTPUT in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/gm2calc/6.slha [Run3ModelGen.ntupling]
+2025-01-26 20:18:08 [warning  ] no GM2CALCOUTPUT in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/gm2calc/7.slha [Run3ModelGen.ntupling]
+2025-01-26 20:18:08 [warning  ] no GM2CALCOUTPUT in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/gm2calc/8.slha [Run3ModelGen.ntupling]
+2025-01-26 20:18:08 [warning  ] no GM2CALCOUTPUT in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/gm2calc/9.slha [Run3ModelGen.ntupling]
+2025-01-26 20:18:08 [info     ] Saving NTuple in /u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_1/ntuple.0.0.root ... [Run3ModelGen.ntupling]
+Completed iteration 1
+Starting iteration 2
+Initial Training points:  tensor([[0.5426, 0.4563, 0.5105, 0.9156],
+        [0.0668, 0.2798, 0.5045, 0.9211],
+        [0.6534, 0.9329, 0.5036, 0.2191],
+        [0.9961, 0.3144, 0.5084, 0.9374],
+        [0.7694, 0.9097, 0.5109, 0.0479],
+        [0.5738, 0.0434, 0.5065, 0.8814],
+        [0.1026, 0.7071, 0.5147, 0.4567],
+        [0.6998, 0.4839, 0.5104, 0.8312],
+        [0.6612, 0.4442, 0.5073, 0.2730],
+        [0.0491, 0.0363, 0.5060, 0.7549],
+        [0.7923, 0.0407, 0.5053, 0.8047],
+        [0.5187, 0.3328, 0.5110, 0.0809],
+        [0.4259, 0.9471, 0.5067, 0.9144],
+        [0.7882, 0.6177, 0.5011, 0.8173],
+        [0.4116, 0.3689, 0.5061, 0.5955],
+        [0.4810, 0.6120, 0.5111, 0.7079],
+        [0.1816, 0.2061, 0.5029, 0.3458],
+        [0.3213, 0.1651, 0.5028, 0.4706],
+        [0.8455, 0.3618, 0.5081, 0.1474],
+        [0.1869, 0.8634, 0.5081, 0.4999],
+        [0.4173, 0.5094, 0.5096, 0.7828],
+        [0.9890, 0.2969, 0.5128, 0.5584],
+        [0.2366, 0.9503, 0.5109, 0.1335],
+        [0.9168, 0.8160, 0.5093, 0.8296],
+        [0.9184, 0.3230, 0.5109, 0.7380],
+        [0.0913, 0.9721, 0.5050, 0.0374],
+        [0.4637, 0.9874, 0.5056, 0.8049],
+        [0.5022, 0.4087, 0.5036, 0.8652],
+        [0.3137, 0.6559, 0.5046, 0.5124],
+        [0.0473, 0.4057, 0.5096, 0.3786],
+        [0.2417, 0.2573, 0.5016, 0.0835],
+        [0.0955, 0.0827, 0.5066, 0.8283],
+        [0.2382, 0.2636, 0.5066, 0.0037],
+        [0.8078, 0.2715, 0.5075, 0.3435],
+        [0.8950, 0.3986, 0.5065, 0.3277],
+        [0.0432, 0.1849, 0.5049, 0.9120],
+        [0.3019, 0.9538, 0.5065, 0.4493],
+        [0.9806, 0.1029, 0.5134, 0.8887],
+        [0.5395, 0.6252, 0.5142, 0.0893],
+        [0.6263, 0.4417, 0.5077, 0.8461],
+        [0.0055, 0.4235, 0.5095, 0.6124],
+        [0.4849, 0.3720, 0.5020, 0.5379],
+        [0.9883, 0.8683, 0.5049, 0.3060],
+        [0.3752, 0.2805, 0.5064, 0.4904],
+        [0.0970, 0.0206, 0.5130, 0.2735],
+        [0.4619, 0.9181, 0.5039, 0.4558],
+        [0.9630, 0.8645, 0.5074, 0.7688],
+        [0.3418, 0.2769, 0.5148, 0.6255],
+        [0.7989, 0.5235, 0.5079, 0.6805],
+        [0.7988, 0.1091, 0.5093, 0.8922]], device='cuda:0') torch.Size([50, 4])
+Error during GP model script execution
+                                  
+================================= 
+Global information about the job: 
+================================= 
+  
+Job owner: dvoss(54815)
+Job name:  al_gp_iter
+Node list: ravg1086
+Job start: Sun Jan 26 20:07:28 CET 2025
+Job end:   Sun Jan 26 20:18:35 CET 2025
+Work dir:  /raven/u/dvoss/al_pmssmwithgp/model
+Command:   /raven/u/dvoss/al_pmssmwithgp/model/slurm/single_job_nD.sbatch
+  
+  
+  
+==========================================================================================
+Information on jobsteps (Note: MaxRSS/AveRSS is the maximum/average over all 
+tasks of the per-task memory high-water marks; cf. "man sacct"): 
+==========================================================================================
+  
+JobID            JobName NNodes NTasks  NCPUS       MaxRSS       AveRSS    Elapsed ExitCode
+------------- ---------- ------ ------ ------ ------------ ------------ ---------- --------
+15272012      al_gp_iter      1             4                             00:11:07      1:0
+15272012.0     job_nD.sh      1      1      4     2419.00M     2419.00M   00:09:46      1:0
+  
+Maximum memory per node: 2.536504 GB (defined as MaxRSS*Ntasks/NNodes)
+CPU utilization: 1.8 %
+  

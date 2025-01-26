@@ -1,0 +1,17 @@
+ERROR: Could not find a version that satisfies the requirement scipy.stats (from versions: none)
+ERROR: No matching distribution found for scipy.stats
+ERROR: Could not find a version that satisfies the requirement scipy.interpolate (from versions: none)
+ERROR: No matching distribution found for scipy.interpolate
+/mpcdf/soft/SLE_15/packages/skylake/pytorch/gpu-cuda-11.6/anaconda_3_2023.03-2023.03/2.1.0/lib/python3.10/site-packages/torch/functional.py:504: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /home/abuild/rpmbuild/BUILD/pytorch-2.1.0/aten/src/ATen/native/TensorShape.cpp:3526.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+/u/dvoss/.local/lib/python3.10/site-packages/linear_operator/utils/linear_cg.py:338: NumericalWarning: CG terminated in 1000 iterations with average residual norm 1.0320347428205423e-05 which is larger than the tolerance of 1e-05 specified by linear_operator.settings.cg_tolerance. If performance is affected, consider raising the maximum number of CG iterations by running code in a linear_operator.settings.max_cg_iterations(value) context.
+  warnings.warn(
+/u/dvoss/.local/lib/python3.10/site-packages/linear_operator/utils/linear_cg.py:338: NumericalWarning: CG terminated in 1000 iterations with average residual norm 1.0144721272808965e-05 which is larger than the tolerance of 1e-05 specified by linear_operator.settings.cg_tolerance. If performance is affected, consider raising the maximum number of CG iterations by running code in a linear_operator.settings.max_cg_iterations(value) context.
+  warnings.warn(
+/u/dvoss/.local/lib/python3.10/site-packages/linear_operator/utils/linear_cg.py:338: NumericalWarning: CG terminated in 1000 iterations with average residual norm 1.0490842214494478e-05 which is larger than the tolerance of 1e-05 specified by linear_operator.settings.cg_tolerance. If performance is affected, consider raising the maximum number of CG iterations by running code in a linear_operator.settings.max_cg_iterations(value) context.
+  warnings.warn(
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: got SIGCONT
+slurmstepd: error: *** STEP 15271084.0 ON ravg1116 CANCELLED AT 2025-01-26T19:20:41 ***
+slurmstepd: error: *** JOB 15271084 ON ravg1116 CANCELLED AT 2025-01-26T19:20:41 ***
+srun: forcing job termination

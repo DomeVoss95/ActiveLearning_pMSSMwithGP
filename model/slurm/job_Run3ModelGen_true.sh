@@ -9,8 +9,8 @@ RUN3MODELGEN_PARENT_DIR="/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/"
 
 
 # Generate new models with genModels.py
-CONFIG_PATH="/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/true_config.yaml"
-SCAN_DIRECTORY="/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true"
+CONFIG_PATH="/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/data/true_config4D.yaml"
+SCAN_DIRECTORY="/u/dvoss/al_pmssmwithgp/Run3ModelGen/source/Run3ModelGen/scans/scan_true4D"
 
 GEN_MODELS_COMMAND="cd ${PIX_WORKING_DIR} && source ${SETUP_SCRIPT} && export PYTHONPATH=${RUN3MODELGEN_PARENT_DIR}:\$PYTHONPATH && python ${GEN_MODELS_SCRIPT} --config_file ${CONFIG_PATH} --scan_dir ${SCAN_DIRECTORY}"
 bash -c "${GEN_MODELS_COMMAND}"

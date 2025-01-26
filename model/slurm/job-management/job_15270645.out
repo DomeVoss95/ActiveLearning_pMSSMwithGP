@@ -1,0 +1,214 @@
+Collecting torch
+  Using cached torch-2.5.1-cp310-cp310-manylinux1_x86_64.whl (906.4 MB)
+Collecting typing-extensions>=4.8.0
+  Using cached typing_extensions-4.12.2-py3-none-any.whl (37 kB)
+Collecting triton==3.1.0
+  Using cached triton-3.1.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (209.5 MB)
+Collecting nvidia-cufft-cu12==11.2.1.3
+  Using cached nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_x86_64.whl (211.5 MB)
+Collecting networkx
+  Downloading networkx-3.4.2-py3-none-any.whl (1.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 1.4 MB/s eta 0:00:00
+Collecting nvidia-nvtx-cu12==12.4.127
+  Using cached nvidia_nvtx_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (99 kB)
+Collecting nvidia-cublas-cu12==12.4.5.8
+  Using cached nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_x86_64.whl (363.4 MB)
+Collecting nvidia-cuda-runtime-cu12==12.4.127
+  Using cached nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (883 kB)
+Collecting nvidia-cuda-nvrtc-cu12==12.4.127
+  Using cached nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (24.6 MB)
+Collecting nvidia-cuda-cupti-cu12==12.4.127
+  Using cached nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (13.8 MB)
+Collecting nvidia-nccl-cu12==2.21.5
+  Using cached nvidia_nccl_cu12-2.21.5-py3-none-manylinux2014_x86_64.whl (188.7 MB)
+Collecting nvidia-cudnn-cu12==9.1.0.70
+  Using cached nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl (664.8 MB)
+Collecting nvidia-cusolver-cu12==11.6.1.9
+  Using cached nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_x86_64.whl (127.9 MB)
+Collecting nvidia-curand-cu12==10.3.5.147
+  Using cached nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_x86_64.whl (56.3 MB)
+Collecting fsspec
+  Downloading fsspec-2024.12.0-py3-none-any.whl (183 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 183.9/183.9 kB 151.7 kB/s eta 0:00:00
+Collecting nvidia-cusparse-cu12==12.3.1.170
+  Using cached nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl (207.5 MB)
+Collecting jinja2
+  Downloading jinja2-3.1.5-py3-none-any.whl (134 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.6/134.6 kB 210.4 kB/s eta 0:00:00
+Collecting filelock
+  Downloading filelock-3.17.0-py3-none-any.whl (16 kB)
+Collecting sympy==1.13.1
+  Using cached sympy-1.13.1-py3-none-any.whl (6.2 MB)
+Collecting nvidia-nvjitlink-cu12==12.4.127
+  Using cached nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (21.1 MB)
+Collecting mpmath<1.4,>=1.1.0
+  Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 323.5 kB/s eta 0:00:00
+Collecting MarkupSafe>=2.0
+  Downloading MarkupSafe-3.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (20 kB)
+Installing collected packages: mpmath, typing-extensions, sympy, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, networkx, MarkupSafe, fsspec, filelock, triton, nvidia-cusparse-cu12, nvidia-cudnn-cu12, jinja2, nvidia-cusolver-cu12, torch
+Successfully installed MarkupSafe-3.0.2 filelock-3.17.0 fsspec-2024.12.0 jinja2-3.1.5 mpmath-1.3.0 networkx-3.4.2 nvidia-cublas-cu12-12.4.5.8 nvidia-cuda-cupti-cu12-12.4.127 nvidia-cuda-nvrtc-cu12-12.4.127 nvidia-cuda-runtime-cu12-12.4.127 nvidia-cudnn-cu12-9.1.0.70 nvidia-cufft-cu12-11.2.1.3 nvidia-curand-cu12-10.3.5.147 nvidia-cusolver-cu12-11.6.1.9 nvidia-cusparse-cu12-12.3.1.170 nvidia-nccl-cu12-2.21.5 nvidia-nvjitlink-cu12-12.4.127 nvidia-nvtx-cu12-12.4.127 sympy-1.13.1 torch-2.5.1 triton-3.1.0 typing-extensions-4.12.2
+Collecting gpytorch
+  Using cached gpytorch-1.13-py3-none-any.whl (277 kB)
+Collecting jaxtyping==0.2.19
+  Using cached jaxtyping-0.2.19-py3-none-any.whl (24 kB)
+Collecting scikit-learn
+  Downloading scikit_learn-1.6.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (13.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 13.5/13.5 MB 3.6 MB/s eta 0:00:00
+Requirement already satisfied: mpmath<=1.3,>=0.19 in ./myenv/lib/python3.10/site-packages (from gpytorch) (1.3.0)
+Collecting linear-operator>=0.5.3
+  Using cached linear_operator-0.5.3-py3-none-any.whl (176 kB)
+Collecting scipy>=1.6.0
+  Downloading scipy-1.15.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (40.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.6/40.6 MB 4.3 MB/s eta 0:00:00
+Collecting numpy>=1.20.0
+  Downloading numpy-2.2.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (16.4 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.4/16.4 MB 3.3 MB/s eta 0:00:00
+Requirement already satisfied: typing-extensions>=3.7.4.1 in ./myenv/lib/python3.10/site-packages (from jaxtyping==0.2.19->gpytorch) (4.12.2)
+Collecting typeguard>=2.13.3
+  Using cached typeguard-4.4.1-py3-none-any.whl (35 kB)
+Requirement already satisfied: torch>=1.11 in ./myenv/lib/python3.10/site-packages (from linear-operator>=0.5.3->gpytorch) (2.5.1)
+Collecting joblib>=1.2.0
+  Downloading joblib-1.4.2-py3-none-any.whl (301 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 301.8/301.8 kB 202.7 kB/s eta 0:00:00
+Collecting threadpoolctl>=3.1.0
+  Downloading threadpoolctl-3.5.0-py3-none-any.whl (18 kB)
+Requirement already satisfied: sympy==1.13.1 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (1.13.1)
+Requirement already satisfied: jinja2 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (3.1.5)
+Requirement already satisfied: nvidia-nccl-cu12==2.21.5 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (2.21.5)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.4.127 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (12.4.127)
+Requirement already satisfied: nvidia-cufft-cu12==11.2.1.3 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (11.2.1.3)
+Requirement already satisfied: nvidia-curand-cu12==10.3.5.147 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (10.3.5.147)
+Requirement already satisfied: nvidia-cusolver-cu12==11.6.1.9 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (11.6.1.9)
+Requirement already satisfied: nvidia-cuda-cupti-cu12==12.4.127 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (12.4.127)
+Requirement already satisfied: nvidia-cudnn-cu12==9.1.0.70 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (9.1.0.70)
+Requirement already satisfied: fsspec in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (2024.12.0)
+Requirement already satisfied: filelock in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (3.17.0)
+Requirement already satisfied: networkx in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (3.4.2)
+Requirement already satisfied: nvidia-cuda-runtime-cu12==12.4.127 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (12.4.127)
+Requirement already satisfied: nvidia-cusparse-cu12==12.3.1.170 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (12.3.1.170)
+Requirement already satisfied: nvidia-cublas-cu12==12.4.5.8 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (12.4.5.8)
+Requirement already satisfied: nvidia-nvjitlink-cu12==12.4.127 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (12.4.127)
+Requirement already satisfied: nvidia-nvtx-cu12==12.4.127 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (12.4.127)
+Requirement already satisfied: triton==3.1.0 in ./myenv/lib/python3.10/site-packages (from torch>=1.11->linear-operator>=0.5.3->gpytorch) (3.1.0)
+Requirement already satisfied: MarkupSafe>=2.0 in ./myenv/lib/python3.10/site-packages (from jinja2->torch>=1.11->linear-operator>=0.5.3->gpytorch) (3.0.2)
+Installing collected packages: typeguard, threadpoolctl, numpy, joblib, scipy, jaxtyping, scikit-learn, linear-operator, gpytorch
+Successfully installed gpytorch-1.13 jaxtyping-0.2.19 joblib-1.4.2 linear-operator-0.5.3 numpy-2.2.2 scikit-learn-1.6.1 scipy-1.15.1 threadpoolctl-3.5.0 typeguard-4.4.1
+Collecting uproot
+  Using cached uproot-5.5.1-py3-none-any.whl (362 kB)
+Requirement already satisfied: typing-extensions>=4.1.0 in ./myenv/lib/python3.10/site-packages (from uproot) (4.12.2)
+Collecting packaging
+  Downloading packaging-24.2-py3-none-any.whl (65 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 65.5/65.5 kB 133.7 kB/s eta 0:00:00
+Requirement already satisfied: numpy in ./myenv/lib/python3.10/site-packages (from uproot) (2.2.2)
+Collecting cramjam>=2.5.0
+  Using cached cramjam-2.9.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.4 MB)
+Collecting awkward>=2.4.6
+  Using cached awkward-2.7.3-py3-none-any.whl (868 kB)
+Collecting xxhash
+  Using cached xxhash-3.5.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (194 kB)
+Requirement already satisfied: fsspec in ./myenv/lib/python3.10/site-packages (from uproot) (2024.12.0)
+Collecting importlib-metadata>=4.13.0
+  Using cached importlib_metadata-8.6.1-py3-none-any.whl (26 kB)
+Collecting awkward-cpp==44
+  Using cached awkward_cpp-44-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (637 kB)
+Collecting zipp>=3.20
+  Using cached zipp-3.21.0-py3-none-any.whl (9.6 kB)
+Installing collected packages: zipp, xxhash, packaging, cramjam, awkward-cpp, importlib-metadata, awkward, uproot
+Successfully installed awkward-2.7.3 awkward-cpp-44 cramjam-2.9.1 importlib-metadata-8.6.1 packaging-24.2 uproot-5.5.1 xxhash-3.5.0 zipp-3.21.0
+Collecting argparse
+  Using cached argparse-1.4.0-py2.py3-none-any.whl (23 kB)
+Installing collected packages: argparse
+Successfully installed argparse-1.4.0
+Collecting pyslha
+  Using cached pyslha-3.2.6-py3-none-any.whl
+Collecting tex2pix>=0.1.5
+  Using cached tex2pix-0.3.1-py3-none-any.whl
+Installing collected packages: tex2pix, pyslha
+Successfully installed pyslha-3.2.6 tex2pix-0.3.1
+Collecting structlog
+  Using cached structlog-25.1.0-py3-none-any.whl (68 kB)
+Requirement already satisfied: typing-extensions in ./myenv/lib/python3.10/site-packages (from structlog) (4.12.2)
+Installing collected packages: structlog
+Successfully installed structlog-25.1.0
+Collecting imageio[ffmpeg]
+  Downloading imageio-2.37.0-py3-none-any.whl (315 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 315.8/315.8 kB 110.4 kB/s eta 0:00:00
+Collecting Pillow
+  Downloading pillow-11.1.0-cp310-cp310-manylinux_2_28_x86_64.whl (4.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 2.2 MB/s eta 0:00:00
+Requirement already satisfied: numpy in ./myenv/lib/python3.10/site-packages (from imageio[ffmpeg]) (2.2.2)
+Collecting psutil
+  Downloading psutil-6.1.1-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (287 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 287.5/287.5 kB 126.5 kB/s eta 0:00:00
+Collecting imageio-ffmpeg
+  Using cached imageio_ffmpeg-0.6.0-py3-none-manylinux2014_x86_64.whl (29.5 MB)
+Installing collected packages: psutil, Pillow, imageio-ffmpeg, imageio
+Successfully installed Pillow-11.1.0 imageio-2.37.0 imageio-ffmpeg-0.6.0 psutil-6.1.1
+Collecting seaborn
+  Downloading seaborn-0.13.2-py3-none-any.whl (294 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 294.9/294.9 kB 124.5 kB/s eta 0:00:00
+Collecting matplotlib!=3.6.1,>=3.4
+  Downloading matplotlib-3.10.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (8.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.6/8.6 MB 4.0 MB/s eta 0:00:00
+Requirement already satisfied: numpy!=1.24.0,>=1.20 in ./myenv/lib/python3.10/site-packages (from seaborn) (2.2.2)
+Collecting pandas>=1.2
+  Downloading pandas-2.2.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (13.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 13.1/13.1 MB 5.3 MB/s eta 0:00:00
+Collecting cycler>=0.10
+  Downloading cycler-0.12.1-py3-none-any.whl (8.3 kB)
+Collecting kiwisolver>=1.3.1
+  Downloading kiwisolver-1.4.8-cp310-cp310-manylinux_2_12_x86_64.manylinux2010_x86_64.whl (1.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.6/1.6 MB 535.3 kB/s eta 0:00:00
+Collecting python-dateutil>=2.7
+  Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Requirement already satisfied: pillow>=8 in ./myenv/lib/python3.10/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (11.1.0)
+Requirement already satisfied: packaging>=20.0 in ./myenv/lib/python3.10/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (24.2)
+Collecting fonttools>=4.22.0
+  Downloading fonttools-4.55.6-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (4.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.6/4.6 MB 1.9 MB/s eta 0:00:00
+Collecting pyparsing>=2.3.1
+  Downloading pyparsing-3.2.1-py3-none-any.whl (107 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 107.7/107.7 kB 86.2 kB/s eta 0:00:00
+Collecting contourpy>=1.0.1
+  Downloading contourpy-1.3.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (324 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 325.0/325.0 kB 137.3 kB/s eta 0:00:00
+Collecting pytz>=2020.1
+  Using cached pytz-2024.2-py2.py3-none-any.whl (508 kB)
+Collecting tzdata>=2022.7
+  Downloading tzdata-2025.1-py2.py3-none-any.whl (346 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 346.8/346.8 kB 215.3 kB/s eta 0:00:00
+Collecting six>=1.5
+  Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Installing collected packages: pytz, tzdata, six, pyparsing, kiwisolver, fonttools, cycler, contourpy, python-dateutil, pandas, matplotlib, seaborn
+Successfully installed contourpy-1.3.1 cycler-0.12.1 fonttools-4.55.6 kiwisolver-1.4.8 matplotlib-3.10.0 pandas-2.2.3 pyparsing-3.2.1 python-dateutil-2.9.0.post0 pytz-2024.2 seaborn-0.13.2 six-1.17.0 tzdata-2025.1
+Starting iteration 1
+Error during GP model script execution
+                                  
+================================= 
+Global information about the job: 
+================================= 
+  
+Job owner: dvoss(54815)
+Job name:  al_gp_iter
+Node list: ravg1117
+Job start: Sun Jan 26 18:29:02 CET 2025
+Job end:   Sun Jan 26 18:34:19 CET 2025
+Work dir:  /raven/u/dvoss/al_pmssmwithgp/model
+Command:   /raven/u/dvoss/al_pmssmwithgp/model/slurm/single_job_new.sbatch
+  
+  
+  
+==========================================================================================
+Information on jobsteps (Note: MaxRSS/AveRSS is the maximum/average over all 
+tasks of the per-task memory high-water marks; cf. "man sacct"): 
+==========================================================================================
+  
+JobID            JobName NNodes NTasks  NCPUS       MaxRSS       AveRSS    Elapsed ExitCode
+------------- ---------- ------ ------ ------ ------------ ------------ ---------- --------
+15270645      al_gp_iter      1             4                             00:05:17      0:0
+15270645.0    job_new.sh      1      1      4        1.39M        1.39M   00:00:27      1:0
+  
+Maximum memory per node: 0.229990 GB (defined as MaxRSS*Ntasks/NNodes)
+CPU utilization: 10.9 %
+  
