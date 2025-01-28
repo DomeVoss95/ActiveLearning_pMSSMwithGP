@@ -23,12 +23,16 @@
 #SBATCH --mail-user=dvoss@mpcdf.mpg.de
 
 # Load compiler and MPI modules (must be the same as used in conda env)
-module purge
-module load anaconda/3/2023.03 # <-> python 3.11
-module load cuda/11.6
-module load cudnn/8.9.2
-module load pytorch/gpu-cuda-11.6/2.1.0 
+# module purge
+# module load anaconda/3/2023.03 # <-> python 3.11
+# module load cuda/11.6
+# module load cudnn/8.9.2
+# module load pytorch/gpu-cuda-11.6/2.1.0 
 # module load pytorch/gpu-cuda-12.1/2.3.1
+module load anaconda/3/2023.03 # <-> python 3.10.
+module load cuda/11.8
+module load cudnn/8.7
+module load pytorch/gpu-cuda-11.8/2.2.1
 # module load gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
 # module load gpytorch/gpu-cuda-11.6/pytorch-2.0.0/1.9.0
 

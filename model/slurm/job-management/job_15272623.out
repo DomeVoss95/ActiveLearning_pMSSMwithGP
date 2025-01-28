@@ -94,3 +94,717 @@ Installing collected packages: torch
 Successfully installed torch-2.5.1
 Defaulting to user installation because normal site-packages is not writeable
 Starting iteration 1
+Starting Iteration 1 with Active Learning
+Initial Training Points:
+X Train: tensor([[0.9551, 0.9268]], device='cuda:0'), Shape: torch.Size([1, 2])
+Y Train: tensor([0.7609], device='cuda:0'), Shape: torch.Size([1])
+These training_points are used in the GP tensor([[0.9551, 0.9268]], device='cuda:0')
+Iter 1 / 1000 - Loss (Train): 1.261 - Loss (Val): 1.184
+Iter 101 / 1000 - Loss (Train): 1.085 - Loss (Val): 0.832
+Iter 201 / 1000 - Loss (Train): 1.021 - Loss (Val): 0.521
+Iter 301 / 1000 - Loss (Train): 0.991 - Loss (Val): 0.285
+Iter 401 / 1000 - Loss (Train): 0.975 - Loss (Val): 0.109
+Iter 501 / 1000 - Loss (Train): 0.966 - Loss (Val): -0.054
+Iter 601 / 1000 - Loss (Train): 0.961 - Loss (Val): -0.182
+Iter 701 / 1000 - Loss (Train): 0.957 - Loss (Val): -0.275
+Iter 801 / 1000 - Loss (Train): 0.955 - Loss (Val): -0.392
+Iter 901 / 1000 - Loss (Train): 0.953 - Loss (Val): -0.454
+best model parameters:  OrderedDict([('likelihood.noise_covar.raw_noise', tensor([-4.1881], device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.lower_bound', tensor(1.0000e-04, device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.upper_bound', tensor(inf, device='cuda:0')), ('mean_module.weights', tensor([[-0.0483],
+        [-0.0483]], device='cuda:0')), ('mean_module.bias', tensor([0.8517], device='cuda:0')), ('covar_module.raw_lengthscale', tensor([[-5.2958]], device='cuda:0')), ('covar_module.raw_lengthscale_constraint.lower_bound', tensor(0.1000, device='cuda:0')), ('covar_module.raw_lengthscale_constraint.upper_bound', tensor(inf, device='cuda:0')), ('task_covar_module.covar_factor', tensor([[0.3367]], device='cuda:0')), ('task_covar_module.raw_var', tensor([0.1288], device='cuda:0')), ('task_covar_module.IndexKernelPrior.a', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.b', tensor([1.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.sigma', tensor([0.0100], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.loc', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.scale', tensor([0.0100], device='cuda:0')), ('task_covar_module.raw_var_constraint.lower_bound', tensor(0., device='cuda:0')), ('task_covar_module.raw_var_constraint.upper_bound', tensor(inf, device='cuda:0'))])
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter1/loss_plot_two_circles2D_raven.png
+Likelihood MultivariateNormal(loc: torch.Size([2025]))
+Mean:  tensor([[0.8517],
+        [0.8506],
+        [0.8495],
+        ...,
+        [0.7574],
+        [0.7563],
+        [0.7552]], device='cuda:0')
+Variance:  tensor([[1.0152],
+        [1.0152],
+        [1.0152],
+        ...,
+        [0.4095],
+        [0.4358],
+        [0.5106]], device='cuda:0')
+Entropy:  tensor([0.1165, 0.1187, 0.1177,  ..., 0.1118, 0.1181, 0.1155], device='cuda:0')
+Selected points (indices): {1216, 514, 1606, 1382, 1904, 788}
+Selected new x values (normalized): tensor([[0.8411, 0.2691],
+        [0.9022, 0.4588],
+        [0.1828, 0.7966],
+        [0.0095, 0.0203],
+        [0.0466, 0.5404],
+        [0.1762, 0.5602]], device='cuda:0')
+The shape of the input_data is: torch.Size([2025, 2])
+The shape of the mean is: torch.Size([2025])
+Shapes of TP, FP, FN, TN: 0, 0, 446, 1579
+self.x_train shape: torch.Size([1, 2])
+additional_x_train shape: torch.Size([6, 2])
+additional_x_train: tensor([[0.8411, 0.2691],
+        [0.9022, 0.4588],
+        [0.1828, 0.7966],
+        [0.0095, 0.0203],
+        [0.0466, 0.5404],
+        [0.1762, 0.5602]], device='cuda:0')
+Training points after adding:  tensor([[0.1762, 0.5602],
+        [0.8411, 0.2691],
+        [0.0095, 0.0203],
+        [0.0466, 0.5404],
+        [0.9551, 0.9268],
+        [0.9022, 0.4588],
+        [0.1828, 0.7966]], device='cuda:0') torch.Size([7, 2])
+Iteration 1 completed. Output saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter1
+Completed iteration 1
+Starting iteration 2
+Starting Iteration 2 with Active Learning
+Initial Training Points:
+X Train: tensor([[0.3327, 0.2326]], device='cuda:0'), Shape: torch.Size([1, 2])
+Y Train: tensor([4.8456], device='cuda:0'), Shape: torch.Size([1])
+These training_points are used in the GP tensor([[0.1762, 0.5602],
+        [0.8411, 0.2691],
+        [0.0095, 0.0203],
+        [0.0466, 0.5404],
+        [0.9551, 0.9268],
+        [0.9022, 0.4588],
+        [0.1828, 0.7966]], device='cuda:0')
+Iter 1 / 1000 - Loss (Train): 1.293 - Loss (Val): 1.175
+Iter 101 / 1000 - Loss (Train): 1.124 - Loss (Val): 0.823
+Iter 201 / 1000 - Loss (Train): 1.062 - Loss (Val): 0.455
+Iter 301 / 1000 - Loss (Train): 1.041 - Loss (Val): 0.236
+Iter 401 / 1000 - Loss (Train): 1.028 - Loss (Val): 0.062
+Iter 501 / 1000 - Loss (Train): 1.021 - Loss (Val): -0.088
+Iter 601 / 1000 - Loss (Train): 1.016 - Loss (Val): -0.210
+Iter 701 / 1000 - Loss (Train): 1.012 - Loss (Val): -0.326
+Iter 801 / 1000 - Loss (Train): 1.010 - Loss (Val): -0.415
+Iter 901 / 1000 - Loss (Train): 1.008 - Loss (Val): -0.493
+best model parameters:  OrderedDict([('likelihood.noise_covar.raw_noise', tensor([-4.1103], device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.lower_bound', tensor(1.0000e-04, device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.upper_bound', tensor(inf, device='cuda:0')), ('mean_module.weights', tensor([[0.2980],
+        [0.1270]], device='cuda:0')), ('mean_module.bias', tensor([0.3844], device='cuda:0')), ('covar_module.raw_lengthscale', tensor([[-3.4568]], device='cuda:0')), ('covar_module.raw_lengthscale_constraint.lower_bound', tensor(0.1000, device='cuda:0')), ('covar_module.raw_lengthscale_constraint.upper_bound', tensor(inf, device='cuda:0')), ('task_covar_module.covar_factor', tensor([[0.3367]], device='cuda:0')), ('task_covar_module.raw_var', tensor([0.1288], device='cuda:0')), ('task_covar_module.IndexKernelPrior.a', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.b', tensor([1.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.sigma', tensor([0.0100], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.loc', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.scale', tensor([0.0100], device='cuda:0')), ('task_covar_module.raw_var_constraint.lower_bound', tensor(0., device='cuda:0')), ('task_covar_module.raw_var_constraint.upper_bound', tensor(inf, device='cuda:0'))])
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter2/loss_plot_two_circles2D_raven.png
+Likelihood MultivariateNormal(loc: torch.Size([2025]))
+Mean:  tensor([[0.3482],
+        [0.3554],
+        [0.3633],
+        ...,
+        [0.7737],
+        [0.7807],
+        [0.7883]], device='cuda:0')
+Variance:  tensor([[0.0470],
+        [0.0660],
+        [0.1273],
+        ...,
+        [0.3038],
+        [0.3229],
+        [0.3723]], device='cuda:0')
+Entropy:  tensor([0.1120, 0.1098, 0.1030,  ..., 0.0973, 0.0468, 0.1022], device='cuda:0')
+Selected points (indices): {1921, 523, 1611, 1911, 1203, 791}
+Selected new x values (normalized): tensor([[0.9803, 0.6594],
+        [0.5431, 0.6130],
+        [0.6256, 0.2997],
+        [0.3403, 0.4668],
+        [0.4708, 0.2808],
+        [0.8149, 0.5062]], device='cuda:0')
+The shape of the input_data is: torch.Size([2025, 2])
+The shape of the mean is: torch.Size([2025])
+Shapes of TP, FP, FN, TN: 0, 0, 446, 1579
+self.x_train shape: torch.Size([7, 2])
+additional_x_train shape: torch.Size([6, 2])
+additional_x_train: tensor([[0.9803, 0.6594],
+        [0.5431, 0.6130],
+        [0.6256, 0.2997],
+        [0.3403, 0.4668],
+        [0.4708, 0.2808],
+        [0.8149, 0.5062]], device='cuda:0')
+Training points after adding:  tensor([[0.9803, 0.6594],
+        [0.8411, 0.2691],
+        [0.1762, 0.5602],
+        [0.0095, 0.0203],
+        [0.0466, 0.5404],
+        [0.9022, 0.4588],
+        [0.5431, 0.6130],
+        [0.9551, 0.9268],
+        [0.8149, 0.5062],
+        [0.3403, 0.4668],
+        [0.1828, 0.7966],
+        [0.6256, 0.2997],
+        [0.4708, 0.2808]], device='cuda:0') torch.Size([13, 2])
+Iteration 2 completed. Output saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter2
+Completed iteration 2
+Starting iteration 3
+Starting Iteration 3 with Active Learning
+Initial Training Points:
+X Train: tensor([[0.0879, 0.3579]], device='cuda:0'), Shape: torch.Size([1, 2])
+Y Train: tensor([2.3712], device='cuda:0'), Shape: torch.Size([1])
+These training_points are used in the GP tensor([[0.9803, 0.6594],
+        [0.8411, 0.2691],
+        [0.1762, 0.5602],
+        [0.0095, 0.0203],
+        [0.0466, 0.5404],
+        [0.9022, 0.4588],
+        [0.5431, 0.6130],
+        [0.9551, 0.9268],
+        [0.8149, 0.5062],
+        [0.3403, 0.4668],
+        [0.1828, 0.7966],
+        [0.6256, 0.2997],
+        [0.4708, 0.2808]], device='cuda:0')
+Iter 1 / 1000 - Loss (Train): 1.627 - Loss (Val): 1.164
+Iter 101 / 1000 - Loss (Train): 1.559 - Loss (Val): 0.864
+Iter 201 / 1000 - Loss (Train): 1.451 - Loss (Val): 0.521
+Iter 301 / 1000 - Loss (Train): 1.448 - Loss (Val): 0.530
+Iter 401 / 1000 - Loss (Train): 1.448 - Loss (Val): 0.524
+Iter 501 / 1000 - Loss (Train): 1.449 - Loss (Val): 0.524
+Iter 601 / 1000 - Loss (Train): 1.448 - Loss (Val): 0.526
+Iter 701 / 1000 - Loss (Train): 1.449 - Loss (Val): 0.527
+Iter 801 / 1000 - Loss (Train): 1.449 - Loss (Val): 0.540
+Iter 901 / 1000 - Loss (Train): 1.449 - Loss (Val): 0.522
+best model parameters:  OrderedDict([('likelihood.noise_covar.raw_noise', tensor([-1.5116], device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.lower_bound', tensor(1.0000e-04, device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.upper_bound', tensor(inf, device='cuda:0')), ('mean_module.weights', tensor([[ 0.3792],
+        [-0.1435]], device='cuda:0')), ('mean_module.bias', tensor([1.0733], device='cuda:0')), ('covar_module.raw_lengthscale', tensor([[-2.1602]], device='cuda:0')), ('covar_module.raw_lengthscale_constraint.lower_bound', tensor(0.1000, device='cuda:0')), ('covar_module.raw_lengthscale_constraint.upper_bound', tensor(inf, device='cuda:0')), ('task_covar_module.covar_factor', tensor([[0.3367]], device='cuda:0')), ('task_covar_module.raw_var', tensor([0.1288], device='cuda:0')), ('task_covar_module.IndexKernelPrior.a', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.b', tensor([1.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.sigma', tensor([0.0100], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.loc', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.scale', tensor([0.0100], device='cuda:0')), ('task_covar_module.raw_var_constraint.lower_bound', tensor(0., device='cuda:0')), ('task_covar_module.raw_var_constraint.upper_bound', tensor(inf, device='cuda:0'))])
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter3/loss_plot_two_circles2D_raven.png
+Likelihood MultivariateNormal(loc: torch.Size([2025]))
+Mean:  tensor([[0.4701],
+        [0.4991],
+        [0.5427],
+        ...,
+        [0.8296],
+        [0.8277],
+        [0.8354]], device='cuda:0')
+Variance:  tensor([[0.3717],
+        [0.3685],
+        [0.3917],
+        ...,
+        [0.4517],
+        [0.4584],
+        [0.4882]], device='cuda:0')
+Entropy:  tensor([0.0816, 0.9279, 0.7153,  ..., 0.6555, 0.1791, 0.0695], device='cuda:0')
+Selected points (indices): {744, 1772, 436, 1273, 1597, 670}
+Selected new x values (normalized): tensor([[0.3259, 0.2781],
+        [0.6496, 0.6126],
+        [0.5842, 0.6670],
+        [0.4032, 0.5937],
+        [0.3693, 0.5670],
+        [0.5570, 0.4153]], device='cuda:0')
+The shape of the input_data is: torch.Size([2025, 2])
+The shape of the mean is: torch.Size([2025])
+Shapes of TP, FP, FN, TN: 114, 70, 332, 1509
+self.x_train shape: torch.Size([13, 2])
+additional_x_train shape: torch.Size([6, 2])
+additional_x_train: tensor([[0.3259, 0.2781],
+        [0.6496, 0.6126],
+        [0.5842, 0.6670],
+        [0.4032, 0.5937],
+        [0.3693, 0.5670],
+        [0.5570, 0.4153]], device='cuda:0')
+Training points after adding:  tensor([[0.0095, 0.0203],
+        [0.9551, 0.9268],
+        [0.1828, 0.7966],
+        [0.8149, 0.5062],
+        [0.9803, 0.6594],
+        [0.5842, 0.6670],
+        [0.4032, 0.5937],
+        [0.1762, 0.5602],
+        [0.4708, 0.2808],
+        [0.3403, 0.4668],
+        [0.8411, 0.2691],
+        [0.3693, 0.5670],
+        [0.0466, 0.5404],
+        [0.9022, 0.4588],
+        [0.6496, 0.6126],
+        [0.6256, 0.2997],
+        [0.5431, 0.6130],
+        [0.5570, 0.4153],
+        [0.3259, 0.2781]], device='cuda:0') torch.Size([19, 2])
+Iteration 3 completed. Output saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter3
+Completed iteration 3
+Starting iteration 4
+Starting Iteration 4 with Active Learning
+Initial Training Points:
+X Train: tensor([[0.4501, 0.8522]], device='cuda:0'), Shape: torch.Size([1, 2])
+Y Train: tensor([1.2964], device='cuda:0'), Shape: torch.Size([1])
+These training_points are used in the GP tensor([[0.0095, 0.0203],
+        [0.9551, 0.9268],
+        [0.1828, 0.7966],
+        [0.8149, 0.5062],
+        [0.9803, 0.6594],
+        [0.5842, 0.6670],
+        [0.4032, 0.5937],
+        [0.1762, 0.5602],
+        [0.4708, 0.2808],
+        [0.3403, 0.4668],
+        [0.8411, 0.2691],
+        [0.3693, 0.5670],
+        [0.0466, 0.5404],
+        [0.9022, 0.4588],
+        [0.6496, 0.6126],
+        [0.6256, 0.2997],
+        [0.5431, 0.6130],
+        [0.5570, 0.4153],
+        [0.3259, 0.2781]], device='cuda:0')
+Iter 1 / 1000 - Loss (Train): 1.807 - Loss (Val): 1.157
+Iter 101 / 1000 - Loss (Train): 1.643 - Loss (Val): 0.789
+Iter 201 / 1000 - Loss (Train): 1.501 - Loss (Val): 0.195
+Iter 301 / 1000 - Loss (Train): 1.441 - Loss (Val): -0.366
+Iter 401 / 1000 - Loss (Train): 1.408 - Loss (Val): -0.799
+Iter 501 / 1000 - Loss (Train): 1.387 - Loss (Val): -1.129
+Iter 601 / 1000 - Loss (Train): 1.375 - Loss (Val): 21.281
+Iter 701 / 1000 - Loss (Train): 1.365 - Loss (Val): 1.996
+Iter 801 / 1000 - Loss (Train): 1.364 - Loss (Val): -1.870
+Iter 901 / 1000 - Loss (Train): 1.357 - Loss (Val): -2.101
+best model parameters:  OrderedDict([('likelihood.noise_covar.raw_noise', tensor([-7.3023], device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.lower_bound', tensor(1.0000e-04, device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.upper_bound', tensor(inf, device='cuda:0')), ('mean_module.weights', tensor([[ 0.3323],
+        [-0.1356]], device='cuda:0')), ('mean_module.bias', tensor([1.4645], device='cuda:0')), ('covar_module.raw_lengthscale', tensor([[-2.5451]], device='cuda:0')), ('covar_module.raw_lengthscale_constraint.lower_bound', tensor(0.1000, device='cuda:0')), ('covar_module.raw_lengthscale_constraint.upper_bound', tensor(inf, device='cuda:0')), ('task_covar_module.covar_factor', tensor([[0.3367]], device='cuda:0')), ('task_covar_module.raw_var', tensor([0.1288], device='cuda:0')), ('task_covar_module.IndexKernelPrior.a', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.b', tensor([1.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.sigma', tensor([0.0100], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.loc', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.scale', tensor([0.0100], device='cuda:0')), ('task_covar_module.raw_var_constraint.lower_bound', tensor(0., device='cuda:0')), ('task_covar_module.raw_var_constraint.upper_bound', tensor(inf, device='cuda:0'))])
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter4/loss_plot_two_circles2D_raven.png
+Likelihood MultivariateNormal(loc: torch.Size([2025]))
+Mean:  tensor([[0.3078],
+        [0.3662],
+        [0.4587],
+        ...,
+        [0.7578],
+        [0.7435],
+        [0.7536]], device='cuda:0')
+Variance:  tensor([[0.0284],
+        [0.0231],
+        [0.0544],
+        ...,
+        [0.1414],
+        [0.1584],
+        [0.2067]], device='cuda:0')
+Entropy:  tensor([0.0541, 0.0171, 0.0477,  ..., 0.0241, 0.0296, 0.1016], device='cuda:0')
+Selected points (indices): {544, 743, 781, 685, 1424, 1906}
+Selected new x values (normalized): tensor([[0.1697, 0.1586],
+        [0.1092, 0.3046],
+        [0.6900, 0.8850],
+        [0.3499, 0.0687],
+        [0.4952, 0.7611],
+        [0.7933, 0.8072]], device='cuda:0')
+The shape of the input_data is: torch.Size([2025, 2])
+The shape of the mean is: torch.Size([2025])
+Shapes of TP, FP, FN, TN: 423, 50, 23, 1529
+self.x_train shape: torch.Size([19, 2])
+additional_x_train shape: torch.Size([6, 2])
+additional_x_train: tensor([[0.1697, 0.1586],
+        [0.1092, 0.3046],
+        [0.6900, 0.8850],
+        [0.3499, 0.0687],
+        [0.4952, 0.7611],
+        [0.7933, 0.8072]], device='cuda:0')
+Training points after adding:  tensor([[0.0095, 0.0203],
+        [0.5842, 0.6670],
+        [0.3259, 0.2781],
+        [0.4032, 0.5937],
+        [0.9551, 0.9268],
+        [0.4952, 0.7611],
+        [0.1828, 0.7966],
+        [0.8149, 0.5062],
+        [0.9803, 0.6594],
+        [0.1762, 0.5602],
+        [0.7933, 0.8072],
+        [0.5570, 0.4153],
+        [0.6496, 0.6126],
+        [0.4708, 0.2808],
+        [0.3403, 0.4668],
+        [0.8411, 0.2691],
+        [0.0466, 0.5404],
+        [0.9022, 0.4588],
+        [0.6900, 0.8850],
+        [0.1697, 0.1586],
+        [0.6256, 0.2997],
+        [0.5431, 0.6130],
+        [0.3693, 0.5670],
+        [0.1092, 0.3046],
+        [0.3499, 0.0687]], device='cuda:0') torch.Size([25, 2])
+Iteration 4 completed. Output saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter4
+Completed iteration 4
+Starting iteration 5
+Starting Iteration 5 with Active Learning
+Initial Training Points:
+X Train: tensor([[0.0539, 0.5403]], device='cuda:0'), Shape: torch.Size([1, 2])
+Y Train: tensor([0.7417], device='cuda:0'), Shape: torch.Size([1])
+These training_points are used in the GP tensor([[0.0095, 0.0203],
+        [0.5842, 0.6670],
+        [0.3259, 0.2781],
+        [0.4032, 0.5937],
+        [0.9551, 0.9268],
+        [0.4952, 0.7611],
+        [0.1828, 0.7966],
+        [0.8149, 0.5062],
+        [0.9803, 0.6594],
+        [0.1762, 0.5602],
+        [0.7933, 0.8072],
+        [0.5570, 0.4153],
+        [0.6496, 0.6126],
+        [0.4708, 0.2808],
+        [0.3403, 0.4668],
+        [0.8411, 0.2691],
+        [0.0466, 0.5404],
+        [0.9022, 0.4588],
+        [0.6900, 0.8850],
+        [0.1697, 0.1586],
+        [0.6256, 0.2997],
+        [0.5431, 0.6130],
+        [0.3693, 0.5670],
+        [0.1092, 0.3046],
+        [0.3499, 0.0687]], device='cuda:0')
+Iter 1 / 1000 - Loss (Train): 1.797 - Loss (Val): 1.155
+Iter 101 / 1000 - Loss (Train): 1.563 - Loss (Val): 0.774
+Iter 201 / 1000 - Loss (Train): 1.386 - Loss (Val): 0.249
+Iter 301 / 1000 - Loss (Train): 1.303 - Loss (Val): -0.345
+Iter 401 / 1000 - Loss (Train): 1.255 - Loss (Val): -0.813
+Iter 501 / 1000 - Loss (Train): 1.225 - Loss (Val): -1.109
+Iter 601 / 1000 - Loss (Train): 1.207 - Loss (Val): -1.150
+Iter 701 / 1000 - Loss (Train): 1.195 - Loss (Val): -0.028
+Iter 801 / 1000 - Loss (Train): 1.186 - Loss (Val): 12.837
+Iter 901 / 1000 - Loss (Train): 1.181 - Loss (Val): -3.657
+best model parameters:  OrderedDict([('likelihood.noise_covar.raw_noise', tensor([-7.5084], device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.lower_bound', tensor(1.0000e-04, device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.upper_bound', tensor(inf, device='cuda:0')), ('mean_module.weights', tensor([[0.0843],
+        [0.0145]], device='cuda:0')), ('mean_module.bias', tensor([1.2226], device='cuda:0')), ('covar_module.raw_lengthscale', tensor([[-2.4054]], device='cuda:0')), ('covar_module.raw_lengthscale_constraint.lower_bound', tensor(0.1000, device='cuda:0')), ('covar_module.raw_lengthscale_constraint.upper_bound', tensor(inf, device='cuda:0')), ('task_covar_module.covar_factor', tensor([[0.3367]], device='cuda:0')), ('task_covar_module.raw_var', tensor([0.1288], device='cuda:0')), ('task_covar_module.IndexKernelPrior.a', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.b', tensor([1.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.sigma', tensor([0.0100], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.loc', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.scale', tensor([0.0100], device='cuda:0')), ('task_covar_module.raw_var_constraint.lower_bound', tensor(0., device='cuda:0')), ('task_covar_module.raw_var_constraint.upper_bound', tensor(inf, device='cuda:0'))])
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter5/loss_plot_two_circles2D_raven.png
+Likelihood MultivariateNormal(loc: torch.Size([2025]))
+Mean:  tensor([[0.3000],
+        [0.3342],
+        [0.3876],
+        ...,
+        [0.4952],
+        [0.4302],
+        [0.3863]], device='cuda:0')
+Variance:  tensor([[0.0150],
+        [0.0166],
+        [0.0351],
+        ...,
+        [0.0964],
+        [0.1003],
+        [0.1253]], device='cuda:0')
+Entropy:  tensor([0.0298, 0.0035, 0.0036,  ..., 0.0030, 0.0377, 0.0101], device='cuda:0')
+Selected points (indices): {544, 1760, 1599, 655, 47, 415}
+Selected new x values (normalized): tensor([[0.6017, 0.8556],
+        [0.4703, 0.4474],
+        [0.8690, 0.7696],
+        [0.8674, 0.6226],
+        [0.4249, 0.1610],
+        [0.1917, 0.4540]], device='cuda:0')
+The shape of the input_data is: torch.Size([2025, 2])
+The shape of the mean is: torch.Size([2025])
+Shapes of TP, FP, FN, TN: 443, 3, 3, 1576
+self.x_train shape: torch.Size([25, 2])
+additional_x_train shape: torch.Size([6, 2])
+additional_x_train: tensor([[0.6017, 0.8556],
+        [0.4703, 0.4474],
+        [0.8690, 0.7696],
+        [0.8674, 0.6226],
+        [0.4249, 0.1610],
+        [0.1917, 0.4540]], device='cuda:0')
+Training points after adding:  tensor([[0.4703, 0.4474],
+        [0.5842, 0.6670],
+        [0.3259, 0.2781],
+        [0.0095, 0.0203],
+        [0.4032, 0.5937],
+        [0.9551, 0.9268],
+        [0.1828, 0.7966],
+        [0.8149, 0.5062],
+        [0.9803, 0.6594],
+        [0.1762, 0.5602],
+        [0.5570, 0.4153],
+        [0.6496, 0.6126],
+        [0.4708, 0.2808],
+        [0.1917, 0.4540],
+        [0.8690, 0.7696],
+        [0.3403, 0.4668],
+        [0.8411, 0.2691],
+        [0.6900, 0.8850],
+        [0.4249, 0.1610],
+        [0.0466, 0.5404],
+        [0.9022, 0.4588],
+        [0.8674, 0.6226],
+        [0.6256, 0.2997],
+        [0.5431, 0.6130],
+        [0.7933, 0.8072],
+        [0.3499, 0.0687],
+        [0.3693, 0.5670],
+        [0.1092, 0.3046],
+        [0.4952, 0.7611],
+        [0.6017, 0.8556],
+        [0.1697, 0.1586]], device='cuda:0') torch.Size([31, 2])
+Iteration 5 completed. Output saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter5
+Completed iteration 5
+Starting iteration 6
+Starting Iteration 6 with Active Learning
+Initial Training Points:
+X Train: tensor([[0.6063, 0.9295]], device='cuda:0'), Shape: torch.Size([1, 2])
+Y Train: tensor([1.9068], device='cuda:0'), Shape: torch.Size([1])
+These training_points are used in the GP tensor([[0.4703, 0.4474],
+        [0.5842, 0.6670],
+        [0.3259, 0.2781],
+        [0.0095, 0.0203],
+        [0.4032, 0.5937],
+        [0.9551, 0.9268],
+        [0.1828, 0.7966],
+        [0.8149, 0.5062],
+        [0.9803, 0.6594],
+        [0.1762, 0.5602],
+        [0.5570, 0.4153],
+        [0.6496, 0.6126],
+        [0.4708, 0.2808],
+        [0.1917, 0.4540],
+        [0.8690, 0.7696],
+        [0.3403, 0.4668],
+        [0.8411, 0.2691],
+        [0.6900, 0.8850],
+        [0.4249, 0.1610],
+        [0.0466, 0.5404],
+        [0.9022, 0.4588],
+        [0.8674, 0.6226],
+        [0.6256, 0.2997],
+        [0.5431, 0.6130],
+        [0.7933, 0.8072],
+        [0.3499, 0.0687],
+        [0.3693, 0.5670],
+        [0.1092, 0.3046],
+        [0.4952, 0.7611],
+        [0.6017, 0.8556],
+        [0.1697, 0.1586]], device='cuda:0')
+Iter 1 / 1000 - Loss (Train): 1.707 - Loss (Val): 1.145
+Iter 101 / 1000 - Loss (Train): 1.439 - Loss (Val): 0.783
+Iter 201 / 1000 - Loss (Train): 1.165 - Loss (Val): 0.233
+Iter 301 / 1000 - Loss (Train): 1.000 - Loss (Val): -0.380
+Iter 401 / 1000 - Loss (Train): 0.899 - Loss (Val): -0.845
+Iter 501 / 1000 - Loss (Train): 0.837 - Loss (Val): -1.336
+Iter 601 / 1000 - Loss (Train): 0.798 - Loss (Val): -2.019
+Iter 701 / 1000 - Loss (Train): 0.773 - Loss (Val): -3.307
+Iter 801 / 1000 - Loss (Train): 0.756 - Loss (Val): 9.262
+Iter 901 / 1000 - Loss (Train): 0.745 - Loss (Val): -3.043
+best model parameters:  OrderedDict([('likelihood.noise_covar.raw_noise', tensor([-7.6702], device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.lower_bound', tensor(1.0000e-04, device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.upper_bound', tensor(inf, device='cuda:0')), ('mean_module.weights', tensor([[ 0.0625],
+        [-0.0302]], device='cuda:0')), ('mean_module.bias', tensor([1.1704], device='cuda:0')), ('covar_module.raw_lengthscale', tensor([[-2.2569]], device='cuda:0')), ('covar_module.raw_lengthscale_constraint.lower_bound', tensor(0.1000, device='cuda:0')), ('covar_module.raw_lengthscale_constraint.upper_bound', tensor(inf, device='cuda:0')), ('task_covar_module.covar_factor', tensor([[0.3367]], device='cuda:0')), ('task_covar_module.raw_var', tensor([0.1288], device='cuda:0')), ('task_covar_module.IndexKernelPrior.a', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.b', tensor([1.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.sigma', tensor([0.0100], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.loc', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.scale', tensor([0.0100], device='cuda:0')), ('task_covar_module.raw_var_constraint.lower_bound', tensor(0., device='cuda:0')), ('task_covar_module.raw_var_constraint.upper_bound', tensor(inf, device='cuda:0'))])
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter6/loss_plot_two_circles2D_raven.png
+Likelihood MultivariateNormal(loc: torch.Size([2025]))
+Mean:  tensor([[0.3071],
+        [0.3394],
+        [0.3901],
+        ...,
+        [0.4841],
+        [0.4216],
+        [0.3753]], device='cuda:0')
+Variance:  tensor([[0.0061],
+        [0.0112],
+        [0.0257],
+        ...,
+        [0.0465],
+        [0.0468],
+        [0.0604]], device='cuda:0')
+Entropy:  tensor([0.0020, 0.0008, 0.0147,  ..., 0.0076, 0.0015, 0.0012], device='cuda:0')
+Selected points (indices): {738, 1256, 1905, 501, 1370, 1564}
+Selected new x values (normalized): tensor([[0.9675, 0.0425],
+        [0.9975, 0.9035],
+        [0.8992, 0.0038],
+        [0.8103, 0.0230],
+        [0.3124, 0.1161],
+        [0.0283, 0.1271]], device='cuda:0')
+The shape of the input_data is: torch.Size([2025, 2])
+The shape of the mean is: torch.Size([2025])
+Shapes of TP, FP, FN, TN: 445, 0, 1, 1579
+self.x_train shape: torch.Size([31, 2])
+additional_x_train shape: torch.Size([6, 2])
+additional_x_train: tensor([[0.9675, 0.0425],
+        [0.9975, 0.9035],
+        [0.8992, 0.0038],
+        [0.8103, 0.0230],
+        [0.3124, 0.1161],
+        [0.0283, 0.1271]], device='cuda:0')
+Training points after adding:  tensor([[0.8103, 0.0230],
+        [0.9675, 0.0425],
+        [0.0095, 0.0203],
+        [0.3259, 0.2781],
+        [0.5842, 0.6670],
+        [0.4249, 0.1610],
+        [0.4032, 0.5937],
+        [0.9551, 0.9268],
+        [0.1828, 0.7966],
+        [0.8149, 0.5062],
+        [0.9803, 0.6594],
+        [0.1762, 0.5602],
+        [0.5570, 0.4153],
+        [0.6496, 0.6126],
+        [0.4708, 0.2808],
+        [0.3403, 0.4668],
+        [0.8411, 0.2691],
+        [0.6900, 0.8850],
+        [0.0466, 0.5404],
+        [0.9022, 0.4588],
+        [0.9975, 0.9035],
+        [0.8690, 0.7696],
+        [0.1697, 0.1586],
+        [0.6256, 0.2997],
+        [0.5431, 0.6130],
+        [0.7933, 0.8072],
+        [0.8992, 0.0038],
+        [0.3499, 0.0687],
+        [0.3124, 0.1161],
+        [0.1917, 0.4540],
+        [0.3693, 0.5670],
+        [0.0283, 0.1271],
+        [0.1092, 0.3046],
+        [0.4952, 0.7611],
+        [0.4703, 0.4474],
+        [0.6017, 0.8556],
+        [0.8674, 0.6226]], device='cuda:0') torch.Size([37, 2])
+Iteration 6 completed. Output saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter6
+Completed iteration 6
+Starting iteration 7
+Starting Iteration 7 with Active Learning
+Initial Training Points:
+X Train: tensor([[0.9226, 0.9023]], device='cuda:0'), Shape: torch.Size([1, 2])
+Y Train: tensor([1.1745], device='cuda:0'), Shape: torch.Size([1])
+These training_points are used in the GP tensor([[0.8103, 0.0230],
+        [0.9675, 0.0425],
+        [0.0095, 0.0203],
+        [0.3259, 0.2781],
+        [0.5842, 0.6670],
+        [0.4249, 0.1610],
+        [0.4032, 0.5937],
+        [0.9551, 0.9268],
+        [0.1828, 0.7966],
+        [0.8149, 0.5062],
+        [0.9803, 0.6594],
+        [0.1762, 0.5602],
+        [0.5570, 0.4153],
+        [0.6496, 0.6126],
+        [0.4708, 0.2808],
+        [0.3403, 0.4668],
+        [0.8411, 0.2691],
+        [0.6900, 0.8850],
+        [0.0466, 0.5404],
+        [0.9022, 0.4588],
+        [0.9975, 0.9035],
+        [0.8690, 0.7696],
+        [0.1697, 0.1586],
+        [0.6256, 0.2997],
+        [0.5431, 0.6130],
+        [0.7933, 0.8072],
+        [0.8992, 0.0038],
+        [0.3499, 0.0687],
+        [0.3124, 0.1161],
+        [0.1917, 0.4540],
+        [0.3693, 0.5670],
+        [0.0283, 0.1271],
+        [0.1092, 0.3046],
+        [0.4952, 0.7611],
+        [0.4703, 0.4474],
+        [0.6017, 0.8556],
+        [0.8674, 0.6226]], device='cuda:0')
+Iter 1 / 1000 - Loss (Train): 1.627 - Loss (Val): 1.151
+Iter 101 / 1000 - Loss (Train): 1.384 - Loss (Val): 0.765
+Iter 201 / 1000 - Loss (Train): 1.047 - Loss (Val): 0.212
+Iter 301 / 1000 - Loss (Train): 0.859 - Loss (Val): -0.364
+Iter 401 / 1000 - Loss (Train): 0.742 - Loss (Val): -0.113
+Iter 501 / 1000 - Loss (Train): 0.669 - Loss (Val): -1.255
+Iter 601 / 1000 - Loss (Train): 0.623 - Loss (Val): -0.342
+Iter 701 / 1000 - Loss (Train): 0.593 - Loss (Val): 91.494
+Iter 801 / 1000 - Loss (Train): 0.573 - Loss (Val): -3.903
+Iter 901 / 1000 - Loss (Train): 0.559 - Loss (Val): -4.717
+best model parameters:  OrderedDict([('likelihood.noise_covar.raw_noise', tensor([-7.5190], device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.lower_bound', tensor(1.0000e-04, device='cuda:0')), ('likelihood.noise_covar.raw_noise_constraint.upper_bound', tensor(inf, device='cuda:0')), ('mean_module.weights', tensor([[-0.2371],
+        [ 0.3488]], device='cuda:0')), ('mean_module.bias', tensor([1.0426], device='cuda:0')), ('covar_module.raw_lengthscale', tensor([[-2.2065]], device='cuda:0')), ('covar_module.raw_lengthscale_constraint.lower_bound', tensor(0.1000, device='cuda:0')), ('covar_module.raw_lengthscale_constraint.upper_bound', tensor(inf, device='cuda:0')), ('task_covar_module.covar_factor', tensor([[0.3367]], device='cuda:0')), ('task_covar_module.raw_var', tensor([0.1288], device='cuda:0')), ('task_covar_module.IndexKernelPrior.a', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.b', tensor([1.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.sigma', tensor([0.0100], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.loc', tensor([0.], device='cuda:0')), ('task_covar_module.IndexKernelPrior.tails.scale', tensor([0.0100], device='cuda:0')), ('task_covar_module.raw_var_constraint.lower_bound', tensor(0., device='cuda:0')), ('task_covar_module.raw_var_constraint.upper_bound', tensor(inf, device='cuda:0'))])
+Plot saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter7/loss_plot_two_circles2D_raven.png
+Likelihood MultivariateNormal(loc: torch.Size([2025]))
+Mean:  tensor([[0.2915],
+        [0.3208],
+        [0.3670],
+        ...,
+        [0.4877],
+        [0.4293],
+        [0.3866]], device='cuda:0')
+Variance:  tensor([[0.0028],
+        [0.0046],
+        [0.0140],
+        ...,
+        [0.0319],
+        [0.0400],
+        [0.0529]], device='cuda:0')
+Entropy:  tensor([0.0033, 0.0046, 0.0007,  ..., 0.0006, 0.0134, 0.0021], device='cuda:0')
+Selected points (indices): {838, 1898, 1808, 568, 1214, 1598}
+Selected new x values (normalized): tensor([[0.8362, 0.3793],
+        [0.1738, 0.4355],
+        [0.6817, 0.5007],
+        [0.0039, 0.8524],
+        [0.9060, 0.6067],
+        [0.4365, 0.3520]], device='cuda:0')
+The shape of the input_data is: torch.Size([2025, 2])
+The shape of the mean is: torch.Size([2025])
+Shapes of TP, FP, FN, TN: 445, 0, 1, 1579
+self.x_train shape: torch.Size([37, 2])
+additional_x_train shape: torch.Size([6, 2])
+additional_x_train: tensor([[0.8362, 0.3793],
+        [0.1738, 0.4355],
+        [0.6817, 0.5007],
+        [0.0039, 0.8524],
+        [0.9060, 0.6067],
+        [0.4365, 0.3520]], device='cuda:0')
+Training points after adding:  tensor([[0.5842, 0.6670],
+        [0.3259, 0.2781],
+        [0.0095, 0.0203],
+        [0.4249, 0.1610],
+        [0.4032, 0.5937],
+        [0.9551, 0.9268],
+        [0.8103, 0.0230],
+        [0.1828, 0.7966],
+        [0.4365, 0.3520],
+        [0.8149, 0.5062],
+        [0.9803, 0.6594],
+        [0.1762, 0.5602],
+        [0.1738, 0.4355],
+        [0.5570, 0.4153],
+        [0.9675, 0.0425],
+        [0.6496, 0.6126],
+        [0.3124, 0.1161],
+        [0.4708, 0.2808],
+        [0.8362, 0.3793],
+        [0.3403, 0.4668],
+        [0.8411, 0.2691],
+        [0.6900, 0.8850],
+        [0.0466, 0.5404],
+        [0.9022, 0.4588],
+        [0.8992, 0.0038],
+        [0.6817, 0.5007],
+        [0.9975, 0.9035],
+        [0.9060, 0.6067],
+        [0.8690, 0.7696],
+        [0.8674, 0.6226],
+        [0.6256, 0.2997],
+        [0.5431, 0.6130],
+        [0.7933, 0.8072],
+        [0.0039, 0.8524],
+        [0.3499, 0.0687],
+        [0.0283, 0.1271],
+        [0.1917, 0.4540],
+        [0.3693, 0.5670],
+        [0.1092, 0.3046],
+        [0.4952, 0.7611],
+        [0.4703, 0.4474],
+        [0.6017, 0.8556],
+        [0.1697, 0.1586]], device='cuda:0') torch.Size([43, 2])
+Iteration 7 completed. Output saved to /raven/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles/Iter7
+Completed iteration 7
+Starting iteration 8
+                                  
+================================= 
+Global information about the job: 
+================================= 
+  
+Job owner: dvoss(54815)
+Job name:  al_gp_iter
+Node list: ravg1041
+Job start: Sun Jan 26 20:46:29 CET 2025
+Job end:   Sun Jan 26 21:16:50 CET 2025
+Work dir:  /raven/u/dvoss/al_pmssmwithgp/model
+Command:   /raven/u/dvoss/al_pmssmwithgp/model/slurm/single_job_two_circles_iteration.sbatch
+  
+  
+  
+==========================================================================================
+Information on jobsteps (Note: MaxRSS/AveRSS is the maximum/average over all 
+tasks of the per-task memory high-water marks; cf. "man sacct"): 
+==========================================================================================
+  
+JobID            JobName NNodes NTasks  NCPUS       MaxRSS       AveRSS    Elapsed ExitCode
+------------- ---------- ------ ------ ------ ------------ ------------ ---------- --------
+15272623      al_gp_iter      1             4                             00:30:21      0:0
+15272623.0    job_two_ci      1      1      4     2369.48M     2369.48M   00:27:46     0:15
+  
+Maximum memory per node: 2.484584 GB (defined as MaxRSS*Ntasks/NNodes)
+CPU utilization: 33.3 %
+  

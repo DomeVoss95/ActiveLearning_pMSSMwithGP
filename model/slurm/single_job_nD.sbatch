@@ -24,11 +24,16 @@
 
 # Load compiler and MPI modules (must be the same as used in conda env)
 module purge
-module load anaconda/3/2021.11 # <-> python 3.9.
-module load cuda/11.6
-module load cudnn/8.8
-module load pytorch/gpu-cuda-11.6/2.0.0
-module load gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+# module load anaconda/3/2021.11 # <-> python 3.9.
+# module load cuda/11.6
+# module load cudnn/8.8
+# module load pytorch/gpu-cuda-11.6/2.0.0
+# module load gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+module load anaconda/3/2023.03 # <-> python 3.10.
+module load cuda/11.8
+module load cudnn/8.7
+module load pytorch/gpu-cuda-11.8/2.2.1
+pip install gpytorch
 pip install uproot
 pip install argparse
 pip install pyslha
