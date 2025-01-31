@@ -29,6 +29,7 @@ module load cuda/11.6
 module load cudnn/8.8
 module load pytorch/gpu-cuda-11.6/2.0.0
 module load gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+#   Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
 pip install uproot
 pip install argparse
 pip install pyslha
