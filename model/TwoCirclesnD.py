@@ -21,7 +21,7 @@ def parse_args():
     return parser.parse_args()
 
 class GPModelPipeline:
-    def __init__(self, output_dir=None, initial_train_points=10, valid_points=20, additional_points_per_iter=1, n_dim=4, threshold=0.5, num_layers=3):
+    def __init__(self, output_dir=None, initial_train_points=10, valid_points=20, additional_points_per_iter=1, n_dim=4, threshold=0.5, num_layers=3, n_blobs=2):
         self.output_dir = output_dir
         self.initial_train_points = initial_train_points
         self.valid_points = valid_points
@@ -43,10 +43,9 @@ class GPModelPipeline:
         self.n_dim = n_dim
         self.num_layers = num_layers
         self.thr = threshold
-
-        # 4D Random test data
-        # self.x_test = torch.randn(2500, self.n_dim).to(self.device)
-        # self.x_test = torch.tensor(qmc.LatinHypercube(d=self.n_dim).random(n=2500), dtype=torch.float32).to(self.device)
+        self.n_blobs = n_blobs
+        self.contour = None
+        
 
         # Create a regular grid mesh for x_test
         self.n_points_per_dim = int(np.ceil(2000 ** (1 / self.n_dim)))
@@ -55,18 +54,56 @@ class GPModelPipeline:
         points = np.vstack(list(map(np.ravel, mesh))).T
         self.x_test = torch.tensor(points, dtype=torch.float32).to(self.device)
 
+        # TODO: Create this in a more random way with more blobs combining
+
+        def create_truth_function():
+            # Needs to be able to return the individual means and covs
+            mean = []
+            cov = []
+            mean1 = [0.48,0.48]
+            cov1 = np.diag([0.02,0.02])
+            scale1 = 0.02
+            mean2 = [0.8,0.8]
+            cov2 = np.diag([0.03,0.03])
+            scale2 = 0.05
+            mean.append(mean1)
+            mean.append(mean2)
+            cov.append(cov1) 
+            cov.append(cov2) 
+            def gauss1(x):
+                return scale1 * multivariate_normal.pdf(x, mean=mean1, cov=cov1)
+            def gauss2(x):
+                return scale2 * multivariate_normal.pdf(x, mean=mean2, cov=cov2)
+            def combined_gaussians(x):
+                return gauss1(x) + gauss2(x)
+
+            return mean, cov, combined_gaussians
+        # def create_truth_function(n_dim):
+        #     means = []
+        #     covs = []
+        #     gaussians = []
+        #     for i in range(self.n_blobs):
+        #         mean = np.random.uniform(0, 1, n_dim)
+        #         cov = np.diag(np.random.uniform(0.01, 0.1, n_dim))
+
+        #         means.append(mean)
+        #         covs.append(cov)
+
+        #         gaussians.append(lambda X: np.atleast_1d(multivariate_normal.pdf(X, mean=mean, cov=cov)))
+        #     return lambda X: sum(gaussian(X) for gaussian in gaussians)
         
-        def create_truth_function(n_dim):
+            """ 
             mean1 = [0.3] * n_dim  # Place one Gaussian at (0.2, 0.2, ...)
             cov1 = np.diag([0.03] * n_dim)  # Smaller covariance for tighter circles
             mean2 = [0.7] * n_dim  # Place the second Gaussian at (0.8, 0.8, ...)
             cov2 = np.diag([0.03] * n_dim)  # Smaller covariance for tighter circles
+
             gauss1 = lambda X: np.atleast_1d(multivariate_normal.pdf(X, mean=mean1, cov=cov1))
             gauss2 = lambda X: np.atleast_1d(multivariate_normal.pdf(X, mean=mean2, cov=cov2))
             two_gaussians = lambda X: gauss1(X) + gauss2(X)
-            return two_gaussians
+            return two_gaussians """
 
-        self.truth0 = create_truth_function(self.n_dim)
+        self.mean, self.cov, self.truth0 = create_truth_function()
 
         #self.truth0 = lambda X: np.atleast_1d(scipy.stats.multivariate_normal.pdf(X,mean = [0.5,0.5,0.5,0.5], cov = np.diag([0.2,0.3,0.2,0.3])))
         self.truth1 = lambda X: np.atleast_1d(scipy.stats.multivariate_normal.pdf(X,mean = [0.6,0.8,0.6,0.8], cov = np.diag([0.2,0.3,0.2,0.3])))
@@ -92,13 +129,14 @@ class GPModelPipeline:
     
         # Load new training points and evaluate truth function
         additional_x_train = torch.tensor(new_x).to(self.device)
-        additional_y_train = torch.tensor(self.truth0(new_x.cpu())).to(self.device)
+        additional_y_train = torch.tensor(self.truth0(additional_x_train.cpu()), dtype=torch.float32).to(self.device)
 
         # Debugging: Print shapes of both tensors before concatenating
         print(f"self.x_train shape: {self.x_train.shape}")  # Expecting [N, 2]
         print(f"additional_x_train shape: {additional_x_train.shape}")  # Should also be [M, 2]
 
         print(f"additional_x_train: {additional_x_train}")
+        print(f"additional_y_train: {additional_y_train}")
         
         # Append the new points to the existing training data
         self.x_train = torch.cat((self.x_train, additional_x_train))
@@ -161,36 +199,6 @@ class GPModelPipeline:
             var = self.observed_pred.variance.detach().reshape(-1, 1).to(self.device)
             print("Variance: ", var)
             thr = torch.Tensor([self.thr]).to(self.device)
-
-
-    def plotGP2D(self, new_x=None, save_path=None, iteration=None):
-        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
-
-        mean = self.observed_pred.mean.cpu().numpy()
-
-        heatmap, xedges, yedges = np.histogram2d(self.x_test[:, 0].cpu().numpy(), self.x_test[:, 1].cpu().numpy(), bins=50, weights=mean)
-
-        plt.figure(figsize=(8, 6))
-        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
-        plt.colorbar(label='truth0')
-        plt.xlabel('x_1')
-        plt.ylabel('x_2')
-
-        # Scatterplot of the training points
-        # plt.scatter(self.x_train[:, 0].cpu().numpy(), self.x_train[:,1].cpu().numpy(), marker='*', s=200, c='b', label='training_points')
-
-        # Contour wo mean > 0
-        plt.contour(xedges[:-1], yedges[:-1], heatmap.T, levels=[0], colors='white', linewidths=2, linestyles='solid')
-
-        # Add the iteration number to the plot title
-        if iteration is not None:
-            plt.title(f"GP Model Prediction - Iteration {iteration}")
-
-        if save_path is not None:
-            plt.savefig(save_path)
-            print(f"Plot saved to {save_path}")
-        else:
-            plt.show()
 
     def plotEntropy(self, slice_dim_x1=0, slice_dim_x2=1, slice_value=0.5, tolerance=0.1, new_x=None, save_path=None, iteration=None):
         """
@@ -456,8 +464,10 @@ class GPModelPipeline:
         # Scatterplot of the training points
         plt.scatter(filtered_x_train[:, slice_dim_x1].numpy(), filtered_x_train[:, slice_dim_x2].numpy(), marker='o', s=50, c=filtered_y_train.numpy(), cmap='inferno', vmin=vmin, vmax=vmax, label='training points')
         
-        # Contour plot of the truth function
-        plt.contour(x1_grid, x2_grid, mean_grid, levels=[self.thr], colors='white', linewidths=2, linestyles='solid')
+        # Calculate the contour of the mean grid as the 90% percentile and safe in variable
+        self.contour = np.percentile(mean_grid, 90)
+        print("Contour in Plot function: ",self.contour)
+        plt.contour(x1_grid, x2_grid, mean_grid, levels=[np.percentile(mean_grid, 90)], colors='white', linewidths=2, linestyles='solid')
 
         # Plot new points if provided
         if new_x is not None:
@@ -623,144 +633,168 @@ class GPModelPipeline:
         return lhs_samples
     
     def goodness_of_fit(self, test=None, csv_path=None):
-
-        # Evaluate model at x_test
-        input_data = self.x_test.cpu().numpy()
-        input_data = torch.tensor(input_data, dtype=torch.float32).to(self.device)  
-
-        print(f"The shape of the input_data is: {input_data.shape}")
-
-        # Calculate the true values (log-scaled)
-        truth_values = self.truth0(input_data.cpu().numpy())  
-
-        # Convert back to torch tensors
-        true = torch.tensor(truth_values, dtype=torch.float32).to(self.device)  
-
-        self.model.eval()
-
-        # Disable gradient computation for evaluation
-        with torch.no_grad():
-            predictions = self.model(input_data)
-
-        observed_pred = self.likelihood(predictions)
-        mean = observed_pred.mean.cpu().numpy()
-        lower, upper = observed_pred.confidence_region()
-        lower = lower.detach().cpu().numpy()
-        upper = upper.detach().cpu().numpy()
-
-        mean = torch.tensor(mean, dtype=torch.float32).to(self.device)
-        upper = torch.tensor(upper, dtype=torch.float32).to(self.device)
-        lower= torch.tensor(lower, dtype=torch.float32).to(self.device)
-
-        print(f"The shape of the mean is: {mean.shape}")
-
-        # Define the various goodness_of_fit metrics
-        def mean_squared():
-            mse = torch.mean((mean - true) ** 2)
-            rmse = torch.sqrt(mse)
-            return mse.cpu().item(), rmse.cpu().item()
         
-        def r_squared():
-            ss_res = torch.sum((mean - true) ** 2)
-            ss_tot = torch.sum((true - torch.mean(true)) ** 2)
-            r_squared = 1 - ss_res / ss_tot
-            return r_squared.cpu().item()
-        
-        def chi_squared():
-            pull = (mean - true) / (upper - lower)
-            chi_squared = torch.sum(pull ** 2)
-            dof = len(true) - 1  # Degrees of freedom
-            reduced_chi_squared = chi_squared / dof
-            return chi_squared.cpu().item(), reduced_chi_squared.cpu().item()
+        # create empty list to store the goodness of fit metrics
+        accuracy_all = []
 
-        def average_pull():
-            absolute_pull = torch.abs((mean - true) / (upper - lower))
-            mean_absolute_pull = torch.mean(absolute_pull)
-            root_mean_squared_pull = torch.sqrt(torch.mean((absolute_pull) ** 2))
-            return mean_absolute_pull.cpu().item(), root_mean_squared_pull.cpu().item()
+        for blob in range(self.n_blobs):
+            '''
+            For each blob, evaluate the model at test points concentrated around the contour for each gaussian blob.
+            Get the test_points for each blob from the n_blob function of the create_truth function.
+            '''
+            # Evaluate model at test points concentrated around the contour for each gaussian blob
+            # Sample random points around mean of corresponding blob with covariance matrix
+            mean_tensor = torch.tensor(self.mean[blob], dtype=torch.float32).to(self.device)
+            cov_tensor = torch.tensor(self.cov[blob], dtype=torch.float32).to(self.device)
+            mvn = torch.distributions.MultivariateNormal(mean_tensor, covariance_matrix=cov_tensor/1.5)
 
-        # Weights for adjusting to threshold
-        thr = self.thr
-        epsilon = 0.1 # Tolerance area around threshold, considered close
-        weights = torch.exp(-((true - thr) ** 2) / (2 * epsilon ** 2))  
+            # Take more points for the bigger circle and less for the smaller one
+            if blob == 0:
+                input_data = mvn.sample((1000,)).float()
+            else:
+                input_data = mvn.sample((2000,)).float() 
 
-        def mean_squared_weighted():
-            mse_weighted = torch.mean(weights * (mean - true) ** 2)
-            rmse_weighted = torch.sqrt(mse_weighted)
-            return mse_weighted.cpu().item(), rmse_weighted.cpu().item()
+            # Normalize the input data to be in the range [0, 1]
+            mask = (input_data >= 0) & (input_data <= 1)
+            mask = mask.all(axis=1)
+            input_data = input_data[mask]
 
-        def r_squared_weighted():
-            ss_res_weighted = torch.sum(weights * (mean - true) ** 2)
-            ss_tot_weighted = torch.sum(weights * (true - torch.mean(true)) ** 2)
-            r_squared_weighted = 1 - ss_res_weighted / ss_tot_weighted
-            return r_squared_weighted.cpu().item()
-        
-        def chi_squared_weighted():
-            pull_weighted = (mean - true) / (upper - lower)
-            chi_squared_weighted = torch.sum(weights * pull_weighted ** 2)
-            dof = len(true) - 1  # Degrees of freedom
-            reduced_chi_squared_weighted = chi_squared_weighted / dof
-            return chi_squared_weighted.cpu().item(), reduced_chi_squared_weighted.cpu().item()
-        
-        def average_pull_weighted():
-            absolute_pull_weighted = torch.abs((mean - true) / (upper - lower))
-            mean_absolute_pull_weighted = torch.mean(weights * absolute_pull_weighted)
-            root_mean_squared_pull_weighted = torch.sqrt(torch.mean(weights * (absolute_pull_weighted) ** 2))
-            return mean_absolute_pull_weighted.cpu().item(), root_mean_squared_pull_weighted.cpu().item()
+            # Calculate the true values (log-scaled)
+            truth_values = self.truth0(input_data.cpu().numpy())  
 
-        # Calculate classification matrix and accuracy
-        def accuracy():
-    
-            # # TODO: Classification with uncertainty    
-            # mean_plus = mean + (upper - lower)/2
-            # mean_minus = mean + (upper - lower)/2
+            # Convert back to torch tensors
+            true = torch.tensor(truth_values, dtype=torch.float32).to(self.device)  
 
-            TP = ((mean > self.thr) & (true > self.thr)).sum().item()  # True Positives
-            FP = ((mean > self.thr) & (true < self.thr)).sum().item()  # False Positives
-            FN = ((mean < self.thr) & (true > self.thr)).sum().item()  # False Negatives
-            TN = ((mean < self.thr) & (true < self.thr)).sum().item()  # True Negatives
+            self.model.eval()
 
-            total = TP + FP + FN + TN
+            # Disable gradient computation for evaluation
+            with torch.no_grad():
+                predictions = self.model(input_data)
 
-            print(f"Shapes of TP, FP, FN, TN: {TP}, {FP}, {FN}, {TN}")
-            accuracy = (TP + TN) / total if total > 0 else 0
+            observed_pred = self.likelihood(predictions)
+            mean = observed_pred.mean.cpu().numpy()
+            lower, upper = observed_pred.confidence_region()
+            lower = lower.detach().cpu().numpy()
+            upper = upper.detach().cpu().numpy()
 
-            return accuracy
+            mean = torch.tensor(mean, dtype=torch.float32).to(self.device)
+            upper = torch.tensor(upper, dtype=torch.float32).to(self.device)
+            lower= torch.tensor(lower, dtype=torch.float32).to(self.device)
 
+            # print(f"The shape of the mean is: {mean.shape}")
+
+            # # Define the various goodness_of_fit metrics
+            # def mean_squared():
+            #     mse = torch.mean((mean - true) ** 2)
+            #     rmse = torch.sqrt(mse)
+            #     return mse.cpu().item(), rmse.cpu().item()
             
+            # def r_squared():
+            #     ss_res = torch.sum((mean - true) ** 2)
+            #     ss_tot = torch.sum((true - torch.mean(true)) ** 2)
+            #     r_squared = 1 - ss_res / ss_tot
+            #     return r_squared.cpu().item()
+            
+            # def chi_squared():
+            #     pull = (mean - true) / (upper - lower)
+            #     chi_squared = torch.sum(pull ** 2)
+            #     dof = len(true) - 1  # Degrees of freedom
+            #     reduced_chi_squared = chi_squared / dof
+            #     return chi_squared.cpu().item(), reduced_chi_squared.cpu().item()
+
+            # def average_pull():
+            #     absolute_pull = torch.abs((mean - true) / (upper - lower))
+            #     mean_absolute_pull = torch.mean(absolute_pull)
+            #     root_mean_squared_pull = torch.sqrt(torch.mean((absolute_pull) ** 2))
+            #     return mean_absolute_pull.cpu().item(), root_mean_squared_pull.cpu().item()
+
+            # # Weights for adjusting to threshold
+            # thr = self.thr
+            # epsilon = 0.1 # Tolerance area around threshold, considered close
+            # weights = torch.exp(-((true - thr) ** 2) / (2 * epsilon ** 2))  
+
+            # def mean_squared_weighted():
+            #     mse_weighted = torch.mean(weights * (mean - true) ** 2)
+            #     rmse_weighted = torch.sqrt(mse_weighted)
+            #     return mse_weighted.cpu().item(), rmse_weighted.cpu().item()
+
+            # def r_squared_weighted():
+            #     ss_res_weighted = torch.sum(weights * (mean - true) ** 2)
+            #     ss_tot_weighted = torch.sum(weights * (true - torch.mean(true)) ** 2)
+            #     r_squared_weighted = 1 - ss_res_weighted / ss_tot_weighted
+            #     return r_squared_weighted.cpu().item()
+            
+            # def chi_squared_weighted():
+            #     pull_weighted = (mean - true) / (upper - lower)
+            #     chi_squared_weighted = torch.sum(weights * pull_weighted ** 2)
+            #     dof = len(true) - 1  # Degrees of freedom
+            #     reduced_chi_squared_weighted = chi_squared_weighted / dof
+            #     return chi_squared_weighted.cpu().item(), reduced_chi_squared_weighted.cpu().item()
+            
+            # def average_pull_weighted():
+            #     absolute_pull_weighted = torch.abs((mean - true) / (upper - lower))
+            #     mean_absolute_pull_weighted = torch.mean(weights * absolute_pull_weighted)
+            #     root_mean_squared_pull_weighted = torch.sqrt(torch.mean(weights * (absolute_pull_weighted) ** 2))
+            #     return mean_absolute_pull_weighted.cpu().item(), root_mean_squared_pull_weighted.cpu().item()
+
+            # Calculate classification matrix and accuracy
+            def accuracy():
+        
+                # # TODO: Classification with uncertainty    
+                # mean_plus = mean + (upper - lower)/2
+                # mean_minus = mean + (upper - lower)/2
+
+                TP = ((mean > self.thr) & (true > self.thr)).sum().item()  # True Positives
+                FP = ((mean > self.thr) & (true < self.thr)).sum().item()  # False Positives
+                FN = ((mean < self.thr) & (true > self.thr)).sum().item()  # False Negatives
+                TN = ((mean < self.thr) & (true < self.thr)).sum().item()  # True Negatives
+
+                total = TP + FP + FN + TN
+
+                print(f"Shapes of TP, FP, FN, TN: {TP}, {FP}, {FN}, {TN}")
+                accuracy = (TP + TN) / total if total > 0 else 0
+
+                return accuracy
+
+            accuracy_all.append(accuracy())
+
         # Dictionary to map test names to functions
         tests = {
-            'mean_squared': mean_squared,
-            'r_squared': r_squared,
-            'chi_squared': chi_squared,
-            'average_pull': average_pull,
-            'mean_squared_weighted': mean_squared_weighted,
-            'r_squared_weighted': r_squared_weighted,
-            'chi_squared_weighted': chi_squared_weighted,
-            'average_pull_weighted': average_pull_weighted,
+            # 'mean_squared': mean_squared,
+            # 'r_squared': r_squared,
+            # 'chi_squared': chi_squared,
+            # 'average_pull': average_pull,
+            # 'mean_squared_weighted': mean_squared_weighted,
+            # 'r_squared_weighted': r_squared_weighted,
+            # 'chi_squared_weighted': chi_squared_weighted,
+            # 'average_pull_weighted': average_pull_weighted,
             'accuracy': accuracy
         }
 
-        # If 'test' is None, run all tests and return the results
-        if test is None:
-            results = {}
-            for test_name, test_function in tests.items():
-                result = test_function()
-                if isinstance(result, tuple):
-                    for i, value in enumerate(result):
-                        results[f"{test_name}_{i}"] = value  # Store each element of the tuple separately
-                else:
-                    results[test_name] = result  # Store single value directly
+        print("Accuracy_all:", accuracy_all)
 
-            # Save results to CSV if a path is provided
-            if csv_path is not None:
-                file_exists = os.path.isfile(csv_path)
-                df_results = pd.DataFrame([results])  # Convert results to a DataFrame
-                
-                # Append data to CSV file, write header only if file does not exist
-                df_results.to_csv(csv_path, mode='a', header=not file_exists, index=False)
+        # Run all tests and store the results
+        results = {}
+        [results.update({f'accuracy_{i}': accuracy_all[i]}) for i in range(self.n_blobs)]
+        # results['accuracy_1'] = accuracy_all[0]
+        # results["accuracy_2"] = accuracy_all[1]
+        # for test_name, test_function in tests.items():
+        #     result = test_function()
+        #     if isinstance(result, tuple):
+        #         for i, value in enumerate(result):
+        #             results[f"{test_name}_{i}"] = value  # Store each element of the tuple separately
+        #     else:
+        #         results[test_name] = result  # Store single value directly
 
-            return results
+        # Save results to CSV if a path is provided
+        if csv_path is not None:
+            file_exists = os.path.isfile(csv_path)
+            df_results = pd.DataFrame([results])  # Convert results to a DataFrame
+            
+            # Append data to CSV file, write header only if file does not exist
+            df_results.to_csv(csv_path, mode='a', header=not file_exists, index=False)
+
+        return results
 
         # Run a specific test
         if test in tests:
@@ -803,11 +837,11 @@ def run_pipeline_without_active_learning(args):
 
     # Active Learning configuration
     total_iterations = 750
-    total_points = 7000
+    total_points = 100
     output_base_dir = '/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles'
     n_dim = 2
     name = f"two_circles{n_dim}D_{total_points}"
-    threshold = 3
+    threshold = 1
     isIteration = False
 
     if isIteration:    
@@ -845,24 +879,24 @@ def run_pipeline_without_active_learning(args):
 
         # Initialize the pipeline
         gp_pipeline = GPModelPipeline(
-            output_dir=args.output_dir, initial_train_points=total_points, valid_points=1500, n_dim=n_dim, threshold=threshold
+            output_dir=args.output_dir, initial_train_points=total_points, valid_points=30, n_dim=n_dim, threshold=threshold
         )
 
         # Initialize, train, and evaluate the model
         gp_pipeline.initialize_model()
-        gp_pipeline.train_model(iters=1000)
+        gp_pipeline.train_model(iters=250)
         gp_pipeline.plot_losses(save_path=os.path.join(args.output_dir, f'loss_plot_{name}.png'))
         gp_pipeline.evaluate_model()
 
         # Generate all possible combinations of two dimensions from n_dim for plotting
         combinations = list(itertools.combinations(range(n_dim), 2))
 
+        for (slice_dim_x1, slice_dim_x2) in combinations:
+            gp_pipeline.plotSlice2D(
+                slice_dim_x1=slice_dim_x1, slice_dim_x2=slice_dim_x2, slice_value=0.5,
+                save_path=os.path.join(args.output_dir, f'gp_plot_{slice_dim_x1}_{slice_dim_x2}_{name}_rand.png')
+            )
         gp_pipeline.goodness_of_fit(csv_path=f'{output_base_dir}/gof_{name}_rand.csv')
-        # for (slice_dim_x1, slice_dim_x2) in combinations:
-        #     gp_pipeline.plotSlice2D(
-        #         slice_dim_x1=slice_dim_x1, slice_dim_x2=slice_dim_x2, slice_value=0.5,
-        #         save_path=os.path.join(args.output_dir, f'gp_plot_{slice_dim_x1}_{slice_dim_x2}_{name}_rand.png')
-        #     )
         gp_pipeline.save_model(os.path.join(args.output_dir, f'model_checkpoint_{name}_rand.pth'))
 
 def run_pipeline_with_active_learning(args):
@@ -872,7 +906,7 @@ def run_pipeline_with_active_learning(args):
     output_base_dir = '/u/dvoss/al_pmssmwithgp/model/plots/plots_two_circles'
     n_dim = 2
     name = f"two_circles{n_dim}D_raven"
-    threshold = 3
+    threshold = 1
     al_points = 6
 
     # Loop through iterations 1 to `total_iterations`
@@ -934,7 +968,7 @@ def run_pipeline_with_active_learning(args):
 
 
 if __name__ == "__main__":
-    isActiveLearning = False
+    isActiveLearning = True
 
     args = parse_args()
 

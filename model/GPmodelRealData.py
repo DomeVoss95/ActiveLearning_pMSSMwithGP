@@ -46,24 +46,44 @@ class GPModelPipeline:
         self.y_train = None
         self.x_valid = None
         self.y_valid = None
+        self.x_all = None
+        self.y_all = None
         self.observed_pred = None
         self.entropy = None
         self.n_dim = n_dim
         self.thr = threshold
+        self.conf_matrix = None
 
         # Define data_min and data_max according to pMSSM parameter ranges and the number of dimensions
-        self.data_min = torch.tensor([-2000, -2000, 0, -2000, -2000, -8000, -2000, -2000, 0, 2000, 2000, 2000], dtype=torch.float32).to(self.device)
-        self.data_max = torch.tensor([2000, 2000, 60, 2000, 2000, 8000, 2000, 2000, 5000, 5000, 5000, 5000 ], dtype=torch.float32).to(self.device)
+        self.data_min = torch.tensor([-2000, -2000, 1, -2000, 1000, -8000, -2000, -2000, 0, 2000, 2000, 2000], dtype=torch.float32).to(self.device)
+        self.data_max = torch.tensor([2000, 2000, 60, 2000, 5000, 8000, 2000, 2000, 5000, 5000, 5000, 5000 ], dtype=torch.float32).to(self.device)
         self.data_min = self.data_min[:self.n_dim]
         self.data_max = self.data_max[:self.n_dim]
 
+        # Labels for the dimensions
+        self.labels = {
+            0: "M_1_normalized",
+            1: "M_2_normalized",
+            2: "tanb_normalized",
+            3: "mu_normalized",
+            4: "M_3_normalized",
+            5: "At_normalized",
+            6: "Ab_normalized",
+            7: "Atau_normalized",
+            8: "mA_normalized",
+            9: "mqL3_normalized",
+            10: "mtR_normalized",
+            11: "mbR_normalized"
+        }
 
-        # Create a regular grid mesh for x_test
-        self.n_points_per_dim = int(np.ceil(10000 ** (1 / self.n_dim)))
-        grid = np.linspace(0, 1, self.n_points_per_dim)
-        mesh = np.meshgrid(*[grid] * self.n_dim)
-        points = np.vstack(list(map(np.ravel, mesh))).T
-        self.x_test = torch.tensor(points, dtype=torch.float32).to(self.device)
+
+        # # Create a regular grid mesh for x_test
+        # self.n_points_per_dim = int(np.ceil( ** (1 / self.n_dim)))
+        # grid = np.linspace(0, 1, self.n_points_per_dim)
+        # mesh = np.meshgrid(*[grid] * self.n_dim)
+        # points = np.vstack(list(map(np.ravel, mesh))).T
+        # self.x_test = torch.tensor(points, dtype=torch.float32).to(self.device)
+        self.x_test = torch.tensor(qmc.LatinHypercube(d=self.n_dim).random(n=5000), dtype=torch.float32).to(self.device)
 
         self.load_initial_data()
         self.initialize_model()
@@ -83,26 +103,36 @@ class GPModelPipeline:
         selected_columns = order.get(self.n_dim, None)
 
         # Apply the mask to filter only valid Omega values
-        CLs = final_df['FullHad__ExpCLs']
-        Crosssection = final_df['xsec_TOTAL']
+        CLs = final_df['Final__CLs']
+        # Crosssection = final_df['xsec_TOTAL']
         mask = CLs > 0 # TODO: ask if this is a valid mask
         filtered_data = {param: final_df[f"{param}"][mask] for param in selected_columns}
-        filtered_data['FullHad__ExpCLs'] = CLs[mask]  # Always include Omega for filtering
+        filtered_data['Final__CLs'] = CLs[mask]  # Always include Omega for filtering
 
         # Construct the limited DataFrame dynamically with only the selected columns
         limited_df = pd.DataFrame(filtered_data)
 
-        # Convert to tensors
+        # Convert to tensors and move to device
+        # Take the first part (initial_train_points) of the data for training
         self.x_train = torch.stack([torch.tensor(limited_df[param].values[:self.initial_train_points], dtype=torch.float32) for param in selected_columns], dim=1).to(self.device)
-        self.y_train = torch.log(torch.tensor(limited_df['FullHad__ExpCLs'].values[:self.initial_train_points], dtype=torch.float32).to(self.device) / 0.12)
+        self.y_train = torch.tensor(limited_df['Final__CLs'].values[:self.initial_train_points], dtype=torch.float32).to(self.device)
         
-        self.x_valid = torch.stack([torch.tensor(limited_df[param].values[self.valid_points:], dtype=torch.float32) for param in selected_columns], dim=1).to(self.device)
-        self.y_valid = torch.log(torch.tensor(limited_df['FullHad__ExpCLs'].values[self.valid_points:], dtype=torch.float32).to(self.device) / 0.12)
+        # Take the second part (valid_points) of the data for validation
+        self.x_valid = torch.stack([torch.tensor(limited_df[param].values[self.initial_train_points:self.initial_train_points+self.valid_points], dtype=torch.float32) for param in selected_columns], dim=1).to(self.device)
+        self.y_valid = torch.tensor(limited_df['Final__CLs'].values[self.initial_train_points:self.initial_train_points+self.valid_points], dtype=torch.float32).to(self.device)
         
+        # Create a tensor for all available points to use in plotting true, difference and pull plots
+        self.x_all = torch.stack([torch.tensor(limited_df[param].values, dtype=torch.float32) for param in selected_columns], dim=1).to(self.device)
+        self.y_all = torch.tensor(limited_df['Final__CLs'].values, dtype=torch.float32).to(self.device)
+
+        # Normalize the x_data
         self.x_train = self._normalize(self.x_train)
         self.x_valid = self._normalize(self.x_valid)
+        self.x_all = self._normalize(self.x_all)
 
         print("Initial Training points: ", self.x_train, self.x_train.shape)
+        print("Validation points: ", self.x_valid, self.x_valid.shape)
+        print("All points: ", self.x_all, self.x_all.shape)
 
     def load_additional_data(self, new_x, new_y):
 
@@ -138,7 +168,10 @@ class GPModelPipeline:
 
     def _normalize(self, data):
         return (data - self.data_min) / (self.data_max - self.data_min)
-
+    
+    # # This works only for the dataset, otherwise i use hardcoded maxima and mimima 
+    # def _normalize(self, data):
+    #     return (data - data.min(dim=0).values) / (data.max(dim=0).values - data.min(dim=0).values)
 
     def _unnormalize(self, data):
         return data * (self.data_max - self.data_min) + self.data_min
@@ -177,155 +210,6 @@ class GPModelPipeline:
             var = self.observed_pred.variance.detach().reshape(-1, 1).to(self.device)
             print("Variance: ", var)
             thr = torch.Tensor([self.thr]).to(self.device)
-
-    def plotGP1D(self, new_x=None, save_path=None, iteration=None):
-        """
-        Plot the GP model's predictions, confidence interval, and various data points.
-        
-        :param new_x: New points to be highlighted on the plot (if any).
-        :param save_path: Path to save the plot as an image file.
-        :param iteration: The current iteration number to be displayed in the plot title.
-        """
-        mean = self.observed_pred.mean.cpu().numpy()
-        lower, upper = self.observed_pred.confidence_region()
-        lower = lower.cpu().numpy()
-        upper = upper.cpu().numpy()
-        var = self.observed_pred.variance.cpu().numpy()
-
-        # print("Confindence difference: ", upper - lower)
-
-        _, ax = plt.subplots(1, 1, figsize=(10, 6))
-        ax.plot(self.x_test.cpu().numpy(), mean, 'b', label='Learnt Function')
-        ax.plot(self.x_test.cpu().numpy(), var, label='Variance')
-        ax.fill_between(self.x_test.cpu().numpy(), lower, upper, alpha=0.5, label='Confidence')
-
-        ax.set_xlabel("M_1")
-        ax.set_ylabel("log(Omega/0.12)")
-        
-        # Plot true data points
-        x_true = torch.tensor(pd.read_csv(self.csv_file)['IN_M_1'].values[:], dtype=torch.float32).to(self.device)
-        x_true_min = x_true.min(dim=0, keepdim=True).values
-        x_true_max = x_true.max(dim=0, keepdim=True).values
-        x_true = (x_true - x_true_min) / (x_true_max - x_true_min)
-        y_true = torch.log(torch.tensor(pd.read_csv(self.csv_file)['MO_Omega'].values[:], dtype=torch.float32) / 0.12).to(self.device)
-        
-        ax.plot(x_true.cpu().numpy(), y_true.cpu().numpy(), '*', c="r", label='Truth')
-        ax.plot(self.x_train.cpu().numpy(), self.y_train.cpu().numpy(), 'k*', label='Training Data')
-
-        if new_x is not None:
-            dolabel = True
-            for xval in new_x.cpu().numpy():  # Move xval to CPU before using it in axvline
-                ax.axvline(x=xval, color='r', linestyle='--', label='new points') if dolabel else ax.axvline(x=xval, color='r', linestyle='--')
-                dolabel = False
-
-        # Check if root_file_path is provided before loading and plotting al_df data
-        if self.root_file_path is not None:
-            # Extract and normalize al_df data points
-            al_df = uproot.open(self.root_file_path)["susy"].arrays(library="pd")
-            M_1_al = al_df['IN_M_1']
-            Omega_al = al_df['MO_Omega']
-
-            M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
-            M_1_al_normalized = self._normalize(M_1_al_tensor)[0]
-            Omega_al_tensor = torch.tensor(Omega_al.values, dtype=torch.float32).to(self.device)
-            Omega_al_normalized = torch.log(Omega_al_tensor / 0.12)
-
-            # Plot al_df data points in green
-            ax.plot(M_1_al_normalized.cpu().numpy(), Omega_al_normalized.cpu().numpy(), '*', c="g", label='al_df Data')
-        else:
-            print("No root_file_path provided; skipping ROOT file data plotting.")
-
-        ax2 = ax.twinx()
-        ax2.set_ylabel("Entropy")
-        # Make sure to use the filtered x_test when plotting entropy
-        x_test_to_plot = self.x_test if self.entropy.shape[0] == self.x_test.shape[0] else self.x_test[self.valid_indices]
-
-        # Now use x_test_to_plot for plotting entropy
-        ax2.plot(x_test_to_plot.cpu().numpy(), self.entropy.cpu().numpy(), 'g', label='Entropy')
-        # ax2.plot(self.x_test.cpu().numpy(), self.entropy.cpu().numpy(), 'g', label='Entropy')
-
-        # Set the lower limit of the y-axis to 0.0 without specifying an upper limit
-        ax2.set_ylim(bottom=0.0)
-
-        maxE = torch.max(self.entropy)
-        maxIndex = torch.argmax(self.entropy)
-        maxX = x_test_to_plot[maxIndex] # self.x_test[maxIndex] #maybe use x_test_to plot here to make sure that its maxE is at peak of entropy
-        ax2.plot(maxX.cpu().numpy(), maxE.cpu().numpy(), 'go', label='Max. E')
-
-        # # Plot smoothed batch entropy
-        # smoothed_batch_entropy = self.smoothed_batch_entropy(blur=0.15)
-        # batch_entropy_values = smoothed_batch_entropy(mean=self.observed_pred.mean, cov=self.observed_pred.covariance_matrix)
-
-        # print("Batch_entropy values: ", smoothed_batch_entropy)
-        
-        #ax2.plot(self.x_test.cpu().numpy(), batch_entropy_values.cpu().detach().numpy(), 'm', linestyle='--', label='Smoothed Batch Entropy')
-
-
-        lines, labels = ax.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()
-        ax2.legend(lines + lines2, labels + labels2)
-
-        # Add the iteration number to the plot title
-        if iteration is not None:
-            ax.set_title(f"GP Model Prediction - Iteration {iteration}")
-
-        if save_path is not None:
-            plt.savefig(save_path)
-            print(f"Plot saved to {save_path}")
-        else:
-            plt.show()
-
-    def plotGP2D(self, new_x=None, save_path=None, iteration=None):
-        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
-
-        mean = self.observed_pred.mean.cpu().numpy()
-
-        heatmap, xedges, yedges = np.histogram2d(self.x_test[:, 0].cpu().numpy(), self.x_test[:, 1].cpu().numpy(), bins=50, weights=mean)
-
-        plt.figure(figsize=(8, 6))
-        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
-        plt.colorbar(label='log(Omega/0.12)')
-        plt.xlabel('M_1_normalized')
-        plt.ylabel('M_2_normalized')
-
-        # Scatterplot of the training points
-        # TODO: Remove comment, when again with fewer points than 10.000
-        # plt.scatter(self.x_train[:, 0].cpu().numpy(), self.x_train[:,1].cpu().numpy(), marker='*', s=200, c='b', label='training_points')
-
-        # Contour wo mean > 0
-        plt.contour(xedges[:-1], yedges[:-1], heatmap.T, levels=[0], colors='white', linewidths=2, linestyles='solid')
-
-        # Scatter plot of additional data (al_df) if root_file_path is provided
-        if self.root_file_path is not None and iteration != 1: # TODO: for iteration 1 do not plot new points
-            # Extract and normalize al_df data points 
-            al_df = uproot.open(self.root_file_path)["susy"].arrays(library="pd")
-            M_1_al = al_df['IN_M_1']
-            M_2_al = al_df['IN_M_2']  # Assuming M_2_al should be plotted in 2D
-            Omega_al = al_df['MO_Omega']
-
-            # Normalize the al_df points
-            M_1_al_tensor = torch.tensor(M_1_al.values, dtype=torch.float32).to(self.device)
-            M_2_al_tensor = torch.tensor(M_2_al.values, dtype=torch.float32).to(self.device)
-            M_1_al_normalized = self._normalize(M_1_al_tensor)[0]
-            M_2_al_normalized = self._normalize(M_2_al_tensor)[0]
-            
-            
-            # Scatter plot for the additional points (M_1_al and M_2_al)
-            plt.scatter(M_1_al_normalized.cpu().numpy(), M_2_al_normalized.cpu().numpy(), s=200,
-                        c='g', marker='*', label='al_df Data')
-
-        else:
-            print("No root_file_path provided; skipping ROOT file data plotting.")
-
-        # Add the iteration number to the plot title
-        if iteration is not None:
-            plt.title(f"GP Model Prediction - Iteration {iteration}")
-
-        if save_path is not None:
-            plt.savefig(save_path)
-            print(f"Plot saved to {save_path}")
-        else:
-            plt.show()
     
     def plotSlice2D(self, slice_dim_x1=0, slice_dim_x2=1, slice_value=0.5, tolerance=0.1, new_x=None, save_path=None, iteration=None):
         """
@@ -382,31 +266,8 @@ class GPModelPipeline:
         plt.figure(figsize=(8, 6))
         plt.imshow(mean_grid.T, extent=[0, 1, 0, 1], origin='lower', cmap='inferno', vmin=vmin, vmax=vmax, aspect='auto')
         plt.colorbar(label='GP Prediction Mean')
-
-        # Labels for the dimensions
-        labels = {
-            0: "M_1_normalized",
-            1: "M_2_normalized",
-            2: "M_3_normalized",
-            3: "tanb_normalized",
-            4: "mu_normalized",
-            5: "AT_normalized",
-            6: "Ab_normalized",
-            7: "Atau_normalized",
-            8: "mA_normalized",
-            9: "meL_normalized",
-            10: "mtauL_normalized",
-            11: "meR_normalized",
-            12: "mtauR_normalized",
-            13: "mqL1_normalized",
-            14: "mqL3_normalized",
-            15: "muR_normalized",
-            16: "mtR_normalized",
-            17: "mdR_normalized",
-            18: "mbR_normalized"
-        }
-        plt.xlabel(labels[slice_dim_x1])
-        plt.ylabel(labels[slice_dim_x2])
+        plt.xlabel(self.labels[slice_dim_x1])
+        plt.ylabel(self.labels[slice_dim_x2])
 
         # Create a filtered version of the training data
         filtered_x_train = self.x_train.clone()
@@ -417,11 +278,11 @@ class GPModelPipeline:
             indices = (filtered_x_train[:, dim].cpu().numpy() >= slice_value - tolerance) & (filtered_x_train[:, dim].cpu().numpy() <= slice_value + tolerance)
             filtered_x_train = filtered_x_train[indices, :]
             filtered_y_train = filtered_y_train[indices]
-            indices_new = (new_x[:, dim].cpu().numpy() >= slice_value - tolerance) & (new_x[:, dim].cpu().numpy() <= slice_value + tolerance)
-            filtered_new_x = new_x[indices_new, :]
+            # indices_new = (new_x[:, dim].cpu().numpy() >= slice_value - tolerance) & (new_x[:, dim].cpu().numpy() <= slice_value + tolerance)
+            # filtered_new_x = new_x[indices_new, :]
         
         # Scatterplot of the training points
-        plt.scatter(filtered_x_train[:, slice_dim_x1].numpy(), filtered_x_train[:, slice_dim_x2].numpy(), marker='o', s=50, c=filtered_y_train.numpy(), cmap='inferno', vmin=vmin, vmax=vmax, label='training points')
+        plt.scatter(filtered_x_train[:, slice_dim_x1].cpu().numpy(), filtered_x_train[:, slice_dim_x2].cpu().numpy(), marker='o', s=50, c=filtered_y_train.cpu().numpy(), cmap='inferno', vmin=vmin, vmax=vmax, label='training points')
         
         # Contour plot of the truth function
         plt.contour(x1_grid, x2_grid, mean_grid, levels=[self.thr], colors='white', linewidths=2, linestyles='solid')
@@ -441,50 +302,101 @@ class GPModelPipeline:
         else:
             plt.show()
 
-    def plotDifference(self, new_x=None, save_path=None, iteration=None):
-        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
+    def plotDifference(self, slice_dim_x1=0, slice_dim_x2=1, slice_value=0.5, save_path=None, iteration=None):
+        '''
+        Plot the Difference of the true function and the GP prediction with a Heatmap:
+        For this take all the available points and evaluate the GP on them. 
+        Then substract the mean from the true value and plot the difference in a heatmap.
+        '''
 
-        # Obtain the mean predictions from the GP model
-        mean = self.observed_pred.mean.cpu().numpy()
+        # Determine the remaining dimensions to plot
+        remaining_dims = [dim for dim in range(n_dim) if dim != slice_dim_x1 and dim != slice_dim_x2]
 
-        # Open the ROOT file
-        file = uproot.open(self.true_root_file_path)
-        tree_name = "susy"
-        tree = file[tree_name]
-        df = tree.arrays(library="pd")
+        # Create a filtered version of the training data
+        filtered_x_train = self.x_train
+        filtered_y_train = self.y_train
 
-        M_1 = df['IN_M_1'].values
-        M_2 = df['IN_M_2'].values
-        Omega = df['MO_Omega'].values
+        # Create a mask to filter the training data based on the slice value and tolerance in the remaining dimensions
+        mask = torch.ones(filtered_x_train.shape[0], dtype=torch.bool, device=filtered_x_train.device)
 
-        mask = Omega > 0
-        M_1_filtered = self._normalize(M_1[mask])[0]
-        M_2_filtered = self._normalize(M_2[mask])[0]
-        Omega_filtered = Omega[mask]
+        for dim in remaining_dims:
+            mask &= (filtered_x_train[:, dim] >= slice_value - tolerance) & (filtered_x_train[:, dim] <= slice_value + tolerance)
 
-        # Calculate the true values (log-scaled)
-        true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32) / 0.12)
+        # Extrahiere die Indizes, wo die Bedingung für alle Dimensionen erfüllt ist
+        indices = torch.nonzero(mask).squeeze()
 
-        # Evaluate model at M_1 and M_2 coordinates of true
-        input_data = torch.stack([
-            torch.tensor(M_1_filtered, dtype=torch.float32),
-            torch.tensor(M_2_filtered, dtype=torch.float32)
-        ], dim=1).to(self.device)
+        print("indices", indices)
+
+        filtered_x_train = filtered_x_train[indices, :]
+        filtered_y_train = filtered_y_train[indices]
+
+        print(filtered_x_train.shape)
+        print(filtered_y_train.shape)
+
+        # Create a grid over the remaining dimensions
+        grid_size = 50
+        x1_range = np.linspace(0, 1, grid_size)
+        x2_range = np.linspace(0, 1, grid_size)
+        x1_grid, x2_grid = np.meshgrid(x1_range, x2_range)
+        x1_grid_flat = x1_grid.flatten()
+        x2_grid_flat = x2_grid.flatten()
+
+        # Create a tensor for the grid points
+        x_test = np.zeros((grid_size * grid_size, self.n_dim))
+        x_test[:, slice_dim_x1] = x1_grid_flat 
+        x_test[:, slice_dim_x2] = x2_grid_flat 
+
+        # Set the remaining dimensions to the slice value
+        for dim in remaining_dims:
+            x_test[:, dim] = slice_value
+
+        # Turn the grid points into a torch tensor
+        x_test = torch.tensor(x_test, dtype=torch.float32).to(self.device)
 
         self.model.eval()
 
         # Disable gradient computation for evaluation
         with torch.no_grad():
-            predictions = self.model(input_data)
-
+            predictions = self.model(self.x_all)
+        
         observed_pred = self.likelihood(predictions)
         mean = observed_pred.mean.cpu().numpy()
-        lower, upper = observed_pred.confidence_region()
-        lower = lower.detach().cpu().numpy()
-        upper = upper.detach().cpu().numpy()
+
+        # Reshape the mean predictions to match the grid
+        mean_grid = mean.reshape(grid_size, grid_size)
+        
+        # Scatterplot of the training points
+        plt.scatter(filtered_x_train[:, slice_dim_x1].numpy(), filtered_x_train[:, slice_dim_x2].numpy(), marker='o', s=50, c=filtered_y_train.numpy(), cmap='inferno', label='training points')
+        """ 
+
+                # Open the ROOT file
+                file = uproot.open(self.true_root_file_path)
+                tree_name = "susy"
+                tree = file[tree_name]
+                df = tree.arrays(library="pd")
+
+                M_1 = df['IN_M_1'].values
+                M_2 = df['IN_M_2'].values
+                Omega = df['MO_Omega'].values
+
+                mask = Omega > 0
+                M_1_filtered = self._normalize(M_1[mask])[0]
+                M_2_filtered = self._normalize(M_2[mask])[0]
+                Omega_filtered = Omega[mask]
+
+                # Calculate the true values (log-scaled)
+                true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32) / 0.12)
+
+                # Evaluate model at M_1 and M_2 coordinates of true
+                input_data = torch.stack([
+                    torch.tensor(M_1_filtered, dtype=torch.float32),
+                    torch.tensor(M_2_filtered, dtype=torch.float32)
+                ], dim=1).to(self.device)
+
+        """
 
         # Now calculate the difference
-        diff = torch.tensor(mean) - true
+        diff = torch.tensor(mean) - self.y_all
 
         # Use a histogram to create a 2D heatmap of the differences
         heatmap, xedges, yedges = np.histogram2d(M_1_filtered,
@@ -581,69 +493,47 @@ class GPModelPipeline:
         else:
             plt.show()
 
+    def plotTrue(self, slice_dim_x1=0, slice_dim_x2=1, slice_value=0.5, save_path=None):
+        '''
+        Plot the True Function with a Heatmap: Because the EWKino Scan only has 12800 points in 12 dimensions,
+        we sum the points up instead of slicing trough the dimensions.
+        '''
+        # Determine the remaining dimensions to plot
+        remaining_dims = [dim for dim in range(n_dim) if dim != slice_dim_x1 and dim != slice_dim_x2]
 
-    def plotEntropy(self, new_x=None, save_path=None, iteration=None):
-        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
+        plt.xlabel(self.labels[slice_dim_x1])
+        plt.ylabel(self.labels[slice_dim_x2])
+
+        # Create a filtered version of the training data
+        summed_x_train = self.x_train.sum(dim=1)
+        summed_y_train = self.y_train
+
+        '''
+        I have to take 2 dimensions and then instead of sclicing i sum up all the other dimensions
+        summed_x_train = [self.x_train[:, dim] for dim in remaining_dims]
+        summed_y_train = self.y_train
+        '''
+
+        # Create a mask to filter the training data based on the slice value and tolerance in the remaining dimensions
+        mask = torch.ones(filtered_x_train.shape[0], dtype=torch.bool, device=filtered_x_train.device)
+
+        for dim in remaining_dims:
+            mask &= (filtered_x_train[:, dim] >= slice_value - tolerance) & (filtered_x_train[:, dim] <= slice_value + tolerance)
+
+        # Extrahiere die Indizes, wo die Bedingung für alle Dimensionen erfüllt ist
+        indices = torch.nonzero(mask).squeeze()
+
+        print("indices", indices)
+
+        filtered_x_train = filtered_x_train[indices, :]
+        filtered_y_train = filtered_y_train[indices]
+
+        print(filtered_x_train.shape)
+        print(filtered_y_train.shape)
         
-        heatmap, xedges, yedges = np.histogram2d(self.x_test[:, 0].cpu().numpy(), self.x_test[:, 1].cpu().numpy(), bins=50, weights=self.entropy.cpu().numpy())
+        # Scatterplot of the training points
+        plt.scatter(filtered_x_train[:, slice_dim_x1].numpy(), filtered_x_train[:, slice_dim_x2].numpy(), marker='o', s=50, c=filtered_y_train.numpy(), cmap='inferno', label='training points')
 
-        plt.figure(figsize=(8, 6))
-        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
-        plt.colorbar(label='Entropy')
-        plt.xlabel('M_1_normalized')
-        plt.ylabel('M_2_normalized')
-
-        # Add the iteration number to the plot title
-        if iteration is not None:
-            plt.title(f"Entropy - Iteration {iteration}")
-
-        if save_path is not None:
-            plt.savefig(save_path)
-            print(f"Plot saved to {save_path}")
-        else:
-            plt.show()
-    
-    def plotTrue(self, new_x=None, save_path=None, iteration=None):
-        '''Plot the True Function with a Heatmap'''
-
-        # Open the ROOT file
-        file = uproot.open(self.true_root_file_path)
-        
-        tree_name = "susy"
-        tree = file[tree_name]
-        
-        # Convert tree to pandas DataFrame
-        df = tree.arrays(library="pd")
-
-        base_order = ["IN_M_1", "IN_M_2", "IN_tanb", "IN_mu", "IN_M3", "IN_AT", "IN_Ab", "IN_Atau", 
-                      "IN_mA", "IN_meL", "IN_mtauL", "IN_meR", "IN_mtauR", "IN_mqL1", "IN_mqL3", 
-                      "IN_muR", "IN_mtR", "IN_mdR", "IN_mbR"]
-        order = {i: base_order[:i] for i in range(1, len(base_order) + 1)}
-        
-        # Get the parameters to include based on n
-        selected_columns = order.get(self.n_dim, None)
-
-        # Apply the mask to filter only valid Omega values
-        Omega = df['MO_Omega']
-        mask = Omega > 0
-        filtered_data = {param: df[f"{param}"][mask] for param in selected_columns}
-        filtered_data['MO_Omega'] = Omega[mask]  # Always include Omega for filtering
-
-        M_1 = df['IN_M_1'].values
-        M_2 = df['IN_M_2'].values
-        Omega = df['MO_Omega'].values
-
-        # Create a mask to filter out negative or zero values of Omega
-        mask = Omega > 0
-
-        # Apply the mask to filter M_1, M_2, and Omega
-        M_1_filtered = M_1[mask]
-        M_2_filtered = M_2[mask]
-        Omega_filtered = Omega[mask]
-
-        # Calculate the true values (log-scaled)
-        true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32) / 0.12)
-        
         heatmap, xedges, yedges = np.histogram2d(M_1_filtered, M_2_filtered, bins=50, weights=true.cpu().numpy())
         heatmap_counts, xedges, yedges = np.histogram2d(M_1_filtered, M_2_filtered, bins=50)
         heatmap = heatmap/heatmap_counts
@@ -664,7 +554,7 @@ class GPModelPipeline:
         else:
             plt.show()
 
-    def plotEntropy(self, slice_dim_x1=0, slice_dim_x2=1, slice_value=0.5, tolerance=0.1, new_x=None, save_path=None, iteration=None):
+    def plotEntropy(self, slice_dim_x1=0, slice_dim_x2=1, slice_value=0.5, save_path=None, iteration=None):
         """
         Plot a 2D slice of the truth function.
 
@@ -729,30 +619,8 @@ class GPModelPipeline:
         plt.imshow(entropy_grid, extent=[0, 1, 0, 1], origin='lower', cmap='inferno', aspect='auto')
         plt.colorbar(label='Entropy')
 
-        # Labels for the dimensions
-        labels = {
-            0: "M_1_normalized",
-            1: "M_2_normalized",
-            2: "M_3_normalized",
-            3: "tanb_normalized",
-            4: "mu_normalized",
-            5: "AT_normalized",
-            6: "Ab_normalized",
-            7: "Atau_normalized",
-            8: "mA_normalized",
-            9: "meL_normalized",
-            10: "mtauL_normalized",
-            11: "meR_normalized",
-            12: "mtauR_normalized",
-            13: "mqL1_normalized",
-            14: "mqL3_normalized",
-            15: "muR_normalized",
-            16: "mtR_normalized",
-            17: "mdR_normalized",
-            18: "mbR_normalized"
-        }
-        plt.xlabel(labels[slice_dim_x1])
-        plt.ylabel(labels[slice_dim_x2])
+        plt.xlabel(self.labels[slice_dim_x1])
+        plt.ylabel(self.labels[slice_dim_x2])
 
         # Add the iteration number to the plot title
         if iteration is not None:
@@ -896,6 +764,23 @@ class GPModelPipeline:
         else:
             plt.show()
 
+    def plot_conf_matrix(self, save_path=None):
+        '''Plot the confusion matrix as a heatmap'''
+
+        plt.figure(figsize=(5, 4))
+        sns.heatmap(self.conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['Pred 0', 'Pred 1'], yticklabels=['True 0', 'True 1'])
+        plt.xlabel('Predicted Labels')
+        plt.ylabel('True Labels')
+        plt.title('Confusion Matrix')
+
+        # Save the plot or show it
+        if save_path is not None:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
+
+
 
     def best_not_yet_chosen(self, score, previous_indices):
         candidates = torch.sort(score, descending=True)[1].to(self.device)
@@ -1011,11 +896,11 @@ class GPModelPipeline:
             selected_columns = order.get(self.n_dim, None)
 
             # Apply the mask to filter only valid Omega values
-            CLs = final_df['FullHad__ExpCLs']
+            CLs = final_df['Final__CLs']
             Crosssection = final_df['xsec_TOTAL']
             mask = CLs > 0 # TODO: ask if this is a valid mask
             filtered_data = {param: final_df[f"{param}"][mask] for param in selected_columns}
-            filtered_data['FullHad__ExpCLs'] = CLs[mask]  # Always include Omega for filtering
+            filtered_data['Final__CLs'] = CLs[mask]  # Always include Omega for filtering
 
             # Construct the limited DataFrame dynamically with only the selected columns
             limited_df = pd.DataFrame(filtered_data)
@@ -1023,7 +908,7 @@ class GPModelPipeline:
             # Convert to tensors
             x_data = torch.stack([torch.tensor(limited_df[param].values[:5000], dtype=torch.float32) for param in selected_columns], dim=1).to(self.device)
             x_data = self._normalize(x_data)
-            y_data = torch.log(torch.tensor(limited_df['FullHad__ExpCLs'].values[:5000], dtype=torch.float32).to(self.device) / 0.12)
+            y_data = torch.tensor(limited_df['Final__CLs'].values[:5000], dtype=torch.float32).to(self.device)
             # Subtract the already chosen training point from the data
             mask = torch.all((x_data.unsqueeze(1) != self.x_train), dim=2).all(dim=1)
             x_data = x_data[mask]
@@ -1113,7 +998,7 @@ class GPModelPipeline:
         # Open the data csv file
         final_df = pd.read_csv(self.start_root_file_path)
 
-        base_order = ["M_1", "M_2", "tan_beta", "mu", "M3", "At", "Ab", "Atau", 
+        base_order = ["M_1", "M_2", "tan_beta", "mu", "M_3", "At", "Ab", "Atau", 
                         "mA", "mqL3", "mtR", "mbR"]
         order = {i: base_order[:i] for i in range(1, len(base_order) + 1)}
         
@@ -1121,19 +1006,23 @@ class GPModelPipeline:
         selected_columns = order.get(self.n_dim, None)
 
         # Apply the mask to filter only valid Omega values
-        CLs = final_df['FullHad__ExpCLs']
+        CLs = final_df['Final__CLs']
         Crosssection = final_df['xsec_TOTAL']
         mask = CLs > 0 # TODO: ask if this is a valid mask
         filtered_data = {param: final_df[f"{param}"][mask] for param in selected_columns}
-        filtered_data['FullHad__ExpCLs'] = CLs[mask]  # Always include Omega for filtering
+        filtered_data['Final__CLs'] = CLs[mask]  # Always include Omega for filtering
 
         # Construct the limited DataFrame dynamically with only the selected columns
         limited_df = pd.DataFrame(filtered_data)
 
         # Convert to tensors
-        x_data = torch.stack([torch.tensor(limited_df[param].values, dtype=torch.float32) for param in selected_columns], dim=1).to(self.device)
+        # Take the last part of the data for testing
+        x_data = torch.stack([torch.tensor(limited_df[param].values[self.initial_train_points + self.valid_points:], dtype=torch.float32) for param in selected_columns], dim=1).to(self.device)
         input_data = self._normalize(x_data)
-        true = torch.log(torch.tensor(limited_df['FullHad__ExpCLs'].values, dtype=torch.float32).to(self.device) / 0.12)
+        true = torch.tensor(limited_df['Final__CLs'].values[self.initial_train_points + self.valid_points:], dtype=torch.float32).to(self.device)
+
+        print("Input Data Shape: ", input_data.shape)
+        print("True Shape: ", true.shape)
 
         self.model.eval()
 
@@ -1211,11 +1100,14 @@ class GPModelPipeline:
             # # TODO: Classification with uncertainty    
             # mean_plus = mean + (upper - lower)/2
             # mean_minus = mean + (upper - lower)/2
-
+            
+            # TODO: die Punkte näher an der Contour stärker gewichten
             TP = ((mean > self.thr) & (true > self.thr)).sum().item()  # True Positives
             FP = ((mean > self.thr) & (true < self.thr)).sum().item()  # False Positives
             FN = ((mean < self.thr) & (true > self.thr)).sum().item()  # False Negatives
             TN = ((mean < self.thr) & (true < self.thr)).sum().item()  # True Negatives
+
+            self.conf_matrix = np.array([[TP, FP], [FN, TN]])
 
             total = TP + FP + FN + TN
             accuracy = (TP + TN) / total if total > 0 else 0
@@ -1300,25 +1192,37 @@ class GPModelPipeline:
 if __name__ == "__main__":
 
     # Define Boolean to either do Active learning selection or random selection
-    IsActiveLearning = True
-    IsFullTraining = False
+    IsActiveLearning = False
+    IsFullTraining = True
 
-    n_dim = 4
-    name = f"two_circles{n_dim}D_bs24_raven"
+    n_dim = 12
+    name = f"two_circles{n_dim}D_CLs#2"
     threshold = 0.05
-    al_points = 100
+    al_points = 24
 
     args = parse_args()
     
     if IsFullTraining:
         gp_pipeline = GPModelPipeline(
             start_root_file_path='/u/dvoss/al_pmssmwithgp/model/EWKino.csv',
-            output_dir=args.output_dir, initial_train_points=12000, valid_points=3000, n_dim=n_dim , threshold=threshold
+            output_dir=args.output_dir, initial_train_points=7000, valid_points=2000, n_dim=n_dim , threshold=threshold
         )
         gp_pipeline.initialize_model()
-        gp_pipeline.train_model(iters=10)
+        gp_pipeline.train_model(iters=1000)
         gp_pipeline.plot_losses()
         gp_pipeline.evaluate_model()
+        gp_pipeline.goodness_of_fit(csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}.csv')
+
+        # Generate all possible combinations of two dimensions from n_dim for plotting
+        combinations = list(itertools.combinations(range(n_dim), 2))
+
+        for (slice_dim_x1, slice_dim_x2) in combinations:
+            gp_pipeline.plotSlice2D(
+                slice_dim_x1=slice_dim_x1, slice_dim_x2=slice_dim_x2, slice_value=0.5,
+                save_path=os.path.join(args.output_dir, f'gp_plot_{slice_dim_x1}_{slice_dim_x2}_{name}.png'),
+                iteration=args.iteration
+            )
+        gp_pipeline.save_model(os.path.join(args.output_dir,f'model_checkpoint_{name}_rand.pth'))
     else:
         previous_iter = args.iteration - 1
         previous_output_dir = f'/raven/u/dvoss/al_pmssmwithgp/model/plots/Iter{previous_iter}'
@@ -1344,7 +1248,7 @@ if __name__ == "__main__":
                 gp_pipeline.load_training_data(training_data_path)
 
         gp_pipeline.initialize_model()
-        gp_pipeline.train_model(iters=10)
+        gp_pipeline.train_model(iters=100)
         gp_pipeline.plot_losses()
         gp_pipeline.evaluate_model()
         # Plot with Active Learning new points
@@ -1352,7 +1256,7 @@ if __name__ == "__main__":
             new_points, new_x, new_y = gp_pipeline.select_new_points(N=al_points)
             # gp_pipeline.goodness_of_fit(csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}.csv')
 
-            # # Generate all possible combinations of two dimensions from n_dim for plotting
+            # Generate all possible combinations of two dimensions from n_dim for plotting
             # combinations = list(itertools.combinations(range(n_dim), 2))
 
             # for (slice_dim_x1, slice_dim_x2) in combinations:
