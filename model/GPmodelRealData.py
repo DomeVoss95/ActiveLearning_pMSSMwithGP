@@ -302,56 +302,12 @@ class GPModelPipeline:
         else:
             plt.show()
 
-    def plotDifference(self, slice_dim_x1=0, slice_dim_x2=1, slice_value=0.5, save_path=None, iteration=None):
+    def plotDifference(self, slice_dim_x1=0, slice_dim_x2=1, save_path=None, iteration=None):
         '''
         Plot the Difference of the true function and the GP prediction with a Heatmap:
         For this take all the available points and evaluate the GP on them. 
         Then substract the mean from the true value and plot the difference in a heatmap.
         '''
-
-        # Determine the remaining dimensions to plot
-        remaining_dims = [dim for dim in range(n_dim) if dim != slice_dim_x1 and dim != slice_dim_x2]
-
-        # Create a filtered version of the training data
-        filtered_x_train = self.x_train
-        filtered_y_train = self.y_train
-
-        # Create a mask to filter the training data based on the slice value and tolerance in the remaining dimensions
-        mask = torch.ones(filtered_x_train.shape[0], dtype=torch.bool, device=filtered_x_train.device)
-
-        for dim in remaining_dims:
-            mask &= (filtered_x_train[:, dim] >= slice_value - tolerance) & (filtered_x_train[:, dim] <= slice_value + tolerance)
-
-        # Extrahiere die Indizes, wo die Bedingung für alle Dimensionen erfüllt ist
-        indices = torch.nonzero(mask).squeeze()
-
-        print("indices", indices)
-
-        filtered_x_train = filtered_x_train[indices, :]
-        filtered_y_train = filtered_y_train[indices]
-
-        print(filtered_x_train.shape)
-        print(filtered_y_train.shape)
-
-        # Create a grid over the remaining dimensions
-        grid_size = 50
-        x1_range = np.linspace(0, 1, grid_size)
-        x2_range = np.linspace(0, 1, grid_size)
-        x1_grid, x2_grid = np.meshgrid(x1_range, x2_range)
-        x1_grid_flat = x1_grid.flatten()
-        x2_grid_flat = x2_grid.flatten()
-
-        # Create a tensor for the grid points
-        x_test = np.zeros((grid_size * grid_size, self.n_dim))
-        x_test[:, slice_dim_x1] = x1_grid_flat 
-        x_test[:, slice_dim_x2] = x2_grid_flat 
-
-        # Set the remaining dimensions to the slice value
-        for dim in remaining_dims:
-            x_test[:, dim] = slice_value
-
-        # Turn the grid points into a torch tensor
-        x_test = torch.tensor(x_test, dtype=torch.float32).to(self.device)
 
         self.model.eval()
 
@@ -362,56 +318,18 @@ class GPModelPipeline:
         observed_pred = self.likelihood(predictions)
         mean = observed_pred.mean.cpu().numpy()
 
-        # Reshape the mean predictions to match the grid
-        mean_grid = mean.reshape(grid_size, grid_size)
-        
-        # Scatterplot of the training points
-        plt.scatter(filtered_x_train[:, slice_dim_x1].numpy(), filtered_x_train[:, slice_dim_x2].numpy(), marker='o', s=50, c=filtered_y_train.numpy(), cmap='inferno', label='training points')
-        """ 
-
-                # Open the ROOT file
-                file = uproot.open(self.true_root_file_path)
-                tree_name = "susy"
-                tree = file[tree_name]
-                df = tree.arrays(library="pd")
-
-                M_1 = df['IN_M_1'].values
-                M_2 = df['IN_M_2'].values
-                Omega = df['MO_Omega'].values
-
-                mask = Omega > 0
-                M_1_filtered = self._normalize(M_1[mask])[0]
-                M_2_filtered = self._normalize(M_2[mask])[0]
-                Omega_filtered = Omega[mask]
-
-                # Calculate the true values (log-scaled)
-                true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32) / 0.12)
-
-                # Evaluate model at M_1 and M_2 coordinates of true
-                input_data = torch.stack([
-                    torch.tensor(M_1_filtered, dtype=torch.float32),
-                    torch.tensor(M_2_filtered, dtype=torch.float32)
-                ], dim=1).to(self.device)
-
-        """
-
-        # Now calculate the difference
+        # Calculate the difference between the predicted mean and the true value
         diff = torch.tensor(mean) - self.y_all
 
-        # Use a histogram to create a 2D heatmap of the differences
-        heatmap, xedges, yedges = np.histogram2d(M_1_filtered,
-                                                M_2_filtered,
-                                                bins=50, weights=diff.cpu().numpy())
-        heatmap_counts, xedges, yedges = np.histogram2d(M_1_filtered, M_2_filtered, bins=50)
-        heatmap = heatmap/heatmap_counts 
+        heatmap, xedges, yedges = np.histogram2d(self.x_all[:, slice_dim_x1].numpy(), self.x_all[:, slice_dim_x2].numpy(), bins=50, weights=diff.cpu().numpy())
+        heatmap_counts, xedges, yedges = np.histogram2d(self.x_all[:, slice_dim_x1].numpy(), self.x_all[:, slice_dim_x2].numpy(), bins=50)
+        heatmap = heatmap/heatmap_counts
 
-        # Plot the heatmap
         plt.figure(figsize=(8, 6))
-        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]],
-                origin='lower', cmap='inferno', aspect='auto')
-        plt.colorbar(label='Mean - True')
-        plt.xlabel('M_1_normalized')
-        plt.ylabel('M_2_normalized')
+        plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
+        plt.colorbar(label='Difference')
+        plt.xlabel(self.labels[slice_dim_x1])
+        plt.ylabel(self.labels[slice_dim_x2])
 
         # Add the iteration number to the plot title if provided
         if iteration is not None:
@@ -425,38 +343,14 @@ class GPModelPipeline:
             plt.show()
 
 
-    def plotPull(self, new_x=None, save_path=None, iteration=None):
-        '''Plot the 2D GP with a Heatmap and the new points and save it in the plot folder'''
-
-        # Open the ROOT file
-        file = uproot.open(self.true_root_file_path)
-        tree_name = "susy"
-        tree = file[tree_name]
-        df = tree.arrays(library="pd")
-
-        M_1 = df['IN_M_1'].values
-        M_2 = df['IN_M_2'].values
-        Omega = df['MO_Omega'].values
-
-        mask = Omega > 0
-        M_1_filtered = self._normalize(M_1[mask], self.data_min, self.data_max)[0]
-        M_2_filtered = self._normalize(M_2[mask], self.data_min, self.data_max)[0]
-        Omega_filtered = Omega[mask]
-
-        # Calculate the true values (log-scaled)
-        true = torch.log(torch.tensor(Omega_filtered, dtype=torch.float32) / 0.12)
-
-        # Evaluate model at M_1 and M_2 coordinates of true
-        input_data = torch.stack([
-            torch.tensor(M_1_filtered, dtype=torch.float32),
-            torch.tensor(M_2_filtered, dtype=torch.float32)
-        ], dim=1).to(self.device)
+    def plotPull(self, slice_dim_x1=0, slice_dim_x2=1, save_path=None, iteration=None):
+        '''Plot the Pull of the evaluated model against the true value'''
 
         self.model.eval()
 
         # Disable gradient computation for evaluation
         with torch.no_grad():
-            predictions = self.model(input_data)
+            predictions = self.model(self.x_all)
 
         observed_pred = self.likelihood(predictions)
         mean = observed_pred.mean.cpu().numpy()
@@ -465,13 +359,11 @@ class GPModelPipeline:
         upper = upper.detach().cpu().numpy()
 
         # Calculate the pull: (predicted mean - true value) / uncertainty (upper - lower)
-        pull = (torch.tensor(mean) - true) / (upper - lower)
+        pull = (torch.tensor(mean) - self.y_all) / (upper - lower)
 
         # Use a histogram to create a 2D heatmap of the pull values
-        heatmap, xedges, yedges = np.histogram2d(M_1_filtered,
-                                                M_2_filtered,
-                                                bins=50, weights=pull.cpu().numpy())
-        heatmap_counts, xedges, yedges = np.histogram2d(M_1_filtered, M_2_filtered, bins=50)
+        heatmap, xedges, yedges = np.histogram2d(self.x_all[:, slice_dim_x1].numpy(), self.x_all[:, slice_dim_x2].numpy(), bins=50, weights=pull.cpu().numpy())
+        heatmap_counts, xedges, yedges = np.histogram2d(self.x_all[:, slice_dim_x1].numpy(), self.x_all[:, slice_dim_x2].numpy(), bins=50)
         heatmap = heatmap/heatmap_counts
 
         # Plot the heatmap
@@ -479,8 +371,8 @@ class GPModelPipeline:
         plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]],
                 origin='lower', cmap='inferno', aspect='auto')
         plt.colorbar(label='(Mean - True) / Uncertainty')
-        plt.xlabel('M_1_normalized')
-        plt.ylabel('M_2_normalized')
+        plt.xlabel(self.labels[slice_dim_x1])
+        plt.ylabel(self.labels[slice_dim_x2])
 
         # Add the iteration number to the plot title if provided
         if iteration is not None:
@@ -493,60 +385,22 @@ class GPModelPipeline:
         else:
             plt.show()
 
-    def plotTrue(self, slice_dim_x1=0, slice_dim_x2=1, slice_value=0.5, save_path=None):
+    def plotTrue(self, slice_dim_x1=0, slice_dim_x2=1, save_path=None):
         '''
         Plot the True Function with a Heatmap: Because the EWKino Scan only has 12800 points in 12 dimensions,
         we sum the points up instead of slicing trough the dimensions.
         '''
-        # Determine the remaining dimensions to plot
-        remaining_dims = [dim for dim in range(n_dim) if dim != slice_dim_x1 and dim != slice_dim_x2]
 
-        plt.xlabel(self.labels[slice_dim_x1])
-        plt.ylabel(self.labels[slice_dim_x2])
-
-        # Create a filtered version of the training data
-        summed_x_train = self.x_train.sum(dim=1)
-        summed_y_train = self.y_train
-
-        '''
-        I have to take 2 dimensions and then instead of sclicing i sum up all the other dimensions
-        summed_x_train = [self.x_train[:, dim] for dim in remaining_dims]
-        summed_y_train = self.y_train
-        '''
-
-        # Create a mask to filter the training data based on the slice value and tolerance in the remaining dimensions
-        mask = torch.ones(filtered_x_train.shape[0], dtype=torch.bool, device=filtered_x_train.device)
-
-        for dim in remaining_dims:
-            mask &= (filtered_x_train[:, dim] >= slice_value - tolerance) & (filtered_x_train[:, dim] <= slice_value + tolerance)
-
-        # Extrahiere die Indizes, wo die Bedingung für alle Dimensionen erfüllt ist
-        indices = torch.nonzero(mask).squeeze()
-
-        print("indices", indices)
-
-        filtered_x_train = filtered_x_train[indices, :]
-        filtered_y_train = filtered_y_train[indices]
-
-        print(filtered_x_train.shape)
-        print(filtered_y_train.shape)
-        
-        # Scatterplot of the training points
-        plt.scatter(filtered_x_train[:, slice_dim_x1].numpy(), filtered_x_train[:, slice_dim_x2].numpy(), marker='o', s=50, c=filtered_y_train.numpy(), cmap='inferno', label='training points')
-
-        heatmap, xedges, yedges = np.histogram2d(M_1_filtered, M_2_filtered, bins=50, weights=true.cpu().numpy())
-        heatmap_counts, xedges, yedges = np.histogram2d(M_1_filtered, M_2_filtered, bins=50)
+        heatmap, xedges, yedges = np.histogram2d(self.x_all[:, slice_dim_x1].numpy(), self.x_all[:, slice_dim_x2].numpy(), bins=50, weights=self.y_all.numpy())
+        heatmap_counts, xedges, yedges = np.histogram2d(self.x_all[:, slice_dim_x1].numpy(), self.x_all[:, slice_dim_x2].numpy(), bins=50)
         heatmap = heatmap/heatmap_counts
 
         plt.figure(figsize=(8, 6))
         plt.imshow(heatmap.T, extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]], origin='lower', cmap='inferno', aspect='auto')
-        plt.colorbar(label='log(Omega/0.12)')
-        plt.xlabel('M_1_normalized')
-        plt.ylabel('M_2_normalized')
-
-        # Add the iteration number to the plot title
-        if iteration is not None:
-            plt.title(f"True Function - Iteration {iteration}")
+        plt.colorbar(label='Final_CLs')
+        plt.xlabel(self.labels[slice_dim_x1])
+        plt.ylabel(self.labels[slice_dim_x2])
+        plt.title(f"True Function CLs")
 
         if save_path is not None:
             plt.savefig(save_path)
@@ -779,7 +633,6 @@ class GPModelPipeline:
             print(f"Plot saved to {save_path}")
         else:
             plt.show()
-
 
 
     def best_not_yet_chosen(self, score, previous_indices):
@@ -1195,8 +1048,8 @@ if __name__ == "__main__":
     IsActiveLearning = False
     IsFullTraining = True
 
-    n_dim = 12
-    name = f"two_circles{n_dim}D_CLs#2"
+    n_dim = 3
+    name = f"two_circles{n_dim}D_CLs_test"
     threshold = 0.05
     al_points = 24
 
@@ -1205,13 +1058,14 @@ if __name__ == "__main__":
     if IsFullTraining:
         gp_pipeline = GPModelPipeline(
             start_root_file_path='/u/dvoss/al_pmssmwithgp/model/EWKino.csv',
-            output_dir=args.output_dir, initial_train_points=7000, valid_points=2000, n_dim=n_dim , threshold=threshold
+            output_dir=args.output_dir, initial_train_points=10, valid_points=10, n_dim=n_dim , threshold=threshold
         )
         gp_pipeline.initialize_model()
         gp_pipeline.train_model(iters=1000)
         gp_pipeline.plot_losses()
         gp_pipeline.evaluate_model()
         gp_pipeline.goodness_of_fit(csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}.csv')
+        gp_pipeline.plot_conf_matrix(save_path=os.path.join(args.output_dir, f'confusion_matrix_{name}.png'))
 
         # Generate all possible combinations of two dimensions from n_dim for plotting
         combinations = list(itertools.combinations(range(n_dim), 2))
@@ -1222,6 +1076,9 @@ if __name__ == "__main__":
                 save_path=os.path.join(args.output_dir, f'gp_plot_{slice_dim_x1}_{slice_dim_x2}_{name}.png'),
                 iteration=args.iteration
             )
+            gp_pipeline.plotDifference(slice_dim_x1=slice_dim_x1, slice_dim_x2=slice_dim_x2, save_path=os.path.join(args.output_dir, f'diff_plot_{name}.png'), iteration=args.iteration)
+            gp_pipeline.plotPull(slice_dim_x1=slice_dim_x1, slice_dim_x2=slice_dim_x2, save_path=os.path.join(args.output_dir, f'pull_plot_{name}.png'), iteration=args.iteration)
+            gp_pipeline.plotEntropy(slice_dim_x1=slice_dim_x1, slice_dim_x2=slice_dim_x2, save_path=os.path.join(args.output_dir, f'entropy_plot_{name}.png'), iteration=args.iteration)
         gp_pipeline.save_model(os.path.join(args.output_dir,f'model_checkpoint_{name}_rand.pth'))
     else:
         previous_iter = args.iteration - 1
