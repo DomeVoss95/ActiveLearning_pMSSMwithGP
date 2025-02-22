@@ -15,14 +15,26 @@ from create_confignD import create_config
 from multitaskGPnD import MultitaskGP
 from scipy.stats import qmc
 import itertools
+import sys
 
-
-
+# def parse_args():
+#     parser = argparse.ArgumentParser(description='GP Model Pipeline')
+#     parser.add_argument('--iteration', type=int, required=True, help='Iteration number')
+#     parser.add_argument('--output_dir', type=str, required=True, help='Output directory')
+#     return parser.parse_args()
 
 def parse_args():
     parser = argparse.ArgumentParser(description='GP Model Pipeline')
     parser.add_argument('--iteration', type=int, required=True, help='Iteration number')
     parser.add_argument('--output_dir', type=str, required=True, help='Output directory')
+    parser.add_argument('--lengthscale_min', type=float, required=True, help='Minimum lengthscale')
+    parser.add_argument('--lengthscale_max', type=float, required=True, help='Maximum lengthscale')
+    parser.add_argument('--outputscale_min', type=float, required=True, help='Minimum outputscale')
+    parser.add_argument('--noise_min', type=float, required=True, help='Minimum noise')
+    parser.add_argument('--noise_max', type=float, required=True, help='Maximum noise')
+    parser.add_argument('--learning_rate', type=float, required=True, help='Learning rate')
+    parser.add_argument('--iterations', type=int, required=True, help='Number of iterations')
+    parser.add_argument('--optimizer', type=str, required=True, help='Optimizer')
     return parser.parse_args()
 
 class GPModelPipeline:
@@ -60,22 +72,6 @@ class GPModelPipeline:
         self.data_min = self.data_min[:self.n_dim]
         self.data_max = self.data_max[:self.n_dim]
 
-        # Labels for the dimensions
-        # self.labels = {
-        #     0: "M_1_normalized",
-        #     1: "M_2_normalized",
-        #     2: "tanb_normalized",
-        #     3: "mu_normalized",
-        #     4: "M_3_normalized",
-        #     5: "At_normalized",
-        #     6: "Ab_normalized",
-        #     7: "Atau_normalized",
-        #     8: "mA_normalized",
-        #     9: "mqL3_normalized",
-        #     10: "mtR_normalized",
-        #     11: "mbR_normalized"
-        # }
-
         self.labels = {
             0: r"$M_1^{\mathrm{norm}}$",
             1: r"$M_2^{\mathrm{norm}}$",
@@ -91,18 +87,10 @@ class GPModelPipeline:
             11: r"$m_{bR}^{\mathrm{norm}}$"
         }
 
-
-
-        # # Create a regular grid mesh for x_test
-        # self.n_points_per_dim = int(np.ceil( ** (1 / self.n_dim)))
-        # grid = np.linspace(0, 1, self.n_points_per_dim)
-        # mesh = np.meshgrid(*[grid] * self.n_dim)
-        # points = np.vstack(list(map(np.ravel, mesh))).T
-        # self.x_test = torch.tensor(points, dtype=torch.float32).to(self.device)
         self.x_test = torch.tensor(qmc.LatinHypercube(d=self.n_dim).random(n=5000), dtype=torch.float32).to(self.device)
 
         self.load_initial_data()
-        self.initialize_model()
+        #self.initialize_model()
 
 
 
@@ -194,18 +182,27 @@ class GPModelPipeline:
     def _unnormalize(self, data):
         return data * (self.data_max - self.data_min) + self.data_min
 
-    def initialize_model(self):
+    def initialize_model(self, lengthscale_min, lengthscale_max, outputscale_min, noise_min, noise_max):
+        
+        print(f"These hyperparameters are used for initializing the model: lengthscale_min={lengthscale_min}, lengthscale_max={lengthscale_max}, outputscale_min={outputscale_min}, noise_min={noise_min}, noise_max={noise_max}")
         self.model = MultitaskGP(self.x_train, self.y_train, self.x_valid, self.y_valid, self.likelihood, n_dim).to(self.device)
+        self.model.covar_module.base_kernel.register_constraint("raw_lengthscale", gpytorch.constraints.Interval(lengthscale_min, lengthscale_max))
+        self.model.covar_module.register_constraint("raw_outputscale", gpytorch.constraints.GreaterThan(outputscale_min))
+        self.model.likelihood.noise_covar.register_constraint("raw_noise", gpytorch.constraints.Interval(noise_min, noise_max))
 
-    def train_model(self, iters=20):
+
+    def train_model(self, learning_rate, iters, optimizer):
+
+        print(f"These hyperparameters are used for training: learning_rate={learning_rate}, iters={iters}, optimizer={optimizer}")
+
         print("These training_points are used in the GP", self.x_train)
-        self.best_model, self.losses, self.losses_valid = self.model.do_train_loop(iters=iters)
+
+        self.best_model, self.losses, self.losses_valid = self.model.do_train_loop(lr=learning_rate, iters=iters, optimizer=optimizer)
+
         # Print the hyperparameters of the best model
         print("best model parameters: ", self.best_model.state_dict())
-        # Save the state dictionary of the best model
-        # torch.save(self.best_model.state_dict(), os.path.join(self.output_dir, 'best_multitask_gp.pth'))
 
-    def plot_losses(self):
+    def plot_losses(self, save_path=None):
         plt.plot(self.losses, label='training loss')
         plt.plot(self.losses_valid, label='validation loss')
         plt.yscale('log')
@@ -213,8 +210,11 @@ class GPModelPipeline:
         plt.xlabel('Iterations')
         plt.ylabel('Loss')
         plt.title('Training and Validation Loss on Logarithmic Scale')
-        plt.savefig(os.path.join(self.output_dir, 'loss_plot.png'))
-        plt.show()
+        if save_path:
+            plt.savefig(save_path)
+            print(f"Plot saved to {save_path}")
+        else:
+            plt.show()
 
     def evaluate_model(self):
         self.model.eval()
@@ -1232,7 +1232,21 @@ if __name__ == "__main__":
     threshold = 0.05
     al_points = 24
 
+    # # Load hyperparameters from command line
+    # lengthscale_min = float(sys.argv[1])
+    # lengthscale_max = float(sys.argv[2])
+    # outputscale_min = float(sys.argv[3])
+    # noise_min = float(sys.argv[4])
+    # noise_max = float(sys.argv[5])
+    # learning_rate = float(sys.argv[6])
+    # iterations = int(sys.argv[7])
+    # optimizer = sys.argv[8]
+
+
     args = parse_args()
+
+    params = f"ls_{args.lengthscale_min}_{args.lengthscale_max}_os_{args.outputscale_min}_n_{args.noise_min}_{args.noise_max}_lr_{args.learning_rate}_iter_{args.iterations}_opt_{args.optimizer}"
+
 
     if IsOnlyPlotting:
         gp_pipeline = GPModelPipeline(
@@ -1267,32 +1281,15 @@ if __name__ == "__main__":
                 start_root_file_path='/u/dvoss/al_pmssmwithgp/model/EWKino.csv',
                 output_dir=args.output_dir, initial_train_points=7000, valid_points=2000, n_dim=n_dim , threshold=threshold
             )
-            gp_pipeline.initialize_model()
-            gp_pipeline.train_model(iters=1000)
-            gp_pipeline.plot_losses()
+            gp_pipeline.initialize_model(lengthscale_max=args.lengthscale_max, lengthscale_min=args.lengthscale_min, 
+                                         outputscale_min=args.outputscale_min, noise_min=args.noise_min, noise_max=args.noise_max)
+            gp_pipeline.train_model(learning_rate=args.learning_rate, iters=args.iterations, optimizer=args.optimizer)
+            gp_pipeline.plot_losses(save_path=os.path.join(args.output_dir, f'confusion_matrix_{name}_{params}.png'))
             gp_pipeline.evaluate_model()
-            gp_pipeline.save_model(os.path.join(args.output_dir,f'model_checkpoint_{name}_rand.pth'))
+            gp_pipeline.save_model(os.path.join(args.output_dir,f'model_checkpoint_{name}_{params}.pth'))
 
-            gp_pipeline.goodness_of_fit(csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}.csv')
-            gp_pipeline.plot_conf_matrix(save_path=os.path.join(args.output_dir, f'confusion_matrix_{name}.png'))
-
-            gp_pipeline.plotGPTrueDifference(
-                        save_path=os.path.join(args.output_dir, f'gp_true_difference_{name}.png'),
-                        iteration=args.iteration
-                )
-            
-            #Generate all possible combinations of two dimensions from n_dim for plotting
-            combinations = list(itertools.combinations(range(n_dim), 4))
-
-            for (slice_dim_x1, slice_dim_x2, remaining_dim_0, remaining_dim_1) in combinations:
-                gp_pipeline.plotSlice2D(
-                            slice_dim_x1=slice_dim_x1, slice_dim_x2=slice_dim_x2, remaining_dims=[remaining_dim_0, remaining_dim_1],
-                            save_path=os.path.join(args.output_dir, f'gp_plot_{slice_dim_x1}_{slice_dim_x2}_{remaining_dim_0}_{remaining_dim_1}_{name}.png'),
-                            iteration=args.iteration
-                    )
-                gp_pipeline.plotDifference(slice_dim_x1=slice_dim_x1, slice_dim_x2=slice_dim_x2, save_path=os.path.join(args.output_dir, f'diff_plot_{slice_dim_x1}_{slice_dim_x2}_{name}.png'), iteration=args.iteration)
-                gp_pipeline.plotPull(slice_dim_x1=slice_dim_x1, slice_dim_x2=slice_dim_x2, save_path=os.path.join(args.output_dir, f'pull_plot_{slice_dim_x1}_{slice_dim_x2}_{name}.png'), iteration=args.iteration)
-                gp_pipeline.plotEntropy(slice_dim_x1=slice_dim_x1, slice_dim_x2=slice_dim_x2, save_path=os.path.join(args.output_dir, f'entropy_plot_{slice_dim_x1}_{slice_dim_x2}_{name}.png'), iteration=args.iteration)
+            gp_pipeline.goodness_of_fit(csv_path=f'/u/dvoss/al_pmssmwithgp/model/gof_{name}_{params}.csv')
+            gp_pipeline.plot_conf_matrix(save_path=os.path.join(args.output_dir, f'confusion_matrix_{name}_{params}.png'))
 
         else:
             previous_iter = args.iteration - 1
