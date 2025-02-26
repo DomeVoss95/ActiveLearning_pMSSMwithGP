@@ -4,7 +4,7 @@
 
 ## Set the paths and variables
 GP_MODEL_SCRIPT="/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py"
-ITERATIONS=50
+ITERATIONS=1
 
 
 for i in $(seq 1 ${ITERATIONS}); do

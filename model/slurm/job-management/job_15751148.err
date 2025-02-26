@@ -1,0 +1,28 @@
+Loading pytorch/gpu-cuda-11.6/2.0.0
+  Loading requirement: cudnn/8.8.1
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+ERROR: Could not find a version that satisfies the requirement scipy.stats (from versions: none)
+ERROR: No matching distribution found for scipy.stats
+ERROR: Could not find a version that satisfies the requirement scipy.interpolate (from versions: none)
+ERROR: No matching distribution found for scipy.interpolate
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/triangular_lazy_tensor.py:136: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  res = torch.triangular_solve(right_tensor, self.evaluate(), upper=self.upper).solution
+/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py:420: RuntimeWarning: invalid value encountered in true_divide
+  heatmap = heatmap / heatmap_counts
+/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py:442: RuntimeWarning: invalid value encountered in true_divide
+  heatmap = heatmap / heatmap_counts
+/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py:464: RuntimeWarning: invalid value encountered in true_divide
+  heatmap = heatmap / heatmap_counts
+/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py:366: UserWarning: No contour levels were found within the data range.
+  ax.contour(x1_grid, x2_grid, mean_grid, levels=[self.thr], colors='white', linewidths=2, linestyles='solid')
+/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py:506: RuntimeWarning: invalid value encountered in true_divide
+  heatmap = heatmap/heatmap_counts
+/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py:547: RuntimeWarning: invalid value encountered in true_divide
+  heatmap = heatmap/heatmap_counts
+/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py:508: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`).
+  plt.figure(figsize=(8, 6))

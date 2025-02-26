@@ -1,0 +1,48 @@
+Loading pytorch/gpu-cuda-11.6/2.0.0
+  Loading requirement: cudnn/8.8.1
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+ERROR: Could not find a version that satisfies the requirement scipy.stats (from versions: none)
+ERROR: No matching distribution found for scipy.stats
+ERROR: Could not find a version that satisfies the requirement scipy.interpolate (from versions: none)
+ERROR: No matching distribution found for scipy.interpolate
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/functions/_pivoted_cholesky.py:114: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  [L, torch.triangular_solve(Krows[..., m:, :].transpose(-1, -2), L, upper=False)[0].transpose(-1, -2)],
+/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py:366: UserWarning: No contour levels were found within the data range.
+  ax.contour(x1_grid, x2_grid, mean_grid, levels=[self.thr], colors='white', linewidths=2, linestyles='solid')
+/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py:404: RuntimeWarning: invalid value encountered in true_divide
+  heatmap = heatmap/heatmap_counts
+/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py:445: RuntimeWarning: invalid value encountered in true_divide
+  heatmap = heatmap/heatmap_counts
+/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py:448: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`).
+  plt.figure(figsize=(8, 6))
+Traceback (most recent call last):
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py", line 1182, in <module>
+    gp_pipeline.plotPull(slice_dim_x1=slice_dim_x1, slice_dim_x2=slice_dim_x2, save_path=os.path.join(args.output_dir, f'pull_plot_{slice_dim_x1}_{slice_dim_x2}_{name}.png'), iteration=args.iteration)
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodelRealData.py", line 431, in plotPull
+    predictions = self.model(self.x_all)
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/models/exact_gp.py", line 319, in __call__
+    predictive_mean, predictive_covar = self.prediction_strategy.exact_prediction(full_mean, full_covar)
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/models/exact_prediction_strategies.py", line 272, in exact_prediction
+    self.exact_predictive_covar(test_test_covar, test_train_covar),
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/models/exact_prediction_strategies.py", line 323, in exact_predictive_covar
+    covar_correction_rhs = train_train_covar.inv_matmul(train_test_covar)
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/lazy_tensor.py", line 1217, in inv_matmul
+    return func.apply(self.representation_tree(), False, right_tensor, *self.representation())
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/functions/_inv_matmul.py", line 53, in forward
+    solves = _solve(lazy_tsr, right_tensor)
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/functions/_inv_matmul.py", line 21, in _solve
+    return lazy_tsr._solve(rhs, preconditioner)
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/lazy_tensor.py", line 674, in _solve
+    return utils.linear_cg(
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/utils/linear_cg.py", line 251, in linear_cg
+    precond_residual = preconditioner(residual)
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/added_diag_lazy_tensor.py", line 114, in precondition_closure
+    return (1 / self._noise) * (tensor - qqt)
+RuntimeError: CUDA out of memory. Tried to allocate 328.00 MiB (GPU 0; 39.39 GiB total capacity; 36.84 GiB already allocated; 57.06 MiB free; 38.10 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+srun: error: ravg1083: task 0: Exited with exit code 1
+srun: Terminating StepId=15729616.0

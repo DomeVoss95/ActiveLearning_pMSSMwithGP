@@ -1,0 +1,29 @@
+Loading pytorch/gpu-cuda-11.6/2.0.0
+  Loading requirement: cudnn/8.8.1
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+ERROR: Could not find a version that satisfies the requirement scipy.stats (from versions: none)
+ERROR: No matching distribution found for scipy.stats
+ERROR: Could not find a version that satisfies the requirement scipy.interpolate (from versions: none)
+ERROR: No matching distribution found for scipy.interpolate
+Traceback (most recent call last):
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/module.py", line 433, in __getattr__
+    return super().__getattribute__(name)
+AttributeError: 'RBFKernel' object has no attribute 'base_kernel'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodelRealData_hyperScan.py", line 1284, in <module>
+    gp_pipeline.initialize_model(lengthscale_max=args.lengthscale_max, lengthscale_min=args.lengthscale_min, 
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodelRealData_hyperScan.py", line 189, in initialize_model
+    self.model.covar_module.base_kernel.register_constraint("raw_lengthscale", gpytorch.constraints.Interval(lengthscale_min, lengthscale_max))
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/module.py", line 435, in __getattr__
+    raise e
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/module.py", line 430, in __getattr__
+    return super().__getattr__(name)
+  File "/mpcdf/soft/SLE_15/packages/skylake/pytorch/gpu-cuda-11.6/anaconda_3_2021.11-2021.11/1.11.0/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1185, in __getattr__
+    raise AttributeError("'{}' object has no attribute '{}'".format(
+AttributeError: 'RBFKernel' object has no attribute 'base_kernel'
+srun: error: ravg1129: task 0: Exited with exit code 1
+srun: Terminating StepId=15794384.0

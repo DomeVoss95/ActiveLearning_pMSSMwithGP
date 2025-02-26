@@ -4,7 +4,7 @@
 
 # Set the paths and variables
 GP_MODEL_SCRIPT="/raven/u/dvoss/al_pmssmwithgp/model/TwoCirclesnD.py"
-ITERATIONS=1000
+ITERATIONS=100
 
 
 for i in $(seq 1 ${ITERATIONS}); do

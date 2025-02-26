@@ -1,0 +1,20 @@
+Loading pytorch/gpu-cuda-11.6/2.0.0
+  Loading requirement: cudnn/8.8.1
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+ERROR: Could not find a version that satisfies the requirement scipy.stats (from versions: none)
+ERROR: No matching distribution found for scipy.stats
+ERROR: Could not find a version that satisfies the requirement scipy.interpolate (from versions: none)
+ERROR: No matching distribution found for scipy.interpolate
+sed: can't read param_list.txt: No such file or directory
+usage: GPmodelRealData_hyperScan.py [-h] --iteration ITERATION --output_dir
+                                    OUTPUT_DIR --lengthscale_min
+                                    LENGTHSCALE_MIN --lengthscale_max
+                                    LENGTHSCALE_MAX --outputscale_min
+                                    OUTPUTSCALE_MIN --noise_min NOISE_MIN
+                                    --noise_max NOISE_MAX --learning_rate
+                                    LEARNING_RATE --iterations ITERATIONS
+                                    --optimizer OPTIMIZER
+GPmodelRealData_hyperScan.py: error: argument --lengthscale_min: invalid float value: ''
+srun: error: ravg1090: task 0: Exited with exit code 1
+srun: Terminating StepId=15794363.0

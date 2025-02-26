@@ -22,8 +22,6 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=dvoss@mpcdf.mpg.de
 
-#SBATCH --array=1-5  # Start 5 parallel Jobs 
-
 # Load compiler and MPI modules (must be the same as used in conda env)
 module purge
 module load anaconda/3/2021.11 # <-> python 3.9.
@@ -40,11 +38,7 @@ pip install seaborn
 pip install scipy.stats
 pip install scipy.interpolate 
 
-# Get hyperparameters
-PARAM_FILE="/u/dvoss/al_pmssmwithgp/model/slurm/param_list.txt"
-PARAMS=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $PARAM_FILE)
-
 # Start run
-srun /raven/u/dvoss/al_pmssmwithgp/model/slurm/job_RealData_hyperScan.sh $PARAMS
+srun /raven/u/dvoss/al_pmssmwithgp/model/slurm/job_RealData.sh
 
 

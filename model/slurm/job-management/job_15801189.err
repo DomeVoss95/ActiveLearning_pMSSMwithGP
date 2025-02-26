@@ -1,0 +1,48 @@
+Loading pytorch/gpu-cuda-11.6/2.0.0
+  Loading requirement: cudnn/8.8.1
+Loading gpytorch/gpu-cuda-11.6/pytorch-1.11.0/1.8.0
+  Loading requirement: cudnn/8.4.1 pytorch/gpu-cuda-11.6/1.11.0
+ERROR: Could not find a version that satisfies the requirement scipy.stats (from versions: none)
+ERROR: No matching distribution found for scipy.stats
+ERROR: Could not find a version that satisfies the requirement scipy.interpolate (from versions: none)
+ERROR: No matching distribution found for scipy.interpolate
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/utils/linear_cg.py:321: NumericalWarning: CG terminated in 1000 iterations with average residual norm nan which is larger than the tolerance of 1e-05 specified by gpytorch.settings.cg_tolerance. If performance is affected, consider raising the maximum number of CG iterations by running code in a gpytorch.settings.max_cg_iterations(value) context.
+  warnings.warn(
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/functions/_pivoted_cholesky.py:114: UserWarning: torch.triangular_solve is deprecated in favor of torch.linalg.solve_triangularand will be removed in a future PyTorch release.
+torch.linalg.solve_triangular has its arguments reversed and does not return a copy of one of the inputs.
+X = torch.triangular_solve(B, A).solution
+should be replaced with
+X = torch.linalg.solve_triangular(A, B). (Triggered internally at  /home/abuild/rpmbuild/BUILD/pytorch-1.11.0/aten/src/ATen/native/BatchLinearAlgebra.cpp:1666.)
+  [L, torch.triangular_solve(Krows[..., m:, :].transpose(-1, -2), L, upper=False)[0].transpose(-1, -2)],
+/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/added_diag_lazy_tensor.py:102: NumericalWarning: NaNs encountered in preconditioner computation. Attempting to continue without preconditioning.
+  warnings.warn(
+Traceback (most recent call last):
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodelRealData_hyperScan.py", line 1286, in <module>
+    gp_pipeline.train_model(learning_rate=args.learning_rate, iters=args.iterations, optimizer=args.optimizer)
+  File "/u/dvoss/al_pmssmwithgp/model/GPmodelRealData_hyperScan.py", line 200, in train_model
+    self.best_model, self.losses, self.losses_valid = self.model.do_train_loop(lr=learning_rate, iters=iters, optimizer=optimizer)
+  File "/raven/u/dvoss/al_pmssmwithgp/model/multitaskGPnD.py", line 129, in do_train_loop
+    observed_pred_valid = self.likelihood(self(self.x_valid))
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/models/exact_gp.py", line 319, in __call__
+    predictive_mean, predictive_covar = self.prediction_strategy.exact_prediction(full_mean, full_covar)
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/models/exact_prediction_strategies.py", line 271, in exact_prediction
+    self.exact_predictive_mean(test_mean, test_train_covar),
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/models/exact_prediction_strategies.py", line 289, in exact_predictive_mean
+    res = (test_train_covar @ self.mean_cache.unsqueeze(-1)).squeeze(-1)
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/utils/memoize.py", line 59, in g
+    return _add_to_cache(self, cache_name, method(self, *args, **kwargs), *args, kwargs_pkl=kwargs_pkl)
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/models/exact_prediction_strategies.py", line 238, in mean_cache
+    mean_cache = train_train_covar.evaluate_kernel().inv_matmul(train_labels_offset).squeeze(-1)
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/lazy_tensor.py", line 1217, in inv_matmul
+    return func.apply(self.representation_tree(), False, right_tensor, *self.representation())
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/functions/_inv_matmul.py", line 53, in forward
+    solves = _solve(lazy_tsr, right_tensor)
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/functions/_inv_matmul.py", line 21, in _solve
+    return lazy_tsr._solve(rhs, preconditioner)
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/lazy/lazy_tensor.py", line 674, in _solve
+    return utils.linear_cg(
+  File "/mpcdf/soft/SLE_15/packages/skylake/gpytorch/gpu-cuda-11.6/pytorch-1.11.0/anaconda_3_2021.11-2021.11/1.8.0/lib/python3.9/site-packages/gpytorch/utils/linear_cg.py", line 188, in linear_cg
+    raise RuntimeError("NaNs encountered when trying to perform matrix-vector multiplication")
+RuntimeError: NaNs encountered when trying to perform matrix-vector multiplication
+srun: error: ravg1117: task 0: Exited with exit code 1
+srun: Terminating StepId=15801189.0
